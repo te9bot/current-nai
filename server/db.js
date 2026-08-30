@@ -46,6 +46,12 @@ if (!existingColumns.has("area_id")) {
 if (!existingColumns.has("landmark")) {
   db.exec(`ALTER TABLE reports ADD COLUMN landmark TEXT`);
 }
+if (!existingColumns.has("resolve_token_hash")) {
+  // SHA-256 hash of the per-report resolve token, never the raw token — the
+  // raw value is returned to the client once at creation time and otherwise
+  // only ever exists in transit, not at rest.
+  db.exec(`ALTER TABLE reports ADD COLUMN resolve_token_hash TEXT`);
+}
 
 db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_provider ON reports (provider_id);`);
 db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_division ON reports (division_id);`);

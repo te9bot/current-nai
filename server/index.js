@@ -4,6 +4,7 @@ import compression from "compression";
 import { rateLimit } from "express-rate-limit";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import crypto from "node:crypto";
 import { db } from "./db.js";
 import { seedIfEmpty } from "./seed.js";
 
@@ -40,6 +41,26 @@ const VALID_SORT = new Set(["latest", "longest", "confirmed"]);
  */
 const pad = (n) => String(n).padStart(2, "0");
 const localTime = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+/**
+ * Per-report resolve authorization. There are no accounts, so ownership is
+ * proven by possessing a random secret handed back only once, at creation
+ * time — never a guessable value like the report's own sequential id. Only
+ * the hash is persisted; the raw token exists just long enough to be
+ * returned to the client and compared against on resolve.
+ */
+function generateResolveToken() {
+  return crypto.randomBytes(32).toString("base64url");
+}
+function hashResolveToken(token) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
+function resolveTokenMatches(providedToken, storedHash) {
+  if (!storedHash || typeof providedToken !== "string" || !providedToken) return false;
+  const provided = Buffer.from(hashResolveToken(providedToken), "hex");
+  const stored = Buffer.from(storedHash, "hex");
+  return provided.length === stored.length && crypto.timingSafeEqual(provided, stored);
+}
 
 /**
  * Outage length in minutes. A report with no end time is still ongoing, so it is
@@ -186,15 +207,24 @@ app.post("/api/reports/:id/confirm", writeLimiter, (req, res) => {
 /**
  * Marks an ongoing outage report as resolved ("power's back") by setting its
  * end time to now, instead of the reporter filing a duplicate new report.
- * Ownership isn't checked server-side — same anonymous trust model as confirm,
- * where the frontend only shows this action for reports it locally remembers.
+ * Requires the per-report resolve token issued at creation time — report ids
+ * are sequential and therefore guessable, so the id alone proves nothing.
  */
 app.post("/api/reports/:id/resolve", writeLimiter, (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.status(400).json({ error: "invalid_id" });
 
+  const { resolveToken } = req.body || {};
+  if (typeof resolveToken !== "string" || !resolveToken) {
+    return res.status(401).json({ error: "resolve_token_required" });
+  }
+
   const existing = db.prepare("SELECT * FROM reports WHERE id = ?").get(id);
   if (!existing) return res.status(404).json({ error: "not_found" });
+
+  if (!resolveTokenMatches(resolveToken, existing.resolve_token_hash)) {
+    return res.status(403).json({ error: "invalid_resolve_token" });
+  }
   if (existing.status !== "load_shedding" || existing.end_time) {
     return res.status(409).json({ error: "not_resolvable" });
   }
@@ -260,9 +290,11 @@ app.post("/api/reports", writeLimiter, (req, res) => {
     return res.status(400).json({ error: "start_time_required" });
   }
 
+  const resolveToken = generateResolveToken();
+
   const insert = db.prepare(`
-    INSERT INTO reports (division_id, district_id, area, area_id, landmark, provider_id, status, outage_date, start_time, end_time, note)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO reports (division_id, district_id, area, area_id, landmark, provider_id, status, outage_date, start_time, end_time, note, resolve_token_hash)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const result = insert.run(
     divisionId,
@@ -275,11 +307,15 @@ app.post("/api/reports", writeLimiter, (req, res) => {
     status === "load_shedding" ? outageDate : null,
     status === "load_shedding" ? startTime : null,
     status === "load_shedding" ? endTime || null : null,
-    (note || "").trim()
+    (note || "").trim(),
+    hashResolveToken(resolveToken)
   );
 
   const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(result.lastInsertRowid);
-  res.status(201).json({ report: serializeReport(row) });
+  // resolveToken is returned exactly once, here — it is never included in
+  // serializeReport(), so it never comes back on GET /api/reports, confirm,
+  // or resolve responses.
+  res.status(201).json({ report: serializeReport(row), resolveToken });
 });
 
 // In production the frontend is a static build served by this same process

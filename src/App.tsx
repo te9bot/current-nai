@@ -87,10 +87,10 @@ export default function App() {
     setLocalReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
   }
 
-  const myReportIds = useMemo(() => readMyReports(), [myReportsOpen]);
+  const myReportTokens = useMemo(() => readMyReports(), [myReportsOpen]);
   const myReports = useMemo(
-    () => allReports.filter((r) => myReportIds.has(r.id)),
-    [allReports, myReportIds]
+    () => allReports.filter((r) => myReportTokens.has(r.id)),
+    [allReports, myReportTokens]
   );
 
   return (
@@ -174,6 +174,7 @@ export default function App() {
       {myReportsOpen && (
         <MyReports
           reports={myReports}
+          tokens={myReportTokens}
           onClose={() => setMyReportsOpen(false)}
           onResolved={handleResolved}
         />

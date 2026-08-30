@@ -9,11 +9,19 @@ import clsx from "../utils/clsx";
 
 interface Props {
   reports: Report[];
+  /** Report id -> resolve token, proving this browser owns each report. */
+  tokens: Map<number, string>;
   onClose: () => void;
   onResolved: (report: Report) => void;
 }
 
-function MyReportRow({ report, onResolved }: { report: Report; onResolved: (report: Report) => void }) {
+interface RowProps {
+  report: Report;
+  resolveToken: string;
+  onResolved: (report: Report) => void;
+}
+
+function MyReportRow({ report, resolveToken, onResolved }: RowProps) {
   const { t, i18n } = useTranslation();
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -27,7 +35,7 @@ function MyReportRow({ report, onResolved }: { report: Report; onResolved: (repo
     setPending(true);
     setFailed(false);
     try {
-      const updated = await resolveReport(report.id);
+      const updated = await resolveReport(report.id, resolveToken);
       onResolved(updated);
     } catch {
       setFailed(true);
@@ -74,9 +82,9 @@ function MyReportRow({ report, onResolved }: { report: Report; onResolved: (repo
   );
 }
 
-export default function MyReports({ reports, onClose, onResolved }: Props) {
+export default function MyReports({ reports, tokens, onClose, onResolved }: Props) {
   const { t } = useTranslation();
-  const ongoing = reports.filter((r) => r.status === "load_shedding" && !r.endTime);
+  const ongoing = reports.filter((r) => r.status === "load_shedding" && !r.endTime && tokens.has(r.id));
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-950/80 backdrop-blur-md sm:items-center sm:p-4">
@@ -108,7 +116,7 @@ export default function MyReports({ reports, onClose, onResolved }: Props) {
         ) : (
           <div>
             {ongoing.map((r) => (
-              <MyReportRow key={r.id} report={r} onResolved={onResolved} />
+              <MyReportRow key={r.id} report={r} resolveToken={tokens.get(r.id)!} onResolved={onResolved} />
             ))}
           </div>
         )}

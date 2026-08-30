@@ -96,8 +96,8 @@ export default function ReportForm({ onClose, onCreated }: Props) {
     };
 
     try {
-      const report = await createReport(input);
-      rememberMyReport(report.id);
+      const { report, resolveToken } = await createReport(input);
+      rememberMyReport(report.id, resolveToken);
       onCreated(report);
       setSuccess(true);
       setTimeout(onClose, 1100);

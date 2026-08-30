@@ -1,20 +1,23 @@
 const MY_REPORTS_KEY = "current-nai-my-reports";
 
-/** Report ids this browser has submitted, so it can offer to update them later. */
-export function readMyReports(): Set<number> {
+/** Report ids this browser has submitted, mapped to the per-report resolve
+ *  token returned at creation time — required server-side to prove ownership
+ *  when resolving later. */
+export function readMyReports(): Map<number, string> {
   try {
     const raw = localStorage.getItem(MY_REPORTS_KEY);
-    return new Set<number>(raw ? JSON.parse(raw) : []);
+    const entries = raw ? (JSON.parse(raw) as [number, string][]) : [];
+    return new Map(entries);
   } catch {
-    return new Set();
+    return new Map();
   }
 }
 
-export function rememberMyReport(id: number) {
+export function rememberMyReport(id: number, resolveToken: string) {
   try {
     const next = readMyReports();
-    next.add(id);
-    localStorage.setItem(MY_REPORTS_KEY, JSON.stringify([...next]));
+    next.set(id, resolveToken);
+    localStorage.setItem(MY_REPORTS_KEY, JSON.stringify([...next.entries()]));
   } catch {
     /* storage unavailable (private mode) — the report just won't be tracked */
   }

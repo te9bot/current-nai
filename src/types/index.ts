@@ -46,6 +46,13 @@ export interface Report {
   createdAt: string;
 }
 
+export interface CreateReportResult {
+  report: Report;
+  /** Proves ownership for a later resolve call. Returned once, at creation
+   *  time, and never included on any other endpoint's response. */
+  resolveToken: string;
+}
+
 export interface NewReportInput {
   divisionId: string;
   districtId: string;

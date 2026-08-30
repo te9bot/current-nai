@@ -1,4 +1,4 @@
-import type { NewReportInput, Patterns, Report, Stats, Summary } from "../types";
+import type { CreateReportResult, NewReportInput, Patterns, Report, Stats, Summary } from "../types";
 
 export interface PatternFilters {
   division?: string;
@@ -40,7 +40,7 @@ export async function fetchStats(): Promise<Stats> {
   return res.json();
 }
 
-export async function createReport(input: NewReportInput): Promise<Report> {
+export async function createReport(input: NewReportInput): Promise<CreateReportResult> {
   const res = await fetch("/api/reports", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -51,7 +51,7 @@ export async function createReport(input: NewReportInput): Promise<Report> {
     throw new Error(body.error || `Failed to create report: ${res.status}`);
   }
   const data = await res.json();
-  return data.report as Report;
+  return { report: data.report as Report, resolveToken: data.resolveToken as string };
 }
 
 export async function confirmReport(id: number): Promise<Report> {
@@ -61,8 +61,12 @@ export async function confirmReport(id: number): Promise<Report> {
   return data.report as Report;
 }
 
-export async function resolveReport(id: number): Promise<Report> {
-  const res = await fetch(`/api/reports/${id}/resolve`, { method: "POST" });
+export async function resolveReport(id: number, resolveToken: string): Promise<Report> {
+  const res = await fetch(`/api/reports/${id}/resolve`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ resolveToken }),
+  });
   if (!res.ok) throw new Error(`Failed to resolve report: ${res.status}`);
   const data = await res.json();
   return data.report as Report;
