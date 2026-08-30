@@ -14,6 +14,8 @@ interface Props {
   /** When set, the map flies here and drops a "you are here" marker. */
   focus: LatLng | null;
   focusLabel?: string;
+  /** Radius filter in km, drawn as a pulsing radar ring around the focus point. 0/undefined hides it. */
+  radiusKm?: number;
 }
 
 /** Escape values before they go into Leaflet popup HTML. */
@@ -47,12 +49,13 @@ const focusIcon = L.divIcon({
     box-shadow:0 0 0 4px rgba(20,20,20,.12);"></span>`,
 });
 
-export default function MapView({ reports, focus, focusLabel }: Props) {
+export default function MapView({ reports, focus, focusLabel, radiusKm }: Props) {
   const { t, i18n } = useTranslation();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerLayerRef = useRef<L.LayerGroup | null>(null);
   const focusMarkerRef = useRef<L.Marker | null>(null);
+  const radiusCircleRef = useRef<L.Circle | null>(null);
 
   // Create the map once.
   useEffect(() => {
@@ -96,6 +99,7 @@ export default function MapView({ reports, focus, focusLabel }: Props) {
       mapRef.current = null;
       markerLayerRef.current = null;
       focusMarkerRef.current = null;
+      radiusCircleRef.current = null;
     };
   }, []);
 
@@ -166,6 +170,31 @@ export default function MapView({ reports, focus, focusLabel }: Props) {
     if (focusLabel) marker.bindTooltip(focusLabel, { direction: "top", offset: [0, -12] });
     focusMarkerRef.current = marker;
   }, [focus, focusLabel]);
+
+  // Draw the radius filter as a pulsing radar ring, redrawn every time the
+  // origin or the picked distance (25/50/100 km) changes.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (radiusCircleRef.current) {
+      radiusCircleRef.current.remove();
+      radiusCircleRef.current = null;
+    }
+    if (!focus || !radiusKm) return;
+
+    const circle = L.circle([focus.lat, focus.lng], {
+      radius: radiusKm * 1000,
+      className: "radar-circle",
+      color: "#F2B705",
+      weight: 2,
+      dashArray: "6 6",
+      fillColor: "#F2B705",
+      fillOpacity: 0.06,
+      interactive: false,
+    }).addTo(map);
+    radiusCircleRef.current = circle;
+  }, [focus, radiusKm]);
 
   return (
     <div

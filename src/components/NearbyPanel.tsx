@@ -166,7 +166,7 @@ export default function NearbyPanel({ reports, onRegionChange }: Props) {
         )}
       </div>
 
-      <MapView reports={reports} focus={origin} focusLabel={originLabel || undefined} />
+      <MapView reports={reports} focus={origin} focusLabel={originLabel || undefined} radiusKm={radiusKm} />
 
       {/* Nearby results */}
       <div className="border-t border-black/8">
