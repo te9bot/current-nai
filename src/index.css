@@ -169,18 +169,20 @@ html[lang="bn"] button {
 }
 
 /* Radar ring for the nearby-panel distance filter (25/50/100 km) — a slow
-   breathing glow so the active radius reads as "live" on the map. */
+   breathing glow so the active radius reads as "live" on the map. Animates
+   `opacity` (compositor-only) rather than fill-/stroke-opacity: those force a
+   repaint of the SVG path on every frame, which fought with the map's own
+   zoom repainting and made zooming feel laggy. */
 .radar-circle {
+  will-change: opacity;
   animation: radar-pulse 2.4s ease-in-out infinite;
 }
 @keyframes radar-pulse {
   0%,
   100% {
-    fill-opacity: 0.04;
-    stroke-opacity: 0.55;
+    opacity: 0.55;
   }
   50% {
-    fill-opacity: 0.16;
-    stroke-opacity: 1;
+    opacity: 1;
   }
 }
