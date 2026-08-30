@@ -170,6 +170,16 @@ app.get("/api/reports", asyncHandler(async (req, res) => {
  * lets "My reports" recover after a cleared browser, a new device, or a
  * plain logged-out/back-again visit. See hashIp() above.
  */
+// TEMP DEBUG — remove before finalizing. Diagnosing unstable req.ip behind Render's proxy.
+app.get("/api/debug/ip", (req, res) => {
+  res.json({
+    ip: req.ip,
+    ips: req.ips,
+    xff: req.headers["x-forwarded-for"],
+    remoteAddress: req.socket.remoteAddress,
+  });
+});
+
 app.get("/api/reports/mine", asyncHandler(async (req, res) => {
   const ipHash = hashIp(req.ip);
   const rows = await all(
