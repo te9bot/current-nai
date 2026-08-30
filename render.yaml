@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: current-nai
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22.11.0
+    autoDeploy: true

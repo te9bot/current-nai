@@ -1,8 +1,11 @@
 import express from "express";
 import cors from "cors";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { db } from "./db.js";
 import { seedIfEmpty } from "./seed.js";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 4000;
 
 seedIfEmpty();
@@ -195,6 +198,16 @@ app.post("/api/reports", (req, res) => {
   const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(result.lastInsertRowid);
   res.status(201).json({ report: serializeReport(row) });
 });
+
+// In production the frontend is a static build served by this same process
+// (single Render web service instead of a separate static site).
+if (process.env.NODE_ENV === "production") {
+  const distDir = path.join(__dirname, "..", "dist");
+  app.use(express.static(distDir));
+  app.get(/^(?!\/api\/).*/, (req, res) => {
+    res.sendFile(path.join(distDir, "index.html"));
+  });
+}
 
 app.use((req, res) => {
   res.status(404).json({ error: "not_found" });
