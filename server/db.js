@@ -15,6 +15,10 @@ export const pool = new Pool({
   // default trust store; this is the standard accommodation for that
   // without turning encryption off outright.
   ssl: { rejectUnauthorized: false },
+  // pg's default (10) queues requests for a free client under concurrent
+  // polling traffic well before Supabase's own pooler limit is anywhere
+  // close. Raised so that ceiling isn't the first thing to bottleneck.
+  max: 20,
 });
 
 export async function all(sql, params = []) {
