@@ -4,6 +4,9 @@ A community-reported electricity / load-shedding status tracker for Bangladesh. 
 report whether their area currently has power or is in load-shedding, and everyone can
 browse a live, filterable board of reports.
 
+**Live:** https://current-nai-k2e1.onrender.com (free tier — spins down after 15 minutes
+of inactivity, so the first request after a while can take ~30-60s to wake up)
+
 ## Stack
 
 - **Frontend:** React + Vite + TypeScript, Tailwind CSS
