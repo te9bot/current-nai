@@ -14,9 +14,10 @@ import Board from "./components/Board";
 import ReportForm from "./components/ReportForm";
 import MyReports from "./components/MyReports";
 import Faq from "./components/Faq";
-import About from "./components/About";
+import AboutPage from "./components/AboutPage";
 import Reveal from "./components/Reveal";
 import { useReports } from "./hooks/useReports";
+import { useRoute } from "./hooks/useRoute";
 import { getDistrict } from "./data/locations";
 import { providerName } from "./data/providers";
 import { readMyReports } from "./utils/myReports";
@@ -25,6 +26,7 @@ import type { LatLng } from "./utils/geo";
 
 export default function App() {
   const { t, i18n } = useTranslation();
+  const [route, navigate] = useRoute();
   const { reports, summary, stats, loading, error, refresh, applyUpdate } = useReports();
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
   const [formOpen, setFormOpen] = useState(false);
@@ -94,6 +96,10 @@ export default function App() {
     [allReports, myReportTokens]
   );
 
+  if (route === "/about") {
+    return <AboutPage onBack={() => navigate("/")} />;
+  }
+
   return (
     <div className="relative min-h-screen bg-ink-950">
       <MapBackdrop focus={mapFocus} />
@@ -155,15 +161,16 @@ export default function App() {
             </div>
           </Reveal>
 
-          <Reveal>
-            <div className="mb-4">
-              <About />
-            </div>
-          </Reveal>
-
           <footer className="mt-8 border-t border-black/8 pt-6 text-center text-[11px] leading-relaxed text-grey-600">
             <p>{t("footer.disclaimer")}</p>
             <p className="mt-1">{t("footer.builtWith")}</p>
+            <button
+              type="button"
+              onClick={() => navigate("/about")}
+              className="mt-3 font-semibold text-grey-500 underline-offset-2 hover:text-grey-900 hover:underline"
+            >
+              {t("about.link")}
+            </button>
           </footer>
         </main>
       </div>

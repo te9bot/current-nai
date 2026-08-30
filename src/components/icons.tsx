@@ -5,6 +5,7 @@ import {
   X,
   ChevronDown,
   ChevronRight,
+  ChevronLeft,
   Plus,
   AlertTriangle,
   Users,
@@ -25,6 +26,7 @@ export const SearchIcon = Search;
 export const XIcon = X;
 export const ChevronDownIcon = ChevronDown;
 export const ChevronRightIcon = ChevronRight;
+export const ChevronLeftIcon = ChevronLeft;
 export const PlusIcon = Plus;
 export const AlertIcon = AlertTriangle;
 export const UsersIcon = Users;

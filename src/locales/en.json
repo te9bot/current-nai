@@ -208,6 +208,8 @@
     }
   },
   "about": {
+    "link": "Who built this",
+    "back": "Back to home",
     "title": "Who built this",
     "subtitle": "The person behind কারেন্ট Koi?",
     "role": "Creator",
