@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import crypto from "node:crypto";
 import { db } from "./db.js";
-import { seedIfEmpty } from "./seed.js";
+import { seedIfEmpty, resetAndSeed } from "./seed.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 4000;
@@ -274,6 +274,22 @@ app.get("/api/patterns", (req, res) => {
   }
 
   res.json({ hourly: counts.map((count, hour) => ({ hour, count })) });
+});
+
+// TEMPORARY: one-off maintenance endpoint to trim a live database's demo
+// dataset without needing paid Shell access. Requires ADMIN_RESET_TOKEN set
+// as an env var — with no token configured, the route always 403s, so it's
+// inert until deliberately enabled. Remove this route (and the env var)
+// once no longer needed; it's not meant to stay in production long-term.
+app.post("/api/admin/reset-seed", writeLimiter, (req, res) => {
+  const expected = process.env.ADMIN_RESET_TOKEN;
+  const provided = req.get("x-admin-token");
+  if (!expected || !provided || provided !== expected) {
+    return res.status(403).json({ error: "forbidden" });
+  }
+  resetAndSeed();
+  const count = db.prepare("SELECT COUNT(*) AS count FROM reports").get().count;
+  res.json({ ok: true, count });
 });
 
 app.post("/api/reports", writeLimiter, (req, res) => {
