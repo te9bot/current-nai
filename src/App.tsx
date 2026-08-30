@@ -14,6 +14,7 @@ import Board from "./components/Board";
 import ReportForm from "./components/ReportForm";
 import MyReports from "./components/MyReports";
 import Faq from "./components/Faq";
+import About from "./components/About";
 import Reveal from "./components/Reveal";
 import { useReports } from "./hooks/useReports";
 import { getDistrict } from "./data/locations";
@@ -151,6 +152,12 @@ export default function App() {
           <Reveal>
             <div className="mb-4 mt-4 sm:mt-6">
               <Faq />
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div className="mb-4">
+              <About />
             </div>
           </Reveal>
 

@@ -207,6 +207,13 @@
       "a": "No accounts and no personal data are collected. The only location info stored is the division/district/area you choose when reporting. Which reports you've confirmed is remembered only in your own browser, not on a server."
     }
   },
+  "about": {
+    "title": "Who built this",
+    "subtitle": "The person behind কারেন্ট Koi?",
+    "role": "Creator",
+    "name": "Talha Zobayed Tanim",
+    "bio": "Background in data analytics, research, and statistics. Studied at National University; incoming freshman (Class of 2030) at Allegheny College, majoring in Data Science with a minor in Economics."
+  },
   "myReports": {
     "entryButton": "My reports",
     "title": "My reports",
