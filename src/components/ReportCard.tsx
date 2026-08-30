@@ -73,7 +73,12 @@ export default function ReportCard({ report, now, onConfirmed }: Props) {
   }
 
   return (
-    <article className="flex flex-col gap-2.5 rounded-lg border border-black/8 bg-ink-900 p-4 shadow-pin transition-shadow duration-fast hover:shadow-callout">
+    <article
+      className={clsx(
+        "flex flex-col gap-2.5 rounded-lg border border-black/8 bg-ink-900 p-4 shadow-pin transition-shadow duration-fast",
+        isOn ? "hover:shadow-glow-leaf-soft" : "hover:shadow-glow-rust-soft"
+      )}
+    >
       <div className="flex min-w-0 items-center gap-2">
         <span
           className={clsx(
