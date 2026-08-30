@@ -1,0 +1,19 @@
+node_modules/
+dist/
+
+# SQLite database — regenerated and reseeded on first server start
+server/*.sqlite
+server/*.sqlite-journal
+
+# Local editor/tool settings
+.claude/settings.local.json
+.vscode/
+.idea/
+
+# Build/type caches
+*.tsbuildinfo
+
+.DS_Store
+*.local
+.env
+.env.*

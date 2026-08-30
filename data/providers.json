@@ -1,0 +1,51 @@
+[
+  {
+    "id": "dpdc",
+    "en": "DPDC",
+    "bn": "ডিপিডিসি",
+    "fullEn": "Dhaka Power Distribution Company",
+    "fullBn": "ঢাকা পাওয়ার ডিস্ট্রিবিউশন কোম্পানি"
+  },
+  {
+    "id": "desco",
+    "en": "DESCO",
+    "bn": "ডেসকো",
+    "fullEn": "Dhaka Electric Supply Company",
+    "fullBn": "ঢাকা ইলেকট্রিক সাপ্লাই কোম্পানি"
+  },
+  {
+    "id": "bpdb",
+    "en": "BPDB",
+    "bn": "বিপিডিবি",
+    "fullEn": "Bangladesh Power Development Board",
+    "fullBn": "বাংলাদেশ বিদ্যুৎ উন্নয়ন বোর্ড"
+  },
+  {
+    "id": "palli_bidyut",
+    "en": "Palli Bidyut (REB)",
+    "bn": "পল্লী বিদ্যুৎ (আরইবি)",
+    "fullEn": "Rural Electrification Board / Palli Bidyut Samity",
+    "fullBn": "পল্লী বিদ্যুতায়ন বোর্ড / পল্লী বিদ্যুৎ সমিতি"
+  },
+  {
+    "id": "nesco",
+    "en": "NESCO",
+    "bn": "নেসকো",
+    "fullEn": "Northern Electricity Supply Company",
+    "fullBn": "নর্দান ইলেকট্রিসিটি সাপ্লাই কোম্পানি"
+  },
+  {
+    "id": "wzpdcl",
+    "en": "WZPDCL",
+    "bn": "ওজোপাডিকো",
+    "fullEn": "West Zone Power Distribution Company",
+    "fullBn": "ওয়েস্ট জোন পাওয়ার ডিস্ট্রিবিউশন কোম্পানি"
+  },
+  {
+    "id": "unknown",
+    "en": "Not sure",
+    "bn": "জানি না",
+    "fullEn": "Provider not known",
+    "fullBn": "সরবরাহকারী জানা নেই"
+  }
+]

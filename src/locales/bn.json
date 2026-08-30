@@ -1,0 +1,170 @@
+{
+  "app": {
+    "name": "কারেন্ট নাই",
+    "tagline": "বাংলাদেশের জন্য কমিউনিটি বিদ্যুৎ পরিস্থিতি"
+  },
+  "header": {
+    "switchToEnglish": "English",
+    "switchToBangla": "বাংলা",
+    "reportButton": "স্ট্যাটাস রিপোর্ট করুন"
+  },
+  "status": {
+    "powerOn": "বিদ্যুৎ আছে",
+    "loadShedding": "লোডশেডিং",
+    "unknown": "অজানা"
+  },
+  "summary": {
+    "powerOn": "বিদ্যুৎ আছে এমন এলাকা",
+    "loadShedding": "লোডশেডিং এলাকা",
+    "totalReports": "মোট রিপোর্ট"
+  },
+  "ticker": {
+    "label": "লাইভ",
+    "empty": "প্রথম রিপোর্টের অপেক্ষায়...",
+    "reportedPowerOn": "{{area}}, {{district}}: বিদ্যুৎ আছে",
+    "reportedLoadShedding": "{{area}}, {{district}}: লোডশেডিং"
+  },
+  "filters": {
+    "title": "ফিল্টার",
+    "division": "বিভাগ",
+    "allDivisions": "সব বিভাগ",
+    "status": "অবস্থা",
+    "allStatuses": "সব অবস্থা",
+    "search": "খুঁজুন",
+    "searchPlaceholder": "এলাকা বা জেলা দিয়ে খুঁজুন...",
+    "clear": "ফিল্টার মুছুন"
+  },
+  "board": {
+    "title": "লাইভ বোর্ড",
+    "subtitle": "সাম্প্রতিক রিপোর্ট আগে দেখানো হচ্ছে",
+    "empty": "আপনার ফিল্টারের সাথে মিলে এমন কোনো রিপোর্ট নেই।",
+    "emptyAll": "এখনও কোনো রিপোর্ট নেই। আপনার এলাকার অবস্থা সবার আগে জানান।",
+    "loading": "রিপোর্ট লোড হচ্ছে...",
+    "error": "রিপোর্ট লোড করা যায়নি। আবার চেষ্টা করা হচ্ছে...",
+    "note": "মন্তব্য",
+    "outageWindow": "{{start}} – {{end}}",
+    "outageOngoing": "{{start}} – চলমান",
+    "reportsCount_one": "{{count}}টি রিপোর্ট",
+    "reportsCount_other": "{{count}}টি রিপোর্ট"
+  },
+  "form": {
+    "heading": "আপনার এলাকার অবস্থা জানান",
+    "subheading": "গ্রিডে কী ঘটছে তা প্রতিবেশীদের জানাতে সাহায্য করুন।",
+    "division": "বিভাগ",
+    "divisionPlaceholder": "বিভাগ নির্বাচন করুন",
+    "district": "জেলা / শহর",
+    "districtPlaceholder": "জেলা নির্বাচন করুন",
+    "districtPlaceholderNoDivision": "প্রথমে বিভাগ নির্বাচন করুন",
+    "area": "এলাকা / স্থান",
+    "areaPlaceholder": "যেমন: ধানমন্ডি, ওয়ার্ড ১২, মিরপুর থানা",
+    "statusLabel": "বর্তমান অবস্থা",
+    "statusPowerOn": "বিদ্যুৎ আছে",
+    "statusLoadShedding": "লোডশেডিং",
+    "date": "তারিখ",
+    "startTime": "শুরুর সময়",
+    "endTime": "শেষ সময়",
+    "endTimeHint": "এখনও চললে খালি রাখুন",
+    "note": "মন্তব্য (ঐচ্ছিক)",
+    "notePlaceholder": "প্রতিবেশীদের জন্য অতিরিক্ত তথ্য...",
+    "submit": "রিপোর্ট জমা দিন",
+    "submitting": "জমা দেওয়া হচ্ছে...",
+    "success": "ধন্যবাদ! আপনার রিপোর্ট বোর্ডে যুক্ত হয়েছে।",
+    "errorGeneric": "কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।",
+    "close": "বন্ধ করুন"
+  },
+  "validation": {
+    "divisionRequired": "অনুগ্রহ করে একটি বিভাগ নির্বাচন করুন",
+    "districtRequired": "অনুগ্রহ করে একটি জেলা নির্বাচন করুন",
+    "areaRequired": "অনুগ্রহ করে এলাকা বা স্থানের নাম লিখুন",
+    "statusRequired": "অনুগ্রহ করে একটি অবস্থা নির্বাচন করুন",
+    "dateRequired": "অনুগ্রহ করে বিদ্যুৎ বিভ্রাটের তারিখ লিখুন",
+    "startTimeRequired": "অনুগ্রহ করে শুরুর সময় লিখুন"
+  },
+  "relativeTime": {
+    "justNow": "এইমাত্র",
+    "minutesAgo": "{{count}} মিনিট আগে",
+    "hoursAgo": "{{count}} ঘণ্টা আগে",
+    "daysAgo": "{{count}} দিন আগে"
+  },
+  "footer": {
+    "disclaimer": "রিপোর্টগুলো কমিউনিটি কর্তৃক জমা দেওয়া এবং সরকারি বিদ্যুৎ সংস্থার তথ্যের সাথে যাচাই করা হয়নি।",
+    "builtWith": "আরও স্বচ্ছ বিদ্যুৎ গ্রিডের জন্য তৈরি।"
+  },
+  "map": {
+    "title": "আশেপাশের বিদ্যুৎ বিভ্রাট",
+    "subtitle": "আপনার এলাকা বেছে নিন, আশেপাশে কী হচ্ছে দেখুন",
+    "pickDivision": "আপনার বিভাগ",
+    "pickDistrict": "আপনার জেলা",
+    "radius": "দূরত্ব",
+    "withinKm": "{{km}} কিমির মধ্যে",
+    "anyDistance": "যেকোনো দূরত্ব",
+    "useMyLocation": "আমার অবস্থান ব্যবহার করুন",
+    "locating": "অবস্থান খোঁজা হচ্ছে...",
+    "clearLocation": "অবস্থান মুছুন",
+    "yourLocation": "আপনার অবস্থান",
+    "locationDenied": "অবস্থানের অনুমতি দেওয়া হয়নি — পরিবর্তে জেলা বেছে নিন।",
+    "locationUnsupported": "আপনার ব্রাউজার অবস্থান সমর্থন করে না।",
+    "pickToSeeNearby": "আশেপাশের রিপোর্ট দেখতে বিভাগ ও জেলা বেছে নিন।",
+    "noneNearby": "এই দূরত্বের মধ্যে এখনও কোনো রিপোর্ট নেই।",
+    "nearbyTitle": "{{area}} এর আশেপাশে",
+    "kmAway": "{{km}} কিমি",
+    "accuracyNote": "পিনগুলো জেলা পর্যায়ে বসানো, সঠিক ঠিকানা নয়। দূরত্ব আনুমানিক।"
+  },
+  "duration": {
+    "lessThanMinute": "এক মিনিটের কম",
+    "minutes_one": "{{count}} মিনিট",
+    "minutes_other": "{{count}} মিনিট",
+    "hours_one": "{{count}} ঘণ্টা",
+    "hours_other": "{{count}} ঘণ্টা",
+    "hoursMinutes": "{{hours}} ঘণ্টা {{minutes}} মিনিট",
+    "hoursDecimal": "{{value}} ঘণ্টা"
+  },
+  "provider": {
+    "label": "বিদ্যুৎ সরবরাহকারী",
+    "placeholder": "সরবরাহকারী নির্বাচন করুন",
+    "all": "সব সরবরাহকারী",
+    "short": "সরবরাহকারী"
+  },
+  "confirm": {
+    "action": "আমিও ভুক্তভোগী",
+    "confirmed": "নিশ্চিত করা হয়েছে",
+    "count_one": "{{count}}টি নিশ্চিতকরণ",
+    "count_other": "{{count}}টি নিশ্চিতকরণ",
+    "hint": "আপনার এলাকায়ও একই অবস্থা হলে চাপ দিন"
+  },
+  "sort": {
+    "label": "সাজান",
+    "latest": "সাম্প্রতিক",
+    "longest": "দীর্ঘতম বিভ্রাট",
+    "confirmed": "সর্বাধিক নিশ্চিত"
+  },
+  "stats": {
+    "title": "লোডশেডিং লেজার",
+    "subtitle": "কমিউনিটি এ পর্যন্ত যা রিপোর্ট করেছে",
+    "totalOutageTime": "মোট রিপোর্ট করা বিভ্রাটের সময়",
+    "averageOutage": "গড় বিভ্রাটের দৈর্ঘ্য",
+    "stillOngoing": "এখনও চলমান",
+    "ongoingRate": "{{rate}}% বিভ্রাট এখনও সমাধান হয়নি",
+    "confirmations": "কমিউনিটি নিশ্চিতকরণ",
+    "coverage": "আওতা",
+    "coverageValue": "{{divisions}}টি বিভাগ · {{providers}}টি সরবরাহকারী",
+    "outageReports": "বিভ্রাটের রিপোর্ট"
+  },
+  "ledger": {
+    "byProvider": "সরবরাহকারী অনুযায়ী",
+    "byDivision": "বিভাগ অনুযায়ী",
+    "colName": "নাম",
+    "colReports": "রিপোর্ট",
+    "colOngoing": "চলমান",
+    "colTotalTime": "মোট সময়",
+    "empty": "এখনও কোনো বিভ্রাট রেকর্ড হয়নি।",
+    "disclaimer": "রিপোর্টগুলো কমিউনিটি কর্তৃক জমা দেওয়া ও যাচাই করা হয়নি। সংখ্যাগুলো মানুষের রিপোর্ট প্রতিফলিত করে, সরকারি বিদ্যুৎ সংস্থার হিসাব নয়।"
+  },
+  "landing": {
+    "headline": "আপনার এলাকার বিদ্যুৎ পরিস্থিতি জানুন,\nপ্রতিবেশীদের লাইভ রিপোর্টে",
+    "getStarted": "শুরু করুন",
+    "previewLabel": "এখন লাইভ",
+    "previewEmpty": "প্রথম রিপোর্টের অপেক্ষায়",
+    "skip": "এড়িয়ে যান"
+  }
+}

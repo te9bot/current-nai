@@ -1,0 +1,170 @@
+{
+  "app": {
+    "name": "Current Nai",
+    "tagline": "Community power status for Bangladesh"
+  },
+  "header": {
+    "switchToEnglish": "English",
+    "switchToBangla": "বাংলা",
+    "reportButton": "Report status"
+  },
+  "status": {
+    "powerOn": "Power On",
+    "loadShedding": "Load-shedding",
+    "unknown": "Unknown"
+  },
+  "summary": {
+    "powerOn": "Areas with power",
+    "loadShedding": "Areas load-shedding",
+    "totalReports": "Total reports"
+  },
+  "ticker": {
+    "label": "Live",
+    "empty": "Waiting for the first report...",
+    "reportedPowerOn": "{{area}}, {{district}} reports power on",
+    "reportedLoadShedding": "{{area}}, {{district}} reports load-shedding"
+  },
+  "filters": {
+    "title": "Filters",
+    "division": "Division",
+    "allDivisions": "All divisions",
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "search": "Search",
+    "searchPlaceholder": "Search by area or district...",
+    "clear": "Clear filters"
+  },
+  "board": {
+    "title": "Live board",
+    "subtitle": "Most recent reports first",
+    "empty": "No reports match your filters yet.",
+    "emptyAll": "No reports yet. Be the first to report your area's status.",
+    "loading": "Loading reports...",
+    "error": "Could not load reports. Retrying...",
+    "note": "Note",
+    "outageWindow": "{{start}} – {{end}}",
+    "outageOngoing": "{{start}} – ongoing",
+    "reportsCount_one": "{{count}} report",
+    "reportsCount_other": "{{count}} reports"
+  },
+  "form": {
+    "heading": "Report your area's status",
+    "subheading": "Help your neighbors know what's happening on the grid.",
+    "division": "Division",
+    "divisionPlaceholder": "Select division",
+    "district": "District / City",
+    "districtPlaceholder": "Select district",
+    "districtPlaceholderNoDivision": "Select division first",
+    "area": "Area / Locality",
+    "areaPlaceholder": "e.g. Dhanmondi, Ward 12, Mirpur Thana",
+    "statusLabel": "Current status",
+    "statusPowerOn": "Power On",
+    "statusLoadShedding": "Load-shedding",
+    "date": "Date",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "endTimeHint": "Leave empty if still ongoing",
+    "note": "Note (optional)",
+    "notePlaceholder": "Any extra details for your neighbors...",
+    "submit": "Submit report",
+    "submitting": "Submitting...",
+    "success": "Thanks! Your report is live on the board.",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "close": "Close"
+  },
+  "validation": {
+    "divisionRequired": "Please select a division",
+    "districtRequired": "Please select a district",
+    "areaRequired": "Please enter an area or locality",
+    "statusRequired": "Please choose a status",
+    "dateRequired": "Please enter the outage date",
+    "startTimeRequired": "Please enter the start time"
+  },
+  "relativeTime": {
+    "justNow": "just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
+  },
+  "footer": {
+    "disclaimer": "Reports are community-submitted and not verified against official utility data.",
+    "builtWith": "Built for a more transparent grid."
+  },
+  "map": {
+    "title": "Nearby outages",
+    "subtitle": "Pick your area to see what's happening around you",
+    "pickDivision": "Your division",
+    "pickDistrict": "Your district",
+    "radius": "Distance",
+    "withinKm": "Within {{km}} km",
+    "anyDistance": "Any distance",
+    "useMyLocation": "Use my location",
+    "locating": "Locating...",
+    "clearLocation": "Clear location",
+    "yourLocation": "Your location",
+    "locationDenied": "Location permission denied — pick your district instead.",
+    "locationUnsupported": "Your browser doesn't support location.",
+    "pickToSeeNearby": "Choose a division and district to see nearby reports.",
+    "noneNearby": "No reports within this distance yet.",
+    "nearbyTitle": "Near {{area}}",
+    "kmAway": "{{km}} km",
+    "accuracyNote": "Pins are placed at district level, not exact addresses. Distances are approximate."
+  },
+  "duration": {
+    "lessThanMinute": "under a minute",
+    "minutes_one": "{{count}}m",
+    "minutes_other": "{{count}}m",
+    "hours_one": "{{count}}h",
+    "hours_other": "{{count}}h",
+    "hoursMinutes": "{{hours}}h {{minutes}}m",
+    "hoursDecimal": "{{value}}h"
+  },
+  "provider": {
+    "label": "Electricity provider",
+    "placeholder": "Select provider",
+    "all": "All providers",
+    "short": "Provider"
+  },
+  "confirm": {
+    "action": "Also affected",
+    "confirmed": "Confirmed",
+    "count_one": "{{count}} confirmation",
+    "count_other": "{{count}} confirmations",
+    "hint": "Tap if the same thing is happening where you are"
+  },
+  "sort": {
+    "label": "Sort",
+    "latest": "Latest",
+    "longest": "Longest outage",
+    "confirmed": "Most confirmed"
+  },
+  "stats": {
+    "title": "Load-shedding ledger",
+    "subtitle": "Everything the community has reported so far",
+    "totalOutageTime": "Total outage time reported",
+    "averageOutage": "Average outage length",
+    "stillOngoing": "Still ongoing",
+    "ongoingRate": "{{rate}}% of outages unresolved",
+    "confirmations": "Community confirmations",
+    "coverage": "Coverage",
+    "coverageValue": "{{divisions}} divisions · {{providers}} providers",
+    "outageReports": "Outage reports"
+  },
+  "ledger": {
+    "byProvider": "By provider",
+    "byDivision": "By division",
+    "colName": "Name",
+    "colReports": "Reports",
+    "colOngoing": "Ongoing",
+    "colTotalTime": "Total time",
+    "empty": "No outages recorded yet.",
+    "disclaimer": "Reports are community-submitted and unverified. Counts reflect what people have reported, not official utility figures."
+  },
+  "landing": {
+    "headline": "Know your area's power status,\nreported live by your neighbors",
+    "getStarted": "Get Started",
+    "previewLabel": "Live now",
+    "previewEmpty": "First report coming soon",
+    "skip": "Skip"
+  }
+}
