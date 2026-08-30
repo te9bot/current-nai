@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { Report } from "../types";
 import { getDistrict, localizedName } from "../data/locations";
 import { BoltIcon, BoltOffIcon } from "./icons";
+import { isCurrentlyPowerOn } from "../utils/reportStatus";
 import clsx from "../utils/clsx";
 
 export default function Ticker({ reports }: { reports: Report[] }) {
@@ -19,7 +20,7 @@ export default function Ticker({ reports }: { reports: Report[] }) {
   const renderItem = (report: Report, key: string) => {
     const district = getDistrict(report.divisionId, report.districtId);
     const districtName = localizedName(district, i18n.language);
-    const isOn = report.status === "power_on";
+    const isOn = isCurrentlyPowerOn(report);
     return (
       <span key={key} className="mx-4 inline-flex items-center gap-2 whitespace-nowrap font-mono text-xs">
         {isOn ? (

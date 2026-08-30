@@ -7,6 +7,7 @@ import { getDivision, getDistrict, localizedName } from "../data/locations";
 import { providerName } from "../data/providers";
 import { BANGLADESH_CENTER, BANGLADESH_BOUNDS, pinCoords, type LatLng } from "../utils/geo";
 import { formatDuration, formatRelativeTime, toLocalizedDigits } from "../utils/time";
+import { isCurrentlyPowerOn } from "../utils/reportStatus";
 
 interface Props {
   reports: Report[];
@@ -22,8 +23,7 @@ function esc(value: string): string {
   );
 }
 
-function markerIcon(status: Report["status"]): L.DivIcon {
-  const on = status === "power_on";
+function markerIcon(on: boolean): L.DivIcon {
   const color = on ? "#50AF6C" : "#E4573D";
   const glow = on ? "rgba(80,175,108,.55)" : "rgba(228,87,61,.55)";
   return L.divIcon({
@@ -114,8 +114,9 @@ export default function MapView({ reports, focus, focusLabel }: Props) {
       const division = getDivision(report.divisionId);
       const localize = (v: string) => toLocalizedDigits(v, i18n.language);
 
-      const statusLabel = report.status === "power_on" ? t("status.powerOn") : t("status.loadShedding");
-      const statusColor = report.status === "power_on" ? "#6BC183" : "#EB7C6C";
+      const isOn = isCurrentlyPowerOn(report);
+      const statusLabel = isOn ? t("status.powerOn") : t("status.loadShedding");
+      const statusColor = isOn ? "#6BC183" : "#EB7C6C";
       const provider = providerName(report.providerId, i18n.language);
 
       const lines = [
@@ -141,7 +142,7 @@ export default function MapView({ reports, focus, focusLabel }: Props) {
         )} · ${esc(localize(t("confirm.count", { count: report.confirmations })))}</div>`
       );
 
-      L.marker([coords.lat, coords.lng], { icon: markerIcon(report.status) })
+      L.marker([coords.lat, coords.lng], { icon: markerIcon(isOn) })
         .bindPopup(`<div style="min-width:180px">${lines.join("")}</div>`, { closeButton: true })
         .addTo(layer);
     }

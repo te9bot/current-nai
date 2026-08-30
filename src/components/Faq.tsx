@@ -19,7 +19,11 @@ export default function Faq() {
         {FAQ_KEYS.map((key, i) => {
           const isOpen = openIndex === i;
           return (
-            <div key={key} className="border-b border-black/8 last:border-0">
+            <div
+              key={key}
+              className="border-b border-black/8 last:border-0"
+              onMouseEnter={() => setOpenIndex(i)}
+            >
               <button
                 type="button"
                 onClick={() => setOpenIndex(isOpen ? null : i)}

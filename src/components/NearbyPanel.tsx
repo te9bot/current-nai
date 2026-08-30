@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { Report } from "../types";
 import { DIVISIONS, getDistricts, getDistrict, localizedName } from "../data/locations";
 import { districtCoords, reportsNear, formatKm, type LatLng } from "../utils/geo";
+import { isCurrentlyPowerOn } from "../utils/reportStatus";
 import MapView from "./MapView";
 import StatusBadge from "./StatusBadge";
 import { SearchIcon } from "./icons";
@@ -23,7 +24,9 @@ export default function NearbyPanel({ reports, onRegionChange }: Props) {
   const [divisionId, setDivisionId] = useState("");
   const [districtId, setDistrictId] = useState("");
   const [radiusKm, setRadiusKm] = useState<number>(50);
-  const [geoState, setGeoState] = useState<"idle" | "locating" | "denied" | "unsupported">("idle");
+  const [geoState, setGeoState] = useState<"idle" | "locating" | "denied" | "unavailable" | "timeout" | "unsupported">(
+    "idle"
+  );
   const [myLocation, setMyLocation] = useState<LatLng | null>(null);
 
   const localize = (v: string) => toLocalizedDigits(v, i18n.language);
@@ -61,7 +64,17 @@ export default function NearbyPanel({ reports, onRegionChange }: Props) {
         setMyLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setGeoState("idle");
       },
-      () => setGeoState("denied"),
+      (err) => {
+        // Codes per the Geolocation API spec: 1 = permission actually denied,
+        // 2 = no position could be determined (e.g. Windows Location Services
+        // off, no GPS/Wi-Fi fix), 3 = timed out. Chrome returns 2 far more
+        // often than 1 on desktops with location services disabled, so
+        // collapsing everything into "permission denied" sent people to the
+        // wrong settings screen.
+        if (err.code === err.PERMISSION_DENIED) setGeoState("denied");
+        else if (err.code === err.TIMEOUT) setGeoState("timeout");
+        else setGeoState("unavailable");
+      },
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 }
     );
   }
@@ -144,6 +157,10 @@ export default function NearbyPanel({ reports, onRegionChange }: Props) {
         </button>
 
         {geoState === "denied" && <span className="text-[11px] text-rust-400">{t("map.locationDenied")}</span>}
+        {geoState === "unavailable" && (
+          <span className="text-[11px] text-rust-400">{t("map.locationUnavailable")}</span>
+        )}
+        {geoState === "timeout" && <span className="text-[11px] text-rust-400">{t("map.locationTimeout")}</span>}
         {geoState === "unsupported" && (
           <span className="text-[11px] text-rust-400">{t("map.locationUnsupported")}</span>
         )}
@@ -176,14 +193,14 @@ export default function NearbyPanel({ reports, onRegionChange }: Props) {
                   <span
                     className={clsx(
                       "h-2 w-2 shrink-0 rounded-full",
-                      report.status === "power_on" ? "bg-leaf-500" : "bg-rust-500"
+                      isCurrentlyPowerOn(report) ? "bg-leaf-500" : "bg-rust-500"
                     )}
                     aria-hidden
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="truncate font-semibold text-grey-900">{report.area}</span>
-                      <StatusBadge status={report.status} size="sm" />
+                      <StatusBadge report={report} size="sm" />
                     </div>
                     <span className="text-[11px] text-grey-500">
                       {localizedName(getDistrict(report.divisionId, report.districtId), i18n.language)}

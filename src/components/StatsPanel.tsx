@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type { Stats } from "../types";
-import { BoltOffIcon, HourglassIcon, UsersIcon, ListIcon } from "./icons";
+import { BoltOffIcon, HourglassIcon, UsersIcon, ListIcon, CoinIcon } from "./icons";
 import Skeleton from "./Skeleton";
 import { formatDuration, formatHours, toLocalizedDigits } from "../utils/time";
+import { estimatedLossTaka, formatTaka, ASSUMED_LOAD_KW } from "../utils/costEstimate";
 import clsx from "../utils/clsx";
 
 interface Tile {
@@ -52,6 +53,14 @@ export default function StatsPanel({ stats, loading }: { stats: Stats; loading: 
       ),
       icon: <UsersIcon width={18} height={18} />,
       tone: "leaf",
+    },
+    {
+      key: "economicLoss",
+      label: t("stats.economicLoss"),
+      value: formatTaka(estimatedLossTaka(stats.byProvider), i18n.language),
+      caption: localize(t("stats.economicLossCaption", { load: ASSUMED_LOAD_KW })),
+      icon: <CoinIcon width={18} height={18} />,
+      tone: "rust",
     },
   ];
 

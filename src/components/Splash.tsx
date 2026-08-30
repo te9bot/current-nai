@@ -5,6 +5,7 @@ import { getDivision, getDistrict, localizedName } from "../data/locations";
 import StatusBadge from "./StatusBadge";
 import { BoltIcon, BoltOffIcon, ChevronRightIcon } from "./icons";
 import { formatRelativeTime, useNowTick } from "../utils/time";
+import { isCurrentlyPowerOn } from "../utils/reportStatus";
 import clsx from "../utils/clsx";
 
 interface Props {
@@ -75,7 +76,7 @@ export default function Splash({ reports, onDismiss }: Props) {
           where there's no room beside the centered card. */}
       {floatingReports.map((r, i) => {
         const slot = FLOAT_SLOTS[i];
-        const isOn = r.status === "power_on";
+        const isOn = isCurrentlyPowerOn(r);
         return (
           <div
             key={r.id}
@@ -149,7 +150,7 @@ export default function Splash({ reports, onDismiss }: Props) {
                 </span>
                 {t("landing.previewLabel")}
               </span>
-              <StatusBadge status={latestReport.status} size="sm" />
+              <StatusBadge report={latestReport} size="sm" />
             </div>
             <h3 className="mt-2 font-display text-base font-bold text-grey-900">{latestReport.area}</h3>
             <p className="text-xs text-grey-500">

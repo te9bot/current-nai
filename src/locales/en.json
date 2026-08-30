@@ -63,6 +63,8 @@
     "landmarkPlaceholder": "e.g. Road 5, House 10",
     "date": "Date",
     "startTime": "Start time",
+    "endTime": "End time (optional)",
+    "endTimeHelper": "Already back on? Add when it ended — leave blank if it's still ongoing.",
     "note": "Note (optional)",
     "notePlaceholder": "Any extra details for your neighbors...",
     "submit": "Submit report",
@@ -77,7 +79,8 @@
     "areaRequired": "Please select an area",
     "statusRequired": "Please choose a status",
     "dateRequired": "Please enter the outage date",
-    "startTimeRequired": "Please enter the start time"
+    "startTimeRequired": "Please enter the start time",
+    "endTimeBeforeStart": "End time must be after the start time"
   },
   "relativeTime": {
     "justNow": "just now",
@@ -101,7 +104,9 @@
     "locating": "Locating...",
     "clearLocation": "Clear location",
     "yourLocation": "Your location",
-    "locationDenied": "Location permission denied — pick your district instead.",
+    "locationDenied": "Location permission denied — allow it in your browser's site settings, or pick your district instead.",
+    "locationUnavailable": "Couldn't determine your location — check that Location Services are turned on for this device, or pick your district instead.",
+    "locationTimeout": "Location took too long to respond. Try again, or pick your district instead.",
     "locationUnsupported": "Your browser doesn't support location.",
     "pickToSeeNearby": "Choose a division and district to see nearby reports.",
     "noneNearby": "No reports within this distance yet.",
@@ -147,7 +152,9 @@
     "confirmations": "Community confirmations",
     "coverage": "Coverage",
     "coverageValue": "{{divisions}} divisions · {{providers}} providers",
-    "outageReports": "Outage reports"
+    "outageReports": "Outage reports",
+    "economicLoss": "Estimated cost of outages",
+    "economicLossCaption": "Rough estimate: {{load}}kW assumed load × each distributor's own average tariff × reported outage-hours — not official data"
   },
   "ledger": {
     "byProvider": "By provider",
@@ -165,6 +172,7 @@
     "allCities": "All cities",
     "allAreas": "All areas",
     "subtitlePeak": "Most reported around {{time}}",
+    "predictedWindow": "Based on past reports, the next outage is most likely between {{start}} and {{end}}",
     "empty": "Not enough data yet for this area.",
     "chartLabel": "Outage reports by hour of day",
     "hourColumn": "Hour",

@@ -137,8 +137,17 @@ app.get("/api/reports", (req, res) => {
 
 app.get("/api/summary", (req, res) => {
   const total = db.prepare("SELECT COUNT(*) AS count FROM reports").get().count;
-  const powerOn = db.prepare("SELECT COUNT(*) AS count FROM reports WHERE status = 'power_on'").get().count;
-  const loadShedding = db.prepare("SELECT COUNT(*) AS count FROM reports WHERE status = 'load_shedding'").get().count;
+  // A load-shedding report whose reporter has since marked it resolved
+  // (end_time set) means the area currently has power again, even though its
+  // status column stays 'load_shedding' forever for the ledger's sake — so it
+  // counts toward powerOn here, not loadShedding. Keep this in sync with the
+  // client's isCurrentlyPowerOn() (src/utils/reportStatus.ts).
+  const powerOn = db
+    .prepare("SELECT COUNT(*) AS count FROM reports WHERE status = 'power_on' OR (status = 'load_shedding' AND end_time IS NOT NULL)")
+    .get().count;
+  const loadShedding = db
+    .prepare("SELECT COUNT(*) AS count FROM reports WHERE status = 'load_shedding' AND end_time IS NULL")
+    .get().count;
   res.json({ total, powerOn, loadShedding });
 });
 

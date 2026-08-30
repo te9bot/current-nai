@@ -15,7 +15,7 @@ i18n
       en: { translation: en },
       bn: { translation: bn },
     },
-    fallbackLng: "en",
+    fallbackLng: "bn",
     supportedLngs: SUPPORTED_LANGUAGES as unknown as string[],
     interpolation: { escapeValue: false },
     detection: {
@@ -25,18 +25,16 @@ i18n
     },
   })
   .then(() => {
-    // Browser locale bn-BD (or any bn-*) should default to Bangla when the
-    // user has never explicitly chosen a language before. Runs only once,
-    // after init fully resolves, so it can never race a later manual
-    // changeLanguage() call from the language toggle (calling
-    // changeLanguage before init resolves gets queued internally and could
-    // otherwise apply *after* — and clobber — a user's own selection).
+    // Bangla is the default for every first-time visitor, regardless of
+    // browser locale — the language toggle in the header still lets anyone
+    // switch to English. Runs only once, after init fully resolves, so it
+    // can never race a later manual changeLanguage() call from the language
+    // toggle (calling changeLanguage before init resolves gets queued
+    // internally and could otherwise apply *after* — and clobber — a user's
+    // own selection).
     const hasStoredChoice = typeof window !== "undefined" && window.localStorage.getItem("current-nai-language");
     if (!hasStoredChoice) {
-      const browserLocale = typeof navigator !== "undefined" ? navigator.language : "en";
-      if (browserLocale?.toLowerCase().startsWith("bn")) {
-        i18n.changeLanguage("bn");
-      }
+      i18n.changeLanguage("bn");
     }
   });
 

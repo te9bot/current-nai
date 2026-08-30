@@ -7,6 +7,7 @@ import { confirmReport } from "../api/reports";
 import StatusBadge from "./StatusBadge";
 import { UsersIcon } from "./icons";
 import { formatRelativeTime, formatDuration, toLocalizedDigits } from "../utils/time";
+import { isCurrentlyPowerOn } from "../utils/reportStatus";
 import clsx from "../utils/clsx";
 
 const CONFIRMED_KEY = "current-nai-confirmed";
@@ -44,11 +45,13 @@ export default function ReportCard({ report, now, onConfirmed }: Props) {
 
   const division = getDivision(report.divisionId);
   const district = getDistrict(report.divisionId, report.districtId);
-  const isOn = report.status === "power_on";
+  const isOn = isCurrentlyPowerOn(report);
   const localize = (v: string) => toLocalizedDigits(v, i18n.language);
 
+  // Shown regardless of current status: a resolved outage still reports its
+  // start/end window, just no longer flagged as ongoing.
   let outageWindow: string | null = null;
-  if (!isOn && report.startTime) {
+  if (report.startTime) {
     outageWindow = report.endTime
       ? t("board.outageWindow", { start: localize(report.startTime), end: localize(report.endTime) })
       : t("board.outageOngoing", { start: localize(report.startTime) });
@@ -83,7 +86,7 @@ export default function ReportCard({ report, now, onConfirmed }: Props) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <StatusBadge status={report.status} size="sm" />
+        <StatusBadge report={report} size="sm" />
         {report.providerId && report.providerId !== "unknown" && (
           <span
             title={providerFullName(report.providerId, i18n.language)}

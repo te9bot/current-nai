@@ -70,6 +70,40 @@ export default function OutagePatterns() {
     return hourly.reduce((best, h) => (h.count > best.count ? h : best), hourly[0]);
   }, [hourly, totalCount]);
 
+  /**
+   * Rough "likely next outage window": the contiguous run of hours around the
+   * peak that are still busy (>=60% of the peak's count), wrapping past
+   * midnight if needed. Capped well under 24h — a run that long means the
+   * data is too flat to say anything more specific than "when outages
+   * happen" already does, so no window is shown rather than a useless
+   * near-all-day one.
+   */
+  const predictedWindow = useMemo(() => {
+    if (!peakHour || totalCount === 0) return null;
+    const n = hourly.length;
+    const peakIdx = hourly.findIndex((h) => h.hour === peakHour.hour);
+    if (peakIdx === -1) return null;
+    const threshold = maxCount * 0.6;
+
+    let startIdx = peakIdx;
+    let endIdx = peakIdx;
+    for (let i = 0; i < n - 1; i++) {
+      const prevIdx = (startIdx - 1 + n) % n;
+      if (prevIdx === endIdx || hourly[prevIdx].count < threshold) break;
+      startIdx = prevIdx;
+    }
+    for (let i = 0; i < n - 1; i++) {
+      const nextIdx = (endIdx + 1) % n;
+      if (nextIdx === startIdx || hourly[nextIdx].count < threshold) break;
+      endIdx = nextIdx;
+    }
+
+    const span = (endIdx - startIdx + n) % n + 1;
+    if (span >= 20) return null;
+
+    return { startHour: hourly[startIdx].hour, endHour: (hourly[endIdx].hour + 1) % 24 };
+  }, [hourly, peakHour, totalCount, maxCount]);
+
   return (
     <section className="panel">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 px-4 py-3">
@@ -122,6 +156,21 @@ export default function OutagePatterns() {
           </select>
         </div>
       </div>
+
+      {!loading && predictedWindow && (
+        <div className="flex items-center gap-2 border-b border-black/8 bg-rust-500/5 px-4 py-2.5">
+          <span className="relative flex h-1.5 w-1.5 shrink-0">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rust-500 opacity-75" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-rust-500" />
+          </span>
+          <p className="text-xs text-grey-900">
+            {t("patterns.predictedWindow", {
+              start: hourLabel(predictedWindow.startHour, t),
+              end: hourLabel(predictedWindow.endHour, t),
+            })}
+          </p>
+        </div>
+      )}
 
       {loading ? (
         <div className="px-4 py-4">

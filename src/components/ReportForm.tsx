@@ -19,6 +19,7 @@ interface FormErrors {
   areaId?: string;
   outageDate?: string;
   startTime?: string;
+  endTime?: string;
 }
 
 // Local calendar date, not UTC — toISOString() would roll over to the next day
@@ -38,6 +39,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   const [providerId, setProviderId] = useState("unknown");
   const [outageDate, setOutageDate] = useState(today());
   const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [note, setNote] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -66,6 +68,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
     if (!areaId) next.areaId = t("validation.areaRequired");
     if (!outageDate) next.outageDate = t("validation.dateRequired");
     if (!startTime) next.startTime = t("validation.startTimeRequired");
+    if (endTime && startTime && endTime <= startTime) next.endTime = t("validation.endTimeBeforeStart");
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -91,7 +94,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
       status: "load_shedding",
       outageDate,
       startTime,
-      endTime: null,
+      endTime: endTime || null,
       note: note.trim(),
     };
 
@@ -112,9 +115,9 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   const areas = getAreas(divisionId, districtId);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-950/80 backdrop-blur-md sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-950/35 backdrop-blur-[2px] sm:items-center sm:p-4">
       <div
-        className="max-h-[92vh] w-full overflow-y-auto rounded-t-xl border border-black/10 bg-ink-900 shadow-sheet sm:max-w-lg sm:rounded-xl sm:shadow-callout"
+        className="max-h-[92vh] w-full overflow-y-auto rounded-t-xl border border-black/10 bg-ink-900/95 shadow-sheet backdrop-blur sm:max-w-lg sm:rounded-xl sm:shadow-callout"
         role="dialog"
         aria-modal="true"
         aria-labelledby="report-form-heading"
@@ -268,8 +271,23 @@ export default function ReportForm({ onClose, onCreated }: Props) {
                   )}
                 />
               </div>
-              {(errors.outageDate || errors.startTime) && (
-                <p className="col-span-2 text-[11px] text-rust-400">{errors.outageDate || errors.startTime}</p>
+              <div className="col-span-2">
+                <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.endTime")}</label>
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className={clsx(
+                    "h-10 w-full rounded-md border bg-ink-800 px-2 font-mono text-xs text-grey-900 outline-none",
+                    errors.endTime ? "border-rust-500" : "border-black/10 focus:border-black/30"
+                  )}
+                />
+                <p className="mt-1 text-[11px] text-grey-600">{t("form.endTimeHelper")}</p>
+              </div>
+              {(errors.outageDate || errors.startTime || errors.endTime) && (
+                <p className="col-span-2 text-[11px] text-rust-400">
+                  {errors.outageDate || errors.startTime || errors.endTime}
+                </p>
               )}
             </div>
 

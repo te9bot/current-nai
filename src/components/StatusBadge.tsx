@@ -1,11 +1,12 @@
 import { useTranslation } from "react-i18next";
-import type { ReportStatus } from "../types";
+import type { Report } from "../types";
 import { BoltIcon, BoltOffIcon } from "./icons";
+import { isCurrentlyPowerOn } from "../utils/reportStatus";
 import clsx from "../utils/clsx";
 
-export default function StatusBadge({ status, size = "md" }: { status: ReportStatus; size?: "sm" | "md" }) {
+export default function StatusBadge({ report, size = "md" }: { report: Report; size?: "sm" | "md" }) {
   const { t } = useTranslation();
-  const isOn = status === "power_on";
+  const isOn = isCurrentlyPowerOn(report);
   return (
     <span
       className={clsx(
