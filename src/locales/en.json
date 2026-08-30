@@ -208,13 +208,13 @@
     }
   },
   "about": {
-    "link": "Who built this",
+    "link": "Meet the team",
     "back": "Back to home",
-    "title": "Who built this",
-    "subtitle": "The person behind কারেন্ট Koi?",
+    "title": "Meet the team",
+    "subtitle": "The people behind কারেন্ট Koi?",
     "role": "Creator",
     "name": "Talha Zobayed Tanim",
-    "bio": "Background in data analytics, research, and statistics. Studied at National University; incoming freshman (Class of 2030) at Allegheny College, majoring in Data Science with a minor in Economics."
+    "bio": "Building AI products that solve real-world problems. Data Science student, quantum computing researcher, and founder of ELAKAI—creating technology that makes local communities smarter and more connected lol."
   },
   "myReports": {
     "entryButton": "My reports",
