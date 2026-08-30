@@ -1,4 +1,10 @@
-import type { NewReportInput, Report, Stats, Summary } from "../types";
+import type { NewReportInput, Patterns, Report, Stats, Summary } from "../types";
+
+export interface PatternFilters {
+  division?: string;
+  district?: string;
+  area?: string;
+}
 
 export interface ReportFilters {
   division?: string;
@@ -53,4 +59,22 @@ export async function confirmReport(id: number): Promise<Report> {
   if (!res.ok) throw new Error(`Failed to confirm report: ${res.status}`);
   const data = await res.json();
   return data.report as Report;
+}
+
+export async function resolveReport(id: number): Promise<Report> {
+  const res = await fetch(`/api/reports/${id}/resolve`, { method: "POST" });
+  if (!res.ok) throw new Error(`Failed to resolve report: ${res.status}`);
+  const data = await res.json();
+  return data.report as Report;
+}
+
+export async function fetchPatterns(filters: PatternFilters = {}): Promise<Patterns> {
+  const params = new URLSearchParams();
+  if (filters.division) params.set("division", filters.division);
+  if (filters.district) params.set("district", filters.district);
+  if (filters.area) params.set("area", filters.area);
+
+  const res = await fetch(`/api/patterns?${params.toString()}`);
+  if (!res.ok) throw new Error(`Failed to fetch patterns: ${res.status}`);
+  return res.json();
 }

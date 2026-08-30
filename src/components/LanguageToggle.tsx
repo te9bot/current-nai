@@ -13,7 +13,7 @@ export default function LanguageToggle() {
     <div
       role="group"
       aria-label="Language"
-      className="inline-flex items-center rounded-pill border border-white/10 bg-ink-800/80 p-1 text-xs font-semibold"
+      className="inline-flex items-center rounded-pill border border-black/10 bg-ink-800/80 p-1 text-xs font-semibold"
     >
       <button
         type="button"
@@ -21,7 +21,7 @@ export default function LanguageToggle() {
         aria-pressed={!isBangla}
         className={clsx(
           "rounded-pill px-3 py-1.5 transition-colors duration-fast ease-standard",
-          !isBangla ? "bg-leaf-500 text-ink-950 shadow-glow-leaf-soft" : "text-grey-400 hover:text-white"
+          !isBangla ? "bg-amber-500 text-ink-onAccent shadow-glow-amber-soft" : "text-grey-400 hover:text-grey-900"
         )}
       >
         {t("header.switchToEnglish")}
@@ -32,7 +32,7 @@ export default function LanguageToggle() {
         aria-pressed={isBangla}
         className={clsx(
           "rounded-pill px-3 py-1.5 font-bn transition-colors duration-fast ease-standard",
-          isBangla ? "bg-leaf-500 text-ink-950 shadow-glow-leaf-soft" : "text-grey-400 hover:text-white"
+          isBangla ? "bg-amber-500 text-ink-onAccent shadow-glow-amber-soft" : "text-grey-400 hover:text-grey-900"
         )}
       >
         {t("header.switchToBangla")}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Report } from "../types";
 import { DIVISIONS, getDistricts, getDistrict, localizedName } from "../data/locations";
@@ -11,7 +11,14 @@ import clsx from "../utils/clsx";
 
 const RADIUS_OPTIONS = [25, 50, 100, 0] as const; // 0 = no limit
 
-export default function NearbyPanel({ reports }: { reports: Report[] }) {
+interface Props {
+  reports: Report[];
+  /** Called whenever the picked area (or geolocation) changes, so the
+   *  full-page map backdrop can follow along — null once cleared. */
+  onRegionChange?: (origin: LatLng | null) => void;
+}
+
+export default function NearbyPanel({ reports, onRegionChange }: Props) {
   const { t, i18n } = useTranslation();
   const [divisionId, setDivisionId] = useState("");
   const [districtId, setDistrictId] = useState("");
@@ -33,6 +40,10 @@ export default function NearbyPanel({ reports }: { reports: Report[] }) {
     const district = getDistrict(divisionId, districtId);
     return district ? localizedName(district, i18n.language) : "";
   }, [myLocation, divisionId, districtId, i18n.language, t]);
+
+  useEffect(() => {
+    onRegionChange?.(origin);
+  }, [origin, onRegionChange]);
 
   const nearby = useMemo(() => {
     if (!origin) return [];
@@ -62,13 +73,13 @@ export default function NearbyPanel({ reports }: { reports: Report[] }) {
 
   return (
     <section className="panel overflow-hidden">
-      <div className="border-b border-white/8 px-4 py-3">
-        <h2 className="font-display text-base font-bold text-white">{t("map.title")}</h2>
+      <div className="border-b border-black/8 px-4 py-3">
+        <h2 className="font-display text-base font-bold text-grey-900">{t("map.title")}</h2>
         <p className="text-xs text-grey-500">{t("map.subtitle")}</p>
       </div>
 
       {/* Area picker */}
-      <div className="flex flex-col gap-2.5 border-b border-white/8 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+      <div className="flex flex-col gap-2.5 border-b border-black/8 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
         <select
           value={divisionId}
           onChange={(e) => {
@@ -76,7 +87,7 @@ export default function NearbyPanel({ reports }: { reports: Report[] }) {
             setDistrictId("");
           }}
           aria-label={t("form.division")}
-          className="h-10 rounded-md border border-white/10 bg-ink-800 px-3 text-sm text-white outline-none transition-colors duration-fast focus:border-leaf-500/60 sm:w-44"
+          className="h-10 rounded-md border border-black/10 bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast focus:border-black/30 sm:w-44"
         >
           <option value="">{t("map.pickDivision")}</option>
           {DIVISIONS.map((d) => (
@@ -94,7 +105,7 @@ export default function NearbyPanel({ reports }: { reports: Report[] }) {
           }}
           disabled={!divisionId}
           aria-label={t("form.district")}
-          className="h-10 rounded-md border border-white/10 bg-ink-800 px-3 text-sm text-white outline-none transition-colors duration-fast focus:border-leaf-500/60 disabled:opacity-40 sm:w-44"
+          className="h-10 rounded-md border border-black/10 bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast focus:border-black/30 disabled:opacity-40 sm:w-44"
         >
           <option value="">
             {divisionId ? t("map.pickDistrict") : t("form.districtPlaceholderNoDivision")}
@@ -110,7 +121,7 @@ export default function NearbyPanel({ reports }: { reports: Report[] }) {
           value={radiusKm}
           onChange={(e) => setRadiusKm(Number(e.target.value))}
           aria-label={t("map.radius")}
-          className="h-10 rounded-md border border-white/10 bg-ink-800 px-3 text-sm text-white outline-none transition-colors duration-fast focus:border-leaf-500/60 sm:w-36"
+          className="h-10 rounded-md border border-black/10 bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast focus:border-black/30 sm:w-36"
         >
           {RADIUS_OPTIONS.map((r) => (
             <option key={r} value={r}>
@@ -122,7 +133,7 @@ export default function NearbyPanel({ reports }: { reports: Report[] }) {
         <button
           type="button"
           onClick={myLocation ? clearLocation : useMyLocation}
-          className="inline-flex h-10 items-center gap-1.5 rounded-pill border border-white/10 px-3.5 text-xs font-semibold text-grey-300 transition-colors duration-fast hover:border-white/25 hover:text-white"
+          className="inline-flex h-10 items-center gap-1.5 rounded-pill border border-black/10 px-3.5 text-xs font-semibold text-grey-300 transition-colors duration-fast hover:border-black/25 hover:text-grey-900"
         >
           <SearchIcon width={14} height={14} />
           {myLocation
@@ -141,7 +152,7 @@ export default function NearbyPanel({ reports }: { reports: Report[] }) {
       <MapView reports={reports} focus={origin} focusLabel={originLabel || undefined} />
 
       {/* Nearby results */}
-      <div className="border-t border-white/8">
+      <div className="border-t border-black/8">
         {!origin ? (
           <p className="px-4 py-6 text-center text-sm text-grey-500">{t("map.pickToSeeNearby")}</p>
         ) : nearby.length === 0 ? (
@@ -160,7 +171,7 @@ export default function NearbyPanel({ reports }: { reports: Report[] }) {
               {nearby.map(({ report, distanceKm }) => (
                 <li
                   key={report.id}
-                  className="flex items-center gap-3 border-t border-white/8 px-4 py-2.5 text-sm hover:bg-white/[0.02]"
+                  className="flex items-center gap-3 border-t border-black/8 px-4 py-2.5 text-sm hover:bg-black/[0.02]"
                 >
                   <span
                     className={clsx(
@@ -171,7 +182,7 @@ export default function NearbyPanel({ reports }: { reports: Report[] }) {
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="truncate font-semibold text-white">{report.area}</span>
+                      <span className="truncate font-semibold text-grey-900">{report.area}</span>
                       <StatusBadge status={report.status} size="sm" />
                     </div>
                     <span className="text-[11px] text-grey-500">
@@ -190,7 +201,7 @@ export default function NearbyPanel({ reports }: { reports: Report[] }) {
         )}
       </div>
 
-      <p className="border-t border-white/8 px-4 py-3 text-[11px] leading-relaxed text-grey-600">
+      <p className="border-t border-black/8 px-4 py-3 text-[11px] leading-relaxed text-grey-600">
         {t("map.accuracyNote")}
       </p>
     </section>

@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import compression from "compression";
+import { rateLimit } from "express-rate-limit";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { db } from "./db.js";
@@ -11,11 +13,33 @@ const PORT = process.env.PORT || 4000;
 seedIfEmpty();
 
 const app = express();
+// Render terminates TLS and proxies to this process — without trusting the
+// proxy, every request looks like it comes from the same internal IP, which
+// would make the rate limiter below block everyone as one client.
+app.set("trust proxy", 1);
 app.use(cors());
+app.use(compression());
 app.use(express.json());
+
+// Anonymous, no-auth write endpoints are the abuse surface under real
+// traffic (or just a buggy client retry-looping) — cap them per IP rather
+// than the whole API, so normal browsing/polling is never affected.
+const writeLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const VALID_STATUS = new Set(["power_on", "load_shedding"]);
 const VALID_SORT = new Set(["latest", "longest", "confirmed"]);
+
+/**
+ * Local calendar date/time, not UTC — reports are keyed to Bangladesh wall-clock
+ * time (matches the same convention already used in server/seed.js).
+ */
+const pad = (n) => String(n).padStart(2, "0");
+const localTime = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
 /**
  * Outage length in minutes. A report with no end time is still ongoing, so it is
@@ -39,6 +63,8 @@ function serializeReport(row) {
     divisionId: row.division_id,
     districtId: row.district_id,
     area: row.area,
+    areaId: row.area_id || null,
+    landmark: row.landmark || null,
     providerId: row.provider_id || "unknown",
     status: row.status,
     outageDate: row.outage_date,
@@ -145,7 +171,7 @@ app.get("/api/stats", (req, res) => {
   });
 });
 
-app.post("/api/reports/:id/confirm", (req, res) => {
+app.post("/api/reports/:id/confirm", writeLimiter, (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.status(400).json({ error: "invalid_id" });
 
@@ -157,8 +183,63 @@ app.post("/api/reports/:id/confirm", (req, res) => {
   res.json({ report: serializeReport(row) });
 });
 
-app.post("/api/reports", (req, res) => {
-  const { divisionId, districtId, area, providerId, status, outageDate, startTime, endTime, note } = req.body || {};
+/**
+ * Marks an ongoing outage report as resolved ("power's back") by setting its
+ * end time to now, instead of the reporter filing a duplicate new report.
+ * Ownership isn't checked server-side — same anonymous trust model as confirm,
+ * where the frontend only shows this action for reports it locally remembers.
+ */
+app.post("/api/reports/:id/resolve", writeLimiter, (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return res.status(400).json({ error: "invalid_id" });
+
+  const existing = db.prepare("SELECT * FROM reports WHERE id = ?").get(id);
+  if (!existing) return res.status(404).json({ error: "not_found" });
+  if (existing.status !== "load_shedding" || existing.end_time) {
+    return res.status(409).json({ error: "not_resolvable" });
+  }
+
+  db.prepare("UPDATE reports SET end_time = ? WHERE id = ?").run(localTime(new Date()), id);
+  const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(id);
+  res.json({ report: serializeReport(row) });
+});
+
+/**
+ * Hour-of-day breakdown of reported outages, so an area can see when it tends
+ * to lose power (e.g. "6-8pm most nights") rather than just aggregate totals.
+ */
+app.get("/api/patterns", (req, res) => {
+  const { division, district, area } = req.query;
+
+  let sql = "SELECT start_time FROM reports WHERE status = 'load_shedding'";
+  const params = [];
+  if (division && typeof division === "string") {
+    sql += " AND division_id = ?";
+    params.push(division);
+  }
+  if (district && typeof district === "string") {
+    sql += " AND district_id = ?";
+    params.push(district);
+  }
+  if (area && typeof area === "string") {
+    sql += " AND area_id = ?";
+    params.push(area);
+  }
+
+  const rows = db.prepare(sql).all(...params);
+  const counts = new Array(24).fill(0);
+  for (const r of rows) {
+    if (!r.start_time) continue;
+    const hour = Number(r.start_time.split(":")[0]);
+    if (Number.isInteger(hour) && hour >= 0 && hour < 24) counts[hour] += 1;
+  }
+
+  res.json({ hourly: counts.map((count, hour) => ({ hour, count })) });
+});
+
+app.post("/api/reports", writeLimiter, (req, res) => {
+  const { divisionId, districtId, area, areaId, landmark, providerId, status, outageDate, startTime, endTime, note } =
+    req.body || {};
 
   if (!divisionId || typeof divisionId !== "string") {
     return res.status(400).json({ error: "division_required" });
@@ -180,13 +261,15 @@ app.post("/api/reports", (req, res) => {
   }
 
   const insert = db.prepare(`
-    INSERT INTO reports (division_id, district_id, area, provider_id, status, outage_date, start_time, end_time, note)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO reports (division_id, district_id, area, area_id, landmark, provider_id, status, outage_date, start_time, end_time, note)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const result = insert.run(
     divisionId,
     districtId,
     area.trim(),
+    typeof areaId === "string" && areaId ? areaId : null,
+    typeof landmark === "string" && landmark.trim() ? landmark.trim() : null,
     typeof providerId === "string" && providerId ? providerId : "unknown",
     status,
     status === "load_shedding" ? outageDate : null,
@@ -203,8 +286,21 @@ app.post("/api/reports", (req, res) => {
 // (single Render web service instead of a separate static site).
 if (process.env.NODE_ENV === "production") {
   const distDir = path.join(__dirname, "..", "dist");
-  app.use(express.static(distDir));
+  // Vite fingerprints everything under assets/ with a content hash, so those
+  // files are safe to cache indefinitely; index.html is not (it's what
+  // points at the current hashes), so it stays revalidate-on-every-request.
+  app.use(
+    "/assets",
+    express.static(path.join(distDir, "assets"), {
+      immutable: true,
+      maxAge: "1y",
+    })
+  );
+  // index: false — otherwise this would auto-serve dist/index.html for "/"
+  // with its own default cache headers before the explicit no-cache below.
+  app.use(express.static(distDir, { index: false }));
   app.get(/^(?!\/api\/).*/, (req, res) => {
+    res.set("Cache-Control", "no-cache");
     res.sendFile(path.join(distDir, "index.html"));
   });
 }
@@ -221,7 +317,7 @@ app.use((err, req, res, _next) => {
 });
 
 const server = app.listen(PORT, () => {
-  console.log(`[server] Current Nai API listening on http://localhost:${PORT}`);
+  console.log(`[server] কারেন্ট Koi? API listening on http://localhost:${PORT}`);
 });
 
 server.on("error", (err) => {

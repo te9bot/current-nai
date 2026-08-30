@@ -43,8 +43,8 @@ const focusIcon = L.divIcon({
   iconAnchor: [11, 11],
   html: `<span style="
     display:block;width:22px;height:22px;border-radius:999px;
-    border:2px solid #FFFFFF;background:rgba(255,255,255,.18);
-    box-shadow:0 0 0 4px rgba(255,255,255,.12);"></span>`,
+    border:2px solid #141414;background:rgba(20,20,20,.15);
+    box-shadow:0 0 0 4px rgba(20,20,20,.12);"></span>`,
 });
 
 export default function MapView({ reports, focus, focusLabel }: Props) {
@@ -63,8 +63,11 @@ export default function MapView({ reports, focus, focusLabel }: Props) {
       zoom: 7,
       minZoom: 7,
       zoomControl: true,
-      scrollWheelZoom: false, // don't hijack page scrolling; ctrl+wheel still zooms
-      attributionControl: true,
+      scrollWheelZoom: true,
+      // The default control adds a "Leaflet" credit alongside the tile
+      // attribution; that part isn't required by anything, so it's turned
+      // off here and a minimal control (OSM credit only) is added below.
+      attributionControl: false,
       // Keep the view on Bangladesh — panning past the border springs back.
       // fitBounds is deliberately not used: in a wide, short container it fits
       // the box by height and zooms out far enough to show half of India.
@@ -72,14 +75,18 @@ export default function MapView({ reports, focus, focusLabel }: Props) {
       maxBoundsViscosity: 1.0,
     });
 
-    // Standard OSM tiles: free and keyless. CARTO's dark basemap now requires
-    // an API key and watermarks tiles without one, so instead the tile pane is
-    // darkened with a CSS filter (see .leaflet-tile-pane in index.css), which
-    // keeps markers and popups untouched.
+    // Standard OSM tiles: free, keyless, and light by default — matching the
+    // app's bright theme with no filtering needed.
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
     }).addTo(map);
+
+    // OpenStreetMap's tile usage policy requires this credit — kept, but as
+    // small and unobtrusive as the policy's "reasonably prominent" bar allows.
+    L.control
+      .attribution({ prefix: false })
+      .addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors')
+      .addTo(map);
 
     markerLayerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
@@ -113,7 +120,7 @@ export default function MapView({ reports, focus, focusLabel }: Props) {
 
       const lines = [
         `<div style="font-weight:700;font-size:14px;margin-bottom:2px">${esc(report.area)}</div>`,
-        `<div style="color:#8E8E8E;font-size:11px;margin-bottom:6px">${esc(
+        `<div style="color:#54544F;font-size:11px;margin-bottom:6px">${esc(
           [localizedName(district, i18n.language), localizedName(division, i18n.language)]
             .filter(Boolean)
             .join(", ")
@@ -123,13 +130,13 @@ export default function MapView({ reports, focus, focusLabel }: Props) {
         }</div>`,
       ];
       if (provider) {
-        lines.push(`<div style="color:#8E8E8E;font-size:11px;margin-top:4px">${esc(provider)}</div>`);
+        lines.push(`<div style="color:#54544F;font-size:11px;margin-top:4px">${esc(provider)}</div>`);
       }
       if (report.note) {
-        lines.push(`<div style="color:#CCCCCC;font-size:12px;margin-top:6px">${esc(report.note)}</div>`);
+        lines.push(`<div style="color:#2E2E2E;font-size:12px;margin-top:6px">${esc(report.note)}</div>`);
       }
       lines.push(
-        `<div style="color:#6F6F6F;font-size:11px;margin-top:6px">${esc(
+        `<div style="color:#6C6C68;font-size:11px;margin-top:6px">${esc(
           localize(formatRelativeTime(report.createdAt, now, t))
         )} · ${esc(localize(t("confirm.count", { count: report.confirmations })))}</div>`
       );
@@ -151,7 +158,9 @@ export default function MapView({ reports, focus, focusLabel }: Props) {
     }
     if (!focus) return;
 
-    map.flyTo([focus.lat, focus.lng], 10, { duration: 0.8 });
+    // Zoomed in enough that a border district (India wraps most of the
+    // country) doesn't fly out to a view dominated by neighbouring territory.
+    map.flyTo([focus.lat, focus.lng], 11, { duration: 0.8 });
     const marker = L.marker([focus.lat, focus.lng], { icon: focusIcon, zIndexOffset: 1000 }).addTo(map);
     if (focusLabel) marker.bindTooltip(focusLabel, { direction: "top", offset: [0, -12] });
     focusMarkerRef.current = marker;

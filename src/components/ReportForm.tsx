@@ -1,11 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { DIVISIONS, getDistricts, localizedName } from "../data/locations";
+import { DIVISIONS, getDistricts, getAreas, localizedName } from "../data/locations";
 import { PROVIDERS } from "../data/providers";
 import { createReport } from "../api/reports";
-import type { NewReportInput, Report, ReportStatus } from "../types";
-import BreakerToggle from "./BreakerToggle";
-import { XIcon, AlertIcon } from "./icons";
+import { rememberMyReport } from "../utils/myReports";
+import type { NewReportInput, Report } from "../types";
+import { XIcon, AlertIcon, MapPinIcon } from "./icons";
 import clsx from "../utils/clsx";
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
 interface FormErrors {
   divisionId?: string;
   districtId?: string;
-  area?: string;
+  areaId?: string;
   outageDate?: string;
   startTime?: string;
 }
@@ -33,12 +33,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   const { t, i18n } = useTranslation();
   const [divisionId, setDivisionId] = useState("");
   const [districtId, setDistrictId] = useState("");
-  const [area, setArea] = useState("");
+  const [areaId, setAreaId] = useState("");
+  const [landmark, setLandmark] = useState("");
   const [providerId, setProviderId] = useState("unknown");
-  const [status, setStatus] = useState<ReportStatus>("power_on");
   const [outageDate, setOutageDate] = useState(today());
   const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
   const [note, setNote] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -56,15 +55,17 @@ export default function ReportForm({ onClose, onCreated }: Props) {
     setDistrictId("");
   }, [divisionId]);
 
+  useEffect(() => {
+    setAreaId("");
+  }, [districtId]);
+
   function validate(): boolean {
     const next: FormErrors = {};
     if (!divisionId) next.divisionId = t("validation.divisionRequired");
     if (!districtId) next.districtId = t("validation.districtRequired");
-    if (!area.trim()) next.area = t("validation.areaRequired");
-    if (status === "load_shedding") {
-      if (!outageDate) next.outageDate = t("validation.dateRequired");
-      if (!startTime) next.startTime = t("validation.startTimeRequired");
-    }
+    if (!areaId) next.areaId = t("validation.areaRequired");
+    if (!outageDate) next.outageDate = t("validation.dateRequired");
+    if (!startTime) next.startTime = t("validation.startTimeRequired");
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -75,20 +76,28 @@ export default function ReportForm({ onClose, onCreated }: Props) {
 
     setSubmitting(true);
     setSubmitError(false);
+
+    const area = areas.find((a) => a.id === areaId);
+    const areaLabel = area ? localizedName(area, i18n.language) : "";
+    const trimmedLandmark = landmark.trim();
+
     const input: NewReportInput = {
       divisionId,
       districtId,
-      area: area.trim(),
+      area: trimmedLandmark ? `${areaLabel} — ${trimmedLandmark}` : areaLabel,
+      areaId,
+      landmark: trimmedLandmark || null,
       providerId,
-      status,
-      outageDate: status === "load_shedding" ? outageDate : null,
-      startTime: status === "load_shedding" ? startTime : null,
-      endTime: status === "load_shedding" ? endTime || null : null,
+      status: "load_shedding",
+      outageDate,
+      startTime,
+      endTime: null,
       note: note.trim(),
     };
 
     try {
       const report = await createReport(input);
+      rememberMyReport(report.id);
       onCreated(report);
       setSuccess(true);
       setTimeout(onClose, 1100);
@@ -100,18 +109,19 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   }
 
   const districts = getDistricts(divisionId);
+  const areas = getAreas(divisionId, districtId);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-950/80 backdrop-blur-md sm:items-center sm:p-4">
       <div
-        className="max-h-[92vh] w-full overflow-y-auto rounded-t-xl border border-white/10 bg-ink-900 shadow-sheet sm:max-w-lg sm:rounded-xl sm:shadow-callout"
+        className="max-h-[92vh] w-full overflow-y-auto rounded-t-xl border border-black/10 bg-ink-900 shadow-sheet sm:max-w-lg sm:rounded-xl sm:shadow-callout"
         role="dialog"
         aria-modal="true"
         aria-labelledby="report-form-heading"
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/8 bg-ink-900/95 px-5 py-4 backdrop-blur">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/8 bg-ink-900/95 px-5 py-4 backdrop-blur">
           <div>
-            <h2 id="report-form-heading" className="font-display text-lg font-bold text-white">
+            <h2 id="report-form-heading" className="font-display text-lg font-bold text-grey-900">
               {t("form.heading")}
             </h2>
             <p className="text-xs text-grey-500">{t("form.subheading")}</p>
@@ -120,7 +130,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
             type="button"
             onClick={onClose}
             aria-label={t("form.close")}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-pill text-grey-400 hover:bg-white/10 hover:text-white"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-pill text-grey-400 hover:bg-black/10 hover:text-grey-900"
           >
             <XIcon width={18} height={18} />
           </button>
@@ -132,11 +142,6 @@ export default function ReportForm({ onClose, onCreated }: Props) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-5 py-5">
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.statusLabel")}</label>
-              <BreakerToggle value={status} onChange={setStatus} />
-            </div>
-
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.division")}</label>
@@ -144,8 +149,8 @@ export default function ReportForm({ onClose, onCreated }: Props) {
                   value={divisionId}
                   onChange={(e) => setDivisionId(e.target.value)}
                   className={clsx(
-                    "h-11 w-full rounded-md border bg-ink-800 px-3 text-sm text-white outline-none transition-colors duration-fast",
-                    errors.divisionId ? "border-rust-500" : "border-white/10 focus:border-leaf-500/60"
+                    "h-11 w-full rounded-md border bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast",
+                    errors.divisionId ? "border-rust-500" : "border-black/10 focus:border-black/30"
                   )}
                 >
                   <option value="">{t("form.divisionPlaceholder")}</option>
@@ -165,8 +170,8 @@ export default function ReportForm({ onClose, onCreated }: Props) {
                   onChange={(e) => setDistrictId(e.target.value)}
                   disabled={!divisionId}
                   className={clsx(
-                    "h-11 w-full rounded-md border bg-ink-800 px-3 text-sm text-white outline-none transition-colors duration-fast disabled:opacity-40",
-                    errors.districtId ? "border-rust-500" : "border-white/10 focus:border-leaf-500/60"
+                    "h-11 w-full rounded-md border bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast disabled:opacity-40",
+                    errors.districtId ? "border-rust-500" : "border-black/10 focus:border-black/30"
                   )}
                 >
                   <option value="">
@@ -183,18 +188,44 @@ export default function ReportForm({ onClose, onCreated }: Props) {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.area")}</label>
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-grey-400">
+                <MapPinIcon width={13} height={13} className="text-grey-500" />
+                {t("form.area")}
+              </label>
+              <select
+                value={areaId}
+                onChange={(e) => setAreaId(e.target.value)}
+                disabled={!districtId}
+                className={clsx(
+                  "h-11 w-full rounded-md border bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast disabled:opacity-40",
+                  errors.areaId ? "border-rust-500" : "border-black/10 focus:border-black/30"
+                )}
+              >
+                <option value="">
+                  {districtId ? t("form.areaPlaceholder") : t("form.areaPlaceholderNoDistrict")}
+                </option>
+                {areas.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {localizedName(a, i18n.language)}
+                  </option>
+                ))}
+              </select>
+              {errors.areaId ? (
+                <p className="mt-1 text-[11px] text-rust-400">{errors.areaId}</p>
+              ) : (
+                <p className="mt-1 text-[11px] text-grey-600">{t("form.areaHelper")}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.landmark")}</label>
               <input
                 type="text"
-                value={area}
-                onChange={(e) => setArea(e.target.value)}
-                placeholder={t("form.areaPlaceholder")}
-                className={clsx(
-                  "h-11 w-full rounded-md border bg-ink-800 px-3 text-sm text-white placeholder:text-grey-600 outline-none transition-colors duration-fast",
-                  errors.area ? "border-rust-500" : "border-white/10 focus:border-leaf-500/60"
-                )}
+                value={landmark}
+                onChange={(e) => setLandmark(e.target.value)}
+                placeholder={t("form.landmarkPlaceholder")}
+                className="h-11 w-full rounded-md border border-black/10 bg-ink-800 px-3 text-sm text-grey-900 placeholder:text-grey-600 outline-none transition-colors duration-fast focus:border-black/30"
               />
-              {errors.area && <p className="mt-1 text-[11px] text-rust-400">{errors.area}</p>}
             </div>
 
             <div>
@@ -202,7 +233,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
               <select
                 value={providerId}
                 onChange={(e) => setProviderId(e.target.value)}
-                className="h-11 w-full rounded-md border border-white/10 bg-ink-800 px-3 text-sm text-white outline-none transition-colors duration-fast focus:border-leaf-500/60"
+                className="h-11 w-full rounded-md border border-black/10 bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast focus:border-black/30"
               >
                 {PROVIDERS.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -212,47 +243,35 @@ export default function ReportForm({ onClose, onCreated }: Props) {
               </select>
             </div>
 
-            {status === "load_shedding" && (
-              <div className="grid grid-cols-3 gap-3 rounded-md border border-rust-600/20 bg-rust-500/5 p-3">
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.date")}</label>
-                  <input
-                    type="date"
-                    value={outageDate}
-                    onChange={(e) => setOutageDate(e.target.value)}
-                    className={clsx(
-                      "h-10 w-full rounded-md border bg-ink-800 px-2 font-mono text-xs text-white outline-none",
-                      errors.outageDate ? "border-rust-500" : "border-white/10 focus:border-leaf-500/60"
-                    )}
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.startTime")}</label>
-                  <input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className={clsx(
-                      "h-10 w-full rounded-md border bg-ink-800 px-2 font-mono text-xs text-white outline-none",
-                      errors.startTime ? "border-rust-500" : "border-white/10 focus:border-leaf-500/60"
-                    )}
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.endTime")}</label>
-                  <input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="h-10 w-full rounded-md border border-white/10 bg-ink-800 px-2 font-mono text-xs text-white outline-none focus:border-leaf-500/60"
-                  />
-                </div>
-                <p className="col-span-3 -mt-1 text-[11px] text-grey-500">{t("form.endTimeHint")}</p>
-                {(errors.outageDate || errors.startTime) && (
-                  <p className="col-span-3 text-[11px] text-rust-400">{errors.outageDate || errors.startTime}</p>
-                )}
+            <div className="grid grid-cols-2 gap-3 rounded-md border border-rust-600/20 bg-rust-500/5 p-3">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.date")}</label>
+                <input
+                  type="date"
+                  value={outageDate}
+                  onChange={(e) => setOutageDate(e.target.value)}
+                  className={clsx(
+                    "h-10 w-full rounded-md border bg-ink-800 px-2 font-mono text-xs text-grey-900 outline-none",
+                    errors.outageDate ? "border-rust-500" : "border-black/10 focus:border-black/30"
+                  )}
+                />
               </div>
-            )}
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.startTime")}</label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className={clsx(
+                    "h-10 w-full rounded-md border bg-ink-800 px-2 font-mono text-xs text-grey-900 outline-none",
+                    errors.startTime ? "border-rust-500" : "border-black/10 focus:border-black/30"
+                  )}
+                />
+              </div>
+              {(errors.outageDate || errors.startTime) && (
+                <p className="col-span-2 text-[11px] text-rust-400">{errors.outageDate || errors.startTime}</p>
+              )}
+            </div>
 
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.note")}</label>
@@ -261,7 +280,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
                 onChange={(e) => setNote(e.target.value)}
                 placeholder={t("form.notePlaceholder")}
                 rows={3}
-                className="w-full resize-none rounded-md border border-white/10 bg-ink-800 px-3 py-2 text-sm text-white placeholder:text-grey-600 outline-none transition-colors duration-fast focus:border-leaf-500/60"
+                className="w-full resize-none rounded-md border border-black/10 bg-ink-800 px-3 py-2 text-sm text-grey-900 placeholder:text-grey-600 outline-none transition-colors duration-fast focus:border-black/30"
               />
             </div>
 
@@ -275,7 +294,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
             <button
               type="submit"
               disabled={submitting}
-              className="mt-1 h-12 rounded-pill bg-leaf-500 font-display text-sm font-bold uppercase tracking-wide text-ink-950 transition-colors duration-fast hover:bg-leaf-400 disabled:opacity-50"
+              className="mt-1 h-12 rounded-pill bg-amber-500 font-display text-sm font-bold uppercase tracking-wide text-ink-onAccent transition-colors duration-fast hover:bg-amber-400 disabled:opacity-50"
             >
               {submitting ? t("form.submitting") : t("form.submit")}
             </button>

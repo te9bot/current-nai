@@ -1,4 +1,4 @@
-# Current Nai (কারেন্ট নাই)
+# কারেন্ট Koi?
 
 A community-reported electricity / load-shedding status tracker for Bangladesh. People
 report whether their area currently has power or is in load-shedding, and everyone can

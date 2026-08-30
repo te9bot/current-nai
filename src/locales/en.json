@@ -1,12 +1,12 @@
 {
   "app": {
-    "name": "Current Nai",
-    "tagline": "Community power status for Bangladesh"
+    "name": "কারেন্ট Koi?",
+    "tagline": "Live Bangladesh power outage tracker"
   },
   "header": {
     "switchToEnglish": "English",
     "switchToBangla": "বাংলা",
-    "reportButton": "Report status"
+    "reportButton": "Report outage"
   },
   "status": {
     "powerOn": "Power On",
@@ -48,22 +48,21 @@
     "reportsCount_other": "{{count}} reports"
   },
   "form": {
-    "heading": "Report your area's status",
+    "heading": "Report a load-shedding outage",
     "subheading": "Help your neighbors know what's happening on the grid.",
     "division": "Division",
     "divisionPlaceholder": "Select division",
     "district": "District / City",
     "districtPlaceholder": "Select district",
     "districtPlaceholderNoDivision": "Select division first",
-    "area": "Area / Locality",
-    "areaPlaceholder": "e.g. Dhanmondi, Ward 12, Mirpur Thana",
-    "statusLabel": "Current status",
-    "statusPowerOn": "Power On",
-    "statusLoadShedding": "Load-shedding",
+    "area": "Area",
+    "areaPlaceholder": "Select area",
+    "areaPlaceholderNoDistrict": "Select district first",
+    "areaHelper": "Pick the nearest area, then add a landmark below if you'd like.",
+    "landmark": "Landmark / extra detail (optional)",
+    "landmarkPlaceholder": "e.g. Road 5, House 10",
     "date": "Date",
     "startTime": "Start time",
-    "endTime": "End time",
-    "endTimeHint": "Leave empty if still ongoing",
     "note": "Note (optional)",
     "notePlaceholder": "Any extra details for your neighbors...",
     "submit": "Submit report",
@@ -75,7 +74,7 @@
   "validation": {
     "divisionRequired": "Please select a division",
     "districtRequired": "Please select a district",
-    "areaRequired": "Please enter an area or locality",
+    "areaRequired": "Please select an area",
     "statusRequired": "Please choose a status",
     "dateRequired": "Please enter the outage date",
     "startTimeRequired": "Please enter the start time"
@@ -159,6 +158,55 @@
     "colTotalTime": "Total time",
     "empty": "No outages recorded yet.",
     "disclaimer": "Reports are community-submitted and unverified. Counts reflect what people have reported, not official utility figures."
+  },
+  "patterns": {
+    "title": "When outages happen",
+    "subtitle": "Hour-of-day breakdown of reported outages",
+    "allCities": "All cities",
+    "allAreas": "All areas",
+    "subtitlePeak": "Most reported around {{time}}",
+    "empty": "Not enough data yet for this area.",
+    "chartLabel": "Outage reports by hour of day",
+    "hourColumn": "Hour",
+    "reportsColumn": "Reports",
+    "am": "{{hour}} AM",
+    "pm": "{{hour}} PM",
+    "reportsCount_one": "{{count}} report",
+    "reportsCount_other": "{{count}} reports",
+    "disclaimer": "Based on the start time of community-submitted load-shedding reports."
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "subtitle": "What this app is (and isn't)",
+    "official": {
+      "q": "Is this an official government or utility app?",
+      "a": "No. This is an independent, community-run tracker, not affiliated with DPDC, DESCO, BPDB, NESCO, WZPDCL, Palli Bidyut, or any government body. Every report comes from a regular person, not an official source."
+    },
+    "prediction": {
+      "q": "How does the \"when outages happen\" chart predict load-shedding?",
+      "a": "It isn't a real forecast — it's a rough pattern built from when past reports were submitted, showing which hours tend to have more reports. Think of it as an educated guess based on community history, not a guarantee of what will happen next."
+    },
+    "reportHow": {
+      "q": "How do I report an outage in my area?",
+      "a": "Tap \"Report outage\", pick your division, district and area, and enter when it started. It shows up on the live board right away for your neighbors to see."
+    },
+    "resolveHow": {
+      "q": "How do I mark my area as having power again?",
+      "a": "Open \"My reports\" in the header and tap \"Power's back\" on your ongoing report — no need to file a new one."
+    },
+    "privacy": {
+      "q": "Is my location or personal data tracked?",
+      "a": "No accounts and no personal data are collected. The only location info stored is the division/district/area you choose when reporting. Which reports you've confirmed is remembered only in your own browser, not on a server."
+    }
+  },
+  "myReports": {
+    "entryButton": "My reports",
+    "title": "My reports",
+    "subtitle": "Update your reports when your power comes back.",
+    "empty": "You don't have any ongoing outage reports right now.",
+    "resolveAction": "Power's back",
+    "resolving": "Updating...",
+    "resolveError": "Couldn't update this report. Try again."
   },
   "landing": {
     "headline": "Know your area's power status,\nreported live by your neighbors",

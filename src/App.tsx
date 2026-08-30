@@ -8,21 +8,34 @@ import SummaryCounts from "./components/SummaryCounts";
 import StatsPanel from "./components/StatsPanel";
 import NearbyPanel from "./components/NearbyPanel";
 import LedgerTable from "./components/LedgerTable";
+import OutagePatterns from "./components/OutagePatterns";
 import Filters, { EMPTY_FILTERS, type FilterState } from "./components/Filters";
 import Board from "./components/Board";
 import ReportForm from "./components/ReportForm";
+import MyReports from "./components/MyReports";
+import Faq from "./components/Faq";
+import Reveal from "./components/Reveal";
 import { useReports } from "./hooks/useReports";
 import { getDistrict } from "./data/locations";
 import { providerName } from "./data/providers";
+import { readMyReports } from "./utils/myReports";
 import type { Report } from "./types";
+import type { LatLng } from "./utils/geo";
 
 export default function App() {
   const { t, i18n } = useTranslation();
-  const { reports, summary, stats, loading, error, refresh, applyConfirmed } = useReports();
+  const { reports, summary, stats, loading, error, refresh, applyUpdate } = useReports();
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
   const [formOpen, setFormOpen] = useState(false);
+  const [myReportsOpen, setMyReportsOpen] = useState(false);
+  const [hasMyReports, setHasMyReports] = useState(false);
   const [localReports, setLocalReports] = useState<Report[]>([]);
   const [showSplash, setShowSplash] = useState(true);
+  const [mapFocus, setMapFocus] = useState<LatLng | null>(null);
+
+  useEffect(() => {
+    setHasMyReports(readMyReports().size > 0);
+  }, [formOpen]);
 
   useEffect(() => {
     document.documentElement.lang = i18n.language.startsWith("bn") ? "bn" : "en";
@@ -63,38 +76,65 @@ export default function App() {
 
   const hasFilters = Boolean(filters.division || filters.status || filters.provider || filters.q);
 
-  /** Keep an optimistic confirm visible in both the server list and any local additions. */
+  /** Keep an optimistic confirm/resolve visible in both the server list and any local additions. */
   function handleConfirmed(updated: Report) {
-    applyConfirmed(updated);
+    applyUpdate(updated);
     setLocalReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
   }
 
+  function handleResolved(updated: Report) {
+    applyUpdate(updated);
+    setLocalReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+  }
+
+  const myReportIds = useMemo(() => readMyReports(), [myReportsOpen]);
+  const myReports = useMemo(
+    () => allReports.filter((r) => myReportIds.has(r.id)),
+    [allReports, myReportIds]
+  );
+
   return (
     <div className="relative min-h-screen bg-ink-950">
-      <MapBackdrop />
-      {showSplash && <Splash latestReport={allReports[0] ?? null} onDismiss={() => setShowSplash(false)} />}
+      <MapBackdrop focus={mapFocus} />
+      {showSplash && <Splash reports={allReports.slice(0, 5)} onDismiss={() => setShowSplash(false)} />}
 
       {/* Everything above the backdrop */}
       <div className="relative z-10">
-        <Header onReportClick={() => setFormOpen(true)} />
+        <Header
+          onReportClick={() => setFormOpen(true)}
+          onMyReportsClick={() => setMyReportsOpen(true)}
+          showMyReports={hasMyReports}
+        />
         <Ticker reports={allReports} />
 
         <main className="mx-auto max-w-6xl px-3 py-5 sm:px-6 sm:py-8">
           <div className="mb-4">
-            <SummaryCounts summary={summary} />
+            <SummaryCounts summary={summary} loading={loading} />
           </div>
 
-          <div className="mb-4 sm:mb-6">
-            <NearbyPanel reports={allReports} />
-          </div>
+          <Reveal>
+            <div className="mb-4 sm:mb-6">
+              <NearbyPanel reports={allReports} onRegionChange={setMapFocus} />
+            </div>
+          </Reveal>
 
-          <div className="mb-4 sm:mb-6">
-            <StatsPanel stats={stats} />
-          </div>
+          <Reveal>
+            <div className="mb-4 sm:mb-6">
+              <StatsPanel stats={stats} loading={loading} />
+            </div>
+          </Reveal>
 
-          <div className="mb-4 sm:mb-6">
-            <LedgerTable stats={stats} />
-          </div>
+          <Reveal>
+            <div className="mb-4 sm:mb-6">
+              <LedgerTable stats={stats} loading={loading} />
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div className="mb-4 sm:mb-6">
+              <OutagePatterns />
+            </div>
+          </Reveal>
 
           <div className="mb-4">
             <Filters value={filters} onChange={setFilters} />
@@ -108,7 +148,13 @@ export default function App() {
             onConfirmed={handleConfirmed}
           />
 
-          <footer className="mt-8 border-t border-white/8 pt-6 text-center text-[11px] leading-relaxed text-grey-600">
+          <Reveal>
+            <div className="mb-4 mt-4 sm:mt-6">
+              <Faq />
+            </div>
+          </Reveal>
+
+          <footer className="mt-8 border-t border-black/8 pt-6 text-center text-[11px] leading-relaxed text-grey-600">
             <p>{t("footer.disclaimer")}</p>
             <p className="mt-1">{t("footer.builtWith")}</p>
           </footer>
@@ -122,6 +168,14 @@ export default function App() {
             setLocalReports((prev) => [report, ...prev]);
             refresh();
           }}
+        />
+      )}
+
+      {myReportsOpen && (
+        <MyReports
+          reports={myReports}
+          onClose={() => setMyReportsOpen(false)}
+          onResolved={handleResolved}
         />
       )}
     </div>

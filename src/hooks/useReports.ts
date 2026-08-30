@@ -51,10 +51,10 @@ export function useReports() {
 
   const refresh = useCallback(() => load(false), [load]);
 
-  /** Optimistic local bump so the confirm button feels instant. */
-  const applyConfirmed = useCallback((updated: Report) => {
+  /** Optimistic local patch so confirm/resolve actions feel instant. */
+  const applyUpdate = useCallback((updated: Report) => {
     setReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
   }, []);
 
-  return { reports, summary, stats, loading, error, refresh, applyConfirmed };
+  return { reports, summary, stats, loading, error, refresh, applyUpdate };
 }

@@ -70,48 +70,51 @@ export default function ReportCard({ report, now, onConfirmed }: Props) {
   }
 
   return (
-    <article className="flex items-start gap-3 border-b border-white/8 px-4 py-4 transition-colors duration-fast hover:bg-white/[0.02]">
-      <span
-        className={clsx(
-          "mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full",
-          isOn ? "bg-leaf-500 shadow-glow-leaf-soft" : "bg-rust-500 shadow-glow-rust-soft"
+    <article className="flex flex-col gap-2.5 rounded-lg border border-black/8 bg-ink-900 p-4 shadow-pin transition-shadow duration-fast hover:shadow-callout">
+      <div className="flex min-w-0 items-center gap-2">
+        <span
+          className={clsx(
+            "h-2.5 w-2.5 shrink-0 rounded-full",
+            isOn ? "bg-leaf-500 shadow-glow-leaf-soft" : "bg-rust-500 shadow-glow-rust-soft"
+          )}
+          aria-hidden
+        />
+        <h3 className="truncate font-display text-base font-bold text-grey-900">{report.area}</h3>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusBadge status={report.status} size="sm" />
+        {report.providerId && report.providerId !== "unknown" && (
+          <span
+            title={providerFullName(report.providerId, i18n.language)}
+            className="rounded-pill border border-black/10 bg-ink-800 px-2 py-0.5 font-mono text-[10px] font-medium text-grey-400"
+          >
+            {providerName(report.providerId, i18n.language)}
+          </span>
         )}
-        aria-hidden
-      />
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="truncate font-display text-base font-bold text-white">{report.area}</h3>
-          <StatusBadge status={report.status} size="sm" />
-          {report.providerId && report.providerId !== "unknown" && (
-            <span
-              title={providerFullName(report.providerId, i18n.language)}
-              className="rounded-pill border border-white/10 bg-ink-800 px-2 py-0.5 font-mono text-[10px] font-medium text-grey-400"
-            >
-              {providerName(report.providerId, i18n.language)}
-            </span>
+      </div>
+
+      <p className="truncate text-xs text-grey-500">
+        {localizedName(district, i18n.language)}
+        {district ? ", " : ""}
+        {localizedName(division, i18n.language)}
+      </p>
+
+      {outageWindow && (
+        <div className="font-mono text-xs text-grey-400">
+          <p>{outageWindow}</p>
+          {report.durationMinutes > 0 && (
+            <p className={clsx("font-semibold", report.endTime ? "text-grey-300" : "text-rust-400")}>
+              {localize(formatDuration(report.durationMinutes, t))}
+            </p>
           )}
         </div>
+      )}
 
-        <p className="mt-0.5 truncate text-xs text-grey-500">
-          {localizedName(district, i18n.language)}
-          {district ? ", " : ""}
-          {localizedName(division, i18n.language)}
-        </p>
+      {report.note && <p className="text-sm text-grey-300">{report.note}</p>}
 
-        {outageWindow && (
-          <p className="mt-1.5 flex flex-wrap items-center gap-2 font-mono text-xs text-grey-400">
-            <span>{outageWindow}</span>
-            {report.durationMinutes > 0 && (
-              <span className={clsx("font-semibold", report.endTime ? "text-grey-300" : "text-rust-400")}>
-                {localize(formatDuration(report.durationMinutes, t))}
-              </span>
-            )}
-          </p>
-        )}
-
-        {report.note && <p className="mt-1.5 text-sm text-grey-300">{report.note}</p>}
-
-        <div className="mt-2.5 flex items-center gap-3">
+      <div className="mt-auto flex flex-col gap-2 pt-1">
+        <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={handleConfirm}
@@ -121,7 +124,7 @@ export default function ReportCard({ report, now, onConfirmed }: Props) {
               "inline-flex items-center gap-1.5 rounded-pill border px-2.5 py-1 text-[11px] font-semibold transition-colors duration-fast ease-standard",
               confirmed
                 ? "cursor-default border-leaf-600/40 bg-leaf-500/10 text-leaf-400"
-                : "border-white/10 text-grey-400 hover:border-white/25 hover:text-white active:scale-[.97]"
+                : "border-black/10 text-grey-400 hover:border-black/25 hover:text-grey-900 active:scale-[.97]"
             )}
           >
             <UsersIcon width={12} height={12} />
@@ -133,11 +136,10 @@ export default function ReportCard({ report, now, onConfirmed }: Props) {
             </span>
           )}
         </div>
+        <time className="whitespace-nowrap font-mono text-[11px] text-grey-500" dateTime={report.createdAt}>
+          {localize(formatRelativeTime(report.createdAt, now, t))}
+        </time>
       </div>
-
-      <time className="shrink-0 whitespace-nowrap font-mono text-[11px] text-grey-500" dateTime={report.createdAt}>
-        {localize(formatRelativeTime(report.createdAt, now, t))}
-      </time>
     </article>
   );
 }

@@ -18,9 +18,9 @@ export default function Board({ reports, loading, error, hasFilters, onConfirmed
 
   return (
     <div className="panel">
-      <div className="flex items-center justify-between border-b border-white/8 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-black/8 px-4 py-3">
         <div>
-          <h2 className="font-display text-base font-bold text-white">{t("board.title")}</h2>
+          <h2 className="font-display text-base font-bold text-grey-900">{t("board.title")}</h2>
           <p className="text-xs text-grey-500">{t("board.subtitle")}</p>
         </div>
         <span className="font-mono text-xs text-grey-500">
@@ -45,7 +45,7 @@ export default function Board({ reports, loading, error, hasFilters, onConfirmed
           {hasFilters ? t("board.empty") : t("board.emptyAll")}
         </div>
       ) : (
-        <div>
+        <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {reports.map((r) => (
             <ReportCard key={r.id} report={r} now={now} onConfirmed={onConfirmed} />
           ))}

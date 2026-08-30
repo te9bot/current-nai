@@ -1,9 +1,16 @@
 export type ReportStatus = "power_on" | "load_shedding";
 
+export interface Area {
+  id: string;
+  en: string;
+  bn: string;
+}
+
 export interface District {
   id: string;
   en: string;
   bn: string;
+  areas: Area[];
 }
 
 export interface Division {
@@ -26,6 +33,8 @@ export interface Report {
   divisionId: string;
   districtId: string;
   area: string;
+  areaId: string | null;
+  landmark: string | null;
   providerId: string;
   status: ReportStatus;
   outageDate: string | null;
@@ -41,6 +50,8 @@ export interface NewReportInput {
   divisionId: string;
   districtId: string;
   area: string;
+  areaId?: string | null;
+  landmark?: string | null;
   providerId: string;
   status: ReportStatus;
   outageDate?: string | null;
@@ -76,4 +87,13 @@ export interface Summary {
   total: number;
   powerOn: number;
   loadShedding: number;
+}
+
+export interface HourlyPattern {
+  hour: number;
+  count: number;
+}
+
+export interface Patterns {
+  hourly: HourlyPattern[];
 }

@@ -7,6 +7,12 @@ const dbPath = path.join(__dirname, "current-nai.sqlite");
 
 export const db = new DatabaseSync(dbPath);
 
+// WAL mode lets reads proceed without blocking on writes (and vice versa),
+// which matters once concurrent traffic goes beyond a handful of requests —
+// the default rollback-journal mode serializes all access to the file.
+db.exec(`PRAGMA journal_mode = WAL;`);
+db.exec(`PRAGMA synchronous = NORMAL;`);
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,6 +40,14 @@ if (!existingColumns.has("provider_id")) {
 if (!existingColumns.has("confirmations")) {
   db.exec(`ALTER TABLE reports ADD COLUMN confirmations INTEGER NOT NULL DEFAULT 0`);
 }
+if (!existingColumns.has("area_id")) {
+  db.exec(`ALTER TABLE reports ADD COLUMN area_id TEXT`);
+}
+if (!existingColumns.has("landmark")) {
+  db.exec(`ALTER TABLE reports ADD COLUMN landmark TEXT`);
+}
 
 db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_provider ON reports (provider_id);`);
 db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_division ON reports (division_id);`);
+db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_district ON reports (district_id);`);
+db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_status ON reports (status);`);

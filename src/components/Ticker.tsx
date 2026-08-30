@@ -10,7 +10,7 @@ export default function Ticker({ reports }: { reports: Report[] }) {
 
   if (items.length === 0) {
     return (
-      <div className="border-b border-white/8 bg-ink-900/50 px-4 py-2 text-center backdrop-blur-md text-xs text-grey-500">
+      <div className="border-b border-black/8 bg-ink-900/50 px-4 py-2 text-center backdrop-blur-md text-xs text-grey-500">
         {t("ticker.empty")}
       </div>
     );
@@ -39,7 +39,7 @@ export default function Ticker({ reports }: { reports: Report[] }) {
   };
 
   return (
-    <div className="group relative overflow-hidden border-b border-white/8 bg-ink-900/50 py-2 backdrop-blur-md">
+    <div className="group relative overflow-hidden border-b border-black/8 bg-ink-900/50 py-2 backdrop-blur-md">
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-ink-950 to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-ink-950 to-transparent" />
       <div className="mb-1 flex items-center gap-1.5 px-4">

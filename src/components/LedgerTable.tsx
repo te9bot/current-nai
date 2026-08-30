@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next";
 import type { LedgerRow, Stats } from "../types";
 import { getDivision, localizedName } from "../data/locations";
 import { providerName, providerFullName } from "../data/providers";
+import Skeleton from "./Skeleton";
 import { formatHours, toLocalizedDigits } from "../utils/time";
 import clsx from "../utils/clsx";
 
 type Tab = "provider" | "division";
 
-export default function LedgerTable({ stats }: { stats: Stats }) {
+export default function LedgerTable({ stats, loading }: { stats: Stats; loading: boolean }) {
   const { t, i18n } = useTranslation();
   const [tab, setTab] = useState<Tab>("provider");
   const localize = (v: string) => toLocalizedDigits(v, i18n.language);
@@ -28,8 +29,8 @@ export default function LedgerTable({ stats }: { stats: Stats }) {
 
   return (
     <section className="panel">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 px-4 py-3">
-        <div className="flex gap-1 rounded-pill border border-white/10 bg-ink-800 p-1">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 px-4 py-3">
+        <div className="flex gap-1 rounded-pill border border-black/10 bg-ink-800 p-1">
           {(
             [
               { key: "provider", label: t("ledger.byProvider") },
@@ -42,7 +43,7 @@ export default function LedgerTable({ stats }: { stats: Stats }) {
               onClick={() => setTab(opt.key)}
               className={clsx(
                 "rounded-pill px-3 py-1.5 text-xs font-semibold transition-colors duration-fast",
-                tab === opt.key ? "bg-white/15 text-white" : "text-grey-400 hover:text-white"
+                tab === opt.key ? "bg-black/15 text-grey-900" : "text-grey-400 hover:text-grey-900"
               )}
             >
               {opt.label}
@@ -51,13 +52,27 @@ export default function LedgerTable({ stats }: { stats: Stats }) {
         </div>
       </div>
 
-      {rows.length === 0 ? (
+      {loading ? (
+        <div className="px-4 py-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center justify-between gap-4 border-b border-black/8 py-2.5 last:border-0">
+              <div className="flex-1">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="mt-1.5 h-1 w-full max-w-[160px]" />
+              </div>
+              <Skeleton className="h-4 w-8" />
+              <Skeleton className="h-4 w-8" />
+              <Skeleton className="h-4 w-14" />
+            </div>
+          ))}
+        </div>
+      ) : rows.length === 0 ? (
         <p className="px-4 py-8 text-center text-sm text-grey-500">{t("ledger.empty")}</p>
       ) : (
         <div className="scrollbar-thin overflow-x-auto">
           <table className="w-full min-w-[440px] border-collapse text-sm">
             <thead>
-              <tr className="border-b border-white/8 text-left text-[11px] uppercase tracking-wider text-grey-500">
+              <tr className="border-b border-black/8 text-left text-[11px] uppercase tracking-wider text-grey-500">
                 <th className="px-4 py-2 font-semibold">{t("ledger.colName")}</th>
                 <th className="px-4 py-2 text-right font-semibold">{t("ledger.colReports")}</th>
                 <th className="px-4 py-2 text-right font-semibold">{t("ledger.colOngoing")}</th>
@@ -66,11 +81,11 @@ export default function LedgerTable({ stats }: { stats: Stats }) {
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.id} className="border-b border-white/8 last:border-0 hover:bg-white/[0.02]">
+                <tr key={row.id} className="border-b border-black/8 last:border-0 hover:bg-black/[0.02]">
                   <td className="px-4 py-2.5" title={titleFor(row)}>
-                    <div className="font-semibold text-white">{labelFor(row)}</div>
+                    <div className="font-semibold text-grey-900">{labelFor(row)}</div>
                     {/* proportional bar makes the concentration readable at a glance */}
-                    <div className="mt-1 h-1 w-full max-w-[160px] overflow-hidden rounded-pill bg-white/8">
+                    <div className="mt-1 h-1 w-full max-w-[160px] overflow-hidden rounded-pill bg-black/8">
                       <div
                         className="h-full rounded-pill bg-rust-500/70"
                         style={{ width: `${Math.max(3, (row.minutes / maxMinutes) * 100)}%` }}
@@ -85,7 +100,7 @@ export default function LedgerTable({ stats }: { stats: Stats }) {
                       {localize(String(row.ongoing))}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5 text-right font-mono tabular-nums font-semibold text-white">
+                  <td className="px-4 py-2.5 text-right font-mono tabular-nums font-semibold text-grey-900">
                     {localize(formatHours(row.minutes, t))}
                   </td>
                 </tr>
@@ -95,7 +110,7 @@ export default function LedgerTable({ stats }: { stats: Stats }) {
         </div>
       )}
 
-      <p className="border-t border-white/8 px-4 py-3 text-[11px] leading-relaxed text-grey-600">
+      <p className="border-t border-black/8 px-4 py-3 text-[11px] leading-relaxed text-grey-600">
         {t("ledger.disclaimer")}
       </p>
     </section>

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type { Stats } from "../types";
 import { BoltOffIcon, HourglassIcon, UsersIcon, ListIcon } from "./icons";
+import Skeleton from "./Skeleton";
 import { formatDuration, formatHours, toLocalizedDigits } from "../utils/time";
 import clsx from "../utils/clsx";
 
@@ -14,7 +15,7 @@ interface Tile {
   tone: "rust" | "leaf" | "neutral";
 }
 
-export default function StatsPanel({ stats }: { stats: Stats }) {
+export default function StatsPanel({ stats, loading }: { stats: Stats; loading: boolean }) {
   const { t, i18n } = useTranslation();
   const localize = (v: string) => toLocalizedDigits(v, i18n.language);
 
@@ -56,11 +57,11 @@ export default function StatsPanel({ stats }: { stats: Stats }) {
 
   return (
     <section className="panel">
-      <div className="border-b border-white/8 px-4 py-3">
-        <h2 className="font-display text-base font-bold text-white">{t("stats.title")}</h2>
+      <div className="border-b border-black/8 px-4 py-3">
+        <h2 className="font-display text-base font-bold text-grey-900">{t("stats.title")}</h2>
         <p className="text-xs text-grey-500">{t("stats.subtitle")}</p>
       </div>
-      <div className="grid grid-cols-2 gap-px bg-white/8 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-px bg-black/8 lg:grid-cols-4">
         {tiles.map((tile) => (
           <div key={tile.key} className="flex flex-col gap-1.5 bg-ink-950/70 p-3 sm:p-4">
             <span
@@ -72,9 +73,18 @@ export default function StatsPanel({ stats }: { stats: Stats }) {
             >
               {tile.icon}
             </span>
-            <span className="font-mono text-xl font-bold tabular-nums text-white sm:text-2xl">{tile.value}</span>
+            {loading ? (
+              <Skeleton className="h-6 w-16 sm:h-7" />
+            ) : (
+              <span className="font-mono text-xl font-bold tabular-nums text-grey-900 sm:text-2xl">{tile.value}</span>
+            )}
             <span className="text-[11px] leading-tight text-grey-500">{tile.label}</span>
-            {tile.caption && <span className="text-[10px] leading-tight text-grey-600">{tile.caption}</span>}
+            {tile.caption &&
+              (loading ? (
+                <Skeleton className="h-3 w-24" />
+              ) : (
+                <span className="text-[10px] leading-tight text-grey-600">{tile.caption}</span>
+              ))}
           </div>
         ))}
       </div>
