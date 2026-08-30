@@ -75,6 +75,20 @@ function resolveTokenMatches(providedToken, storedHash) {
 }
 
 /**
+ * "My reports" recovery when local storage is lost (new browser, cleared
+ * data, different device on the same network): reports are also tagged with
+ * a salted hash of the reporter's IP at creation time, so a later visit from
+ * the same IP can look its own reports back up and resolve them — no
+ * accounts needed. HMAC (not a bare hash) because raw IPv4 space is only ~4
+ * billion values and trivially reversible otherwise; the pepper keeps the
+ * stored hash from being useful outside this server.
+ */
+const IP_HASH_SECRET = process.env.IP_HASH_SECRET || "current-nai-ip-pepper-fallback";
+function hashIp(ip) {
+  return crypto.createHmac("sha256", IP_HASH_SECRET).update(ip || "").digest("hex");
+}
+
+/**
  * Outage length in minutes. A report with no end time is still ongoing, so it is
  * measured up to now. Returns 0 for "power on" reports, which have no window.
  */
@@ -149,6 +163,20 @@ app.get("/api/reports", asyncHandler(async (req, res) => {
   }
 
   res.json({ reports });
+}));
+
+/**
+ * Reports created from this same IP, regardless of local storage state —
+ * lets "My reports" recover after a cleared browser, a new device, or a
+ * plain logged-out/back-again visit. See hashIp() above.
+ */
+app.get("/api/reports/mine", asyncHandler(async (req, res) => {
+  const ipHash = hashIp(req.ip);
+  const rows = await all(
+    "SELECT * FROM reports WHERE reporter_ip_hash = $1 ORDER BY created_at DESC LIMIT 50",
+    [ipHash]
+  );
+  res.json({ reports: rows.map(serializeReport) });
 }));
 
 app.get("/api/summary", asyncHandler(async (req, res) => {
@@ -239,22 +267,27 @@ app.post("/api/reports/:id/confirm", writeLimiter, asyncHandler(async (req, res)
 /**
  * Marks an ongoing outage report as resolved ("power's back") by setting its
  * end time to now, instead of the reporter filing a duplicate new report.
- * Requires the per-report resolve token issued at creation time — report ids
- * are sequential and therefore guessable, so the id alone proves nothing.
+ * Requires proof of ownership — the per-report resolve token issued at
+ * creation time, or (if that's been lost) a request from the same IP that
+ * created it — since report ids are sequential and therefore guessable, so
+ * the id alone proves nothing.
  */
 app.post("/api/reports/:id/resolve", writeLimiter, asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.status(400).json({ error: "invalid_id" });
 
   const { resolveToken } = req.body || {};
-  if (typeof resolveToken !== "string" || !resolveToken) {
-    return res.status(401).json({ error: "resolve_token_required" });
-  }
 
   const existing = await get("SELECT * FROM reports WHERE id = $1", [id]);
   if (!existing) return res.status(404).json({ error: "not_found" });
 
-  if (!resolveTokenMatches(resolveToken, existing.resolve_token_hash)) {
+  // Either proof works: the token handed back at creation time, or a request
+  // from the same IP that created the report (see hashIp() above) — the
+  // latter is what lets "My reports" resolve things after local storage is
+  // gone.
+  const ownsByToken = resolveTokenMatches(resolveToken, existing.resolve_token_hash);
+  const ownsByIp = Boolean(existing.reporter_ip_hash) && existing.reporter_ip_hash === hashIp(req.ip);
+  if (!ownsByToken && !ownsByIp) {
     return res.status(403).json({ error: "invalid_resolve_token" });
   }
   if (existing.status !== "load_shedding" || existing.end_time) {
@@ -325,8 +358,8 @@ app.post("/api/reports", writeLimiter, asyncHandler(async (req, res) => {
   const resolveToken = generateResolveToken();
 
   const row = await get(
-    `INSERT INTO reports (division_id, district_id, area, area_id, landmark, provider_id, status, outage_date, start_time, end_time, note, resolve_token_hash)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    `INSERT INTO reports (division_id, district_id, area, area_id, landmark, provider_id, status, outage_date, start_time, end_time, note, resolve_token_hash, reporter_ip_hash)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
      RETURNING *`,
     [
       divisionId,
@@ -341,6 +374,7 @@ app.post("/api/reports", writeLimiter, asyncHandler(async (req, res) => {
       status === "load_shedding" ? endTime || null : null,
       (note || "").trim(),
       hashResolveToken(resolveToken),
+      hashIp(req.ip),
     ]
   );
 

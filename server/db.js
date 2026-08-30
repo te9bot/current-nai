@@ -51,12 +51,18 @@ await pool.query(`
     note TEXT,
     confirmations INTEGER NOT NULL DEFAULT 0,
     resolve_token_hash TEXT,
+    reporter_ip_hash TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
   );
 `);
+
+// Added after the table already existed in production — plain CREATE TABLE
+// above won't retrofit existing rows, so it's added separately here.
+await pool.query(`ALTER TABLE reports ADD COLUMN IF NOT EXISTS reporter_ip_hash TEXT;`);
 
 await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_created_at ON reports (created_at DESC);`);
 await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_provider ON reports (provider_id);`);
 await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_division ON reports (division_id);`);
 await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_district ON reports (district_id);`);
 await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_status ON reports (status);`);
+await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_reporter_ip ON reports (reporter_ip_hash);`);

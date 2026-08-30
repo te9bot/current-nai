@@ -21,6 +21,7 @@ import { useRoute } from "./hooks/useRoute";
 import { getDistrict } from "./data/locations";
 import { providerName } from "./data/providers";
 import { readMyReports } from "./utils/myReports";
+import { fetchMyReports } from "./api/reports";
 import type { Report } from "./types";
 import type { LatLng } from "./utils/geo";
 
@@ -35,9 +36,21 @@ export default function App() {
   const [localReports, setLocalReports] = useState<Report[]>([]);
   const [showSplash, setShowSplash] = useState(true);
   const [mapFocus, setMapFocus] = useState<LatLng | null>(null);
+  // Reports the server recognizes as ours by IP, independent of local
+  // storage — recovers "My reports" after a cleared browser, a new device,
+  // or just logging out and back in.
+  const [ipReports, setIpReports] = useState<Report[]>([]);
 
   useEffect(() => {
-    setHasMyReports(readMyReports().size > 0);
+    setHasMyReports(readMyReports().size > 0 || ipReports.length > 0);
+  }, [formOpen, ipReports]);
+
+  useEffect(() => {
+    fetchMyReports()
+      .then(setIpReports)
+      .catch(() => {
+        /* recovery is best-effort — local tokens still work if this fails */
+      });
   }, [formOpen]);
 
   useEffect(() => {
@@ -88,13 +101,20 @@ export default function App() {
   function handleResolved(updated: Report) {
     applyUpdate(updated);
     setLocalReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+    setIpReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
   }
 
   const myReportTokens = useMemo(() => readMyReports(), [myReportsOpen]);
-  const myReports = useMemo(
-    () => allReports.filter((r) => myReportTokens.has(r.id)),
-    [allReports, myReportTokens]
-  );
+  const myReports = useMemo(() => {
+    const byId = new Map<number, Report>();
+    // ipReports first, allReports second: allReports carries any optimistic
+    // confirm/resolve update, so it should win when a report appears in both.
+    for (const r of ipReports) byId.set(r.id, r);
+    for (const r of allReports) {
+      if (myReportTokens.has(r.id) || byId.has(r.id)) byId.set(r.id, r);
+    }
+    return [...byId.values()].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [allReports, myReportTokens, ipReports]);
 
   if (route === "/about") {
     return <AboutPage onBack={() => navigate("/")} />;

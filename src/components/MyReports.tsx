@@ -8,8 +8,11 @@ import { formatDuration, formatRelativeTime, toLocalizedDigits } from "../utils/
 import clsx from "../utils/clsx";
 
 interface Props {
+  /** Already filtered to just this user's reports — via local resolve tokens
+   *  and/or server-side IP match (see App.tsx). */
   reports: Report[];
-  /** Report id -> resolve token, proving this browser owns each report. */
+  /** Report id -> resolve token, when this browser still has it locally.
+   *  Missing entries fall back to the server's IP-match check on resolve. */
   tokens: Map<number, string>;
   onClose: () => void;
   onResolved: (report: Report) => void;
@@ -17,7 +20,7 @@ interface Props {
 
 interface RowProps {
   report: Report;
-  resolveToken: string;
+  resolveToken?: string;
   onResolved: (report: Report) => void;
 }
 
@@ -84,7 +87,7 @@ function MyReportRow({ report, resolveToken, onResolved }: RowProps) {
 
 export default function MyReports({ reports, tokens, onClose, onResolved }: Props) {
   const { t } = useTranslation();
-  const ongoing = reports.filter((r) => r.status === "load_shedding" && !r.endTime && tokens.has(r.id));
+  const ongoing = reports.filter((r) => r.status === "load_shedding" && !r.endTime);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-950/80 backdrop-blur-md sm:items-center sm:p-4">
@@ -116,7 +119,7 @@ export default function MyReports({ reports, tokens, onClose, onResolved }: Prop
         ) : (
           <div>
             {ongoing.map((r) => (
-              <MyReportRow key={r.id} report={r} resolveToken={tokens.get(r.id)!} onResolved={onResolved} />
+              <MyReportRow key={r.id} report={r} resolveToken={tokens.get(r.id)} onResolved={onResolved} />
             ))}
           </div>
         )}
