@@ -1,59 +1,58 @@
-import { DatabaseSync } from "node:sqlite";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import pg from "pg";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dbPath = path.join(__dirname, "current-nai.sqlite");
+const { Pool } = pg;
 
-export const db = new DatabaseSync(dbPath);
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL is required — set it to your Postgres connection string " +
+      "(e.g. from Supabase: Project Settings → Database → Connection string)."
+  );
+}
 
-// WAL mode lets reads proceed without blocking on writes (and vice versa),
-// which matters once concurrent traffic goes beyond a handful of requests —
-// the default rollback-journal mode serializes all access to the file.
-db.exec(`PRAGMA journal_mode = WAL;`);
-db.exec(`PRAGMA synchronous = NORMAL;`);
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // Supabase's certificate chain isn't always present in every runtime's
+  // default trust store; this is the standard accommodation for that
+  // without turning encryption off outright.
+  ssl: { rejectUnauthorized: false },
+});
 
-db.exec(`
+export async function all(sql, params = []) {
+  const { rows } = await pool.query(sql, params);
+  return rows;
+}
+
+export async function get(sql, params = []) {
+  const { rows } = await pool.query(sql, params);
+  return rows[0];
+}
+
+export async function run(sql, params = []) {
+  return pool.query(sql, params);
+}
+
+await pool.query(`
   CREATE TABLE IF NOT EXISTS reports (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     division_id TEXT NOT NULL,
     district_id TEXT NOT NULL,
     area TEXT NOT NULL,
+    area_id TEXT,
+    landmark TEXT,
+    provider_id TEXT NOT NULL DEFAULT 'unknown',
     status TEXT NOT NULL CHECK (status IN ('power_on', 'load_shedding')),
     outage_date TEXT,
     start_time TEXT,
     end_time TEXT,
     note TEXT,
-    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    confirmations INTEGER NOT NULL DEFAULT 0,
+    resolve_token_hash TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
   );
 `);
 
-db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_created_at ON reports (created_at DESC);`);
-
-// Lightweight migration: add columns introduced after the first release so an
-// existing current-nai.sqlite keeps its reports instead of needing a wipe.
-const existingColumns = new Set(db.prepare(`PRAGMA table_info(reports)`).all().map((c) => c.name));
-
-if (!existingColumns.has("provider_id")) {
-  db.exec(`ALTER TABLE reports ADD COLUMN provider_id TEXT NOT NULL DEFAULT 'unknown'`);
-}
-if (!existingColumns.has("confirmations")) {
-  db.exec(`ALTER TABLE reports ADD COLUMN confirmations INTEGER NOT NULL DEFAULT 0`);
-}
-if (!existingColumns.has("area_id")) {
-  db.exec(`ALTER TABLE reports ADD COLUMN area_id TEXT`);
-}
-if (!existingColumns.has("landmark")) {
-  db.exec(`ALTER TABLE reports ADD COLUMN landmark TEXT`);
-}
-if (!existingColumns.has("resolve_token_hash")) {
-  // SHA-256 hash of the per-report resolve token, never the raw token — the
-  // raw value is returned to the client once at creation time and otherwise
-  // only ever exists in transit, not at rest.
-  db.exec(`ALTER TABLE reports ADD COLUMN resolve_token_hash TEXT`);
-}
-
-db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_provider ON reports (provider_id);`);
-db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_division ON reports (division_id);`);
-db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_district ON reports (district_id);`);
-db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_status ON reports (status);`);
+await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_created_at ON reports (created_at DESC);`);
+await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_provider ON reports (provider_id);`);
+await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_division ON reports (division_id);`);
+await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_district ON reports (district_id);`);
+await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_status ON reports (status);`);

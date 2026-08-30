@@ -10,4 +10,9 @@ services:
         value: production
       - key: NODE_VERSION
         value: 24.19.0
+      # Postgres connection string (e.g. from Supabase: Project Settings →
+      # Database → Connection string). sync: false means Render prompts for
+      # the value in its dashboard instead of storing it in this file.
+      - key: DATABASE_URL
+        sync: false
     autoDeploy: true

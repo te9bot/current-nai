@@ -5,13 +5,25 @@ import { rateLimit } from "express-rate-limit";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import crypto from "node:crypto";
-import { db } from "./db.js";
+import { all, get, run } from "./db.js";
 import { seedIfEmpty } from "./seed.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 4000;
 
-seedIfEmpty();
+await seedIfEmpty();
+
+/**
+ * Express 4 doesn't forward a rejected promise from an async handler to the
+ * error middleware on its own — an unhandled rejection would instead hit the
+ * process-wide handler below and take the whole server down on a single
+ * flaky query. This routes it to the normal 500 response path instead.
+ */
+function asyncHandler(fn) {
+  return (req, res, next) => {
+    fn(req, res, next).catch(next);
+  };
+}
 
 const app = express();
 // Render terminates TLS and proxies to this process — without trusting the
@@ -94,32 +106,35 @@ function serializeReport(row) {
     note: row.note || "",
     confirmations: row.confirmations || 0,
     durationMinutes: outageMinutes(row),
-    createdAt: row.created_at,
+    // Postgres returns TIMESTAMPTZ columns as Date objects, not strings.
+    createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at,
   };
 }
 
-app.get("/api/reports", (req, res) => {
+app.get("/api/reports", asyncHandler(async (req, res) => {
   const { division, status, provider, q, sort } = req.query;
 
   let sql = "SELECT * FROM reports WHERE 1=1";
   const params = [];
 
   if (division && typeof division === "string") {
-    sql += " AND division_id = ?";
     params.push(division);
+    sql += ` AND division_id = $${params.length}`;
   }
   if (status && VALID_STATUS.has(status)) {
-    sql += " AND status = ?";
     params.push(status);
+    sql += ` AND status = $${params.length}`;
   }
   if (provider && typeof provider === "string") {
-    sql += " AND provider_id = ?";
     params.push(provider);
+    sql += ` AND provider_id = $${params.length}`;
   }
   if (q && typeof q === "string" && q.trim()) {
-    sql += " AND (area LIKE ? OR district_id LIKE ?)";
+    // ILIKE, not LIKE — Postgres's LIKE is case-sensitive, unlike SQLite's
+    // default ASCII-insensitive behavior this search was written against.
     const like = `%${q.trim()}%`;
     params.push(like, like);
+    sql += ` AND (area ILIKE $${params.length - 1} OR district_id ILIKE $${params.length})`;
   }
 
   // "longest" depends on the computed duration, so it is sorted after mapping.
@@ -127,37 +142,45 @@ app.get("/api/reports", (req, res) => {
   sql += sortKey === "confirmed" ? " ORDER BY confirmations DESC, created_at DESC" : " ORDER BY created_at DESC";
   sql += " LIMIT 500";
 
-  let reports = db.prepare(sql).all(...params).map(serializeReport);
+  const rows = await all(sql, params);
+  let reports = rows.map(serializeReport);
   if (sortKey === "longest") {
     reports.sort((a, b) => b.durationMinutes - a.durationMinutes);
   }
 
   res.json({ reports });
-});
+}));
 
-app.get("/api/summary", (req, res) => {
-  const total = db.prepare("SELECT COUNT(*) AS count FROM reports").get().count;
+app.get("/api/summary", asyncHandler(async (req, res) => {
+  // COUNT(*) comes back as a bigint (string, in the pg driver) to avoid
+  // silent precision loss — Number() here keeps the API's response numeric,
+  // matching the Summary type the frontend expects.
+  const total = Number((await get("SELECT COUNT(*) AS count FROM reports")).count);
   // A load-shedding report whose reporter has since marked it resolved
   // (end_time set) means the area currently has power again, even though its
   // status column stays 'load_shedding' forever for the ledger's sake — so it
   // counts toward powerOn here, not loadShedding. Keep this in sync with the
   // client's isCurrentlyPowerOn() (src/utils/reportStatus.ts).
-  const powerOn = db
-    .prepare("SELECT COUNT(*) AS count FROM reports WHERE status = 'power_on' OR (status = 'load_shedding' AND end_time IS NOT NULL)")
-    .get().count;
-  const loadShedding = db
-    .prepare("SELECT COUNT(*) AS count FROM reports WHERE status = 'load_shedding' AND end_time IS NULL")
-    .get().count;
+  const powerOn = Number(
+    (
+      await get(
+        "SELECT COUNT(*) AS count FROM reports WHERE status = 'power_on' OR (status = 'load_shedding' AND end_time IS NOT NULL)"
+      )
+    ).count
+  );
+  const loadShedding = Number(
+    (await get("SELECT COUNT(*) AS count FROM reports WHERE status = 'load_shedding' AND end_time IS NULL")).count
+  );
   res.json({ total, powerOn, loadShedding });
-});
+}));
 
 /**
  * Aggregate ledger stats, in the spirit of a public accountability record:
  * how much outage time has been reported, how much of it is still unresolved,
  * and a provider x division breakdown of where it is concentrated.
  */
-app.get("/api/stats", (req, res) => {
-  const rows = db.prepare("SELECT * FROM reports").all();
+app.get("/api/stats", asyncHandler(async (req, res) => {
+  const rows = await all("SELECT * FROM reports");
   const now = Date.now();
 
   const outages = rows.filter((r) => r.status === "load_shedding");
@@ -199,19 +222,19 @@ app.get("/api/stats", (req, res) => {
     byProvider: [...byProvider.values()].sort(sortByMinutes),
     byDivision: [...byDivision.values()].sort(sortByMinutes),
   });
-});
+}));
 
-app.post("/api/reports/:id/confirm", writeLimiter, (req, res) => {
+app.post("/api/reports/:id/confirm", writeLimiter, asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.status(400).json({ error: "invalid_id" });
 
-  const existing = db.prepare("SELECT id FROM reports WHERE id = ?").get(id);
+  const existing = await get("SELECT id FROM reports WHERE id = $1", [id]);
   if (!existing) return res.status(404).json({ error: "not_found" });
 
-  db.prepare("UPDATE reports SET confirmations = confirmations + 1 WHERE id = ?").run(id);
-  const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(id);
+  await run("UPDATE reports SET confirmations = confirmations + 1 WHERE id = $1", [id]);
+  const row = await get("SELECT * FROM reports WHERE id = $1", [id]);
   res.json({ report: serializeReport(row) });
-});
+}));
 
 /**
  * Marks an ongoing outage report as resolved ("power's back") by setting its
@@ -219,7 +242,7 @@ app.post("/api/reports/:id/confirm", writeLimiter, (req, res) => {
  * Requires the per-report resolve token issued at creation time — report ids
  * are sequential and therefore guessable, so the id alone proves nothing.
  */
-app.post("/api/reports/:id/resolve", writeLimiter, (req, res) => {
+app.post("/api/reports/:id/resolve", writeLimiter, asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.status(400).json({ error: "invalid_id" });
 
@@ -228,7 +251,7 @@ app.post("/api/reports/:id/resolve", writeLimiter, (req, res) => {
     return res.status(401).json({ error: "resolve_token_required" });
   }
 
-  const existing = db.prepare("SELECT * FROM reports WHERE id = ?").get(id);
+  const existing = await get("SELECT * FROM reports WHERE id = $1", [id]);
   if (!existing) return res.status(404).json({ error: "not_found" });
 
   if (!resolveTokenMatches(resolveToken, existing.resolve_token_hash)) {
@@ -238,34 +261,34 @@ app.post("/api/reports/:id/resolve", writeLimiter, (req, res) => {
     return res.status(409).json({ error: "not_resolvable" });
   }
 
-  db.prepare("UPDATE reports SET end_time = ? WHERE id = ?").run(localTime(new Date()), id);
-  const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(id);
+  await run("UPDATE reports SET end_time = $1 WHERE id = $2", [localTime(new Date()), id]);
+  const row = await get("SELECT * FROM reports WHERE id = $1", [id]);
   res.json({ report: serializeReport(row) });
-});
+}));
 
 /**
  * Hour-of-day breakdown of reported outages, so an area can see when it tends
  * to lose power (e.g. "6-8pm most nights") rather than just aggregate totals.
  */
-app.get("/api/patterns", (req, res) => {
+app.get("/api/patterns", asyncHandler(async (req, res) => {
   const { division, district, area } = req.query;
 
   let sql = "SELECT start_time FROM reports WHERE status = 'load_shedding'";
   const params = [];
   if (division && typeof division === "string") {
-    sql += " AND division_id = ?";
     params.push(division);
+    sql += ` AND division_id = $${params.length}`;
   }
   if (district && typeof district === "string") {
-    sql += " AND district_id = ?";
     params.push(district);
+    sql += ` AND district_id = $${params.length}`;
   }
   if (area && typeof area === "string") {
-    sql += " AND area_id = ?";
     params.push(area);
+    sql += ` AND area_id = $${params.length}`;
   }
 
-  const rows = db.prepare(sql).all(...params);
+  const rows = await all(sql, params);
   const counts = new Array(24).fill(0);
   for (const r of rows) {
     if (!r.start_time) continue;
@@ -274,9 +297,9 @@ app.get("/api/patterns", (req, res) => {
   }
 
   res.json({ hourly: counts.map((count, hour) => ({ hour, count })) });
-});
+}));
 
-app.post("/api/reports", writeLimiter, (req, res) => {
+app.post("/api/reports", writeLimiter, asyncHandler(async (req, res) => {
   const { divisionId, districtId, area, areaId, landmark, providerId, status, outageDate, startTime, endTime, note } =
     req.body || {};
 
@@ -301,31 +324,31 @@ app.post("/api/reports", writeLimiter, (req, res) => {
 
   const resolveToken = generateResolveToken();
 
-  const insert = db.prepare(`
-    INSERT INTO reports (division_id, district_id, area, area_id, landmark, provider_id, status, outage_date, start_time, end_time, note, resolve_token_hash)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-  const result = insert.run(
-    divisionId,
-    districtId,
-    area.trim(),
-    typeof areaId === "string" && areaId ? areaId : null,
-    typeof landmark === "string" && landmark.trim() ? landmark.trim() : null,
-    typeof providerId === "string" && providerId ? providerId : "unknown",
-    status,
-    status === "load_shedding" ? outageDate : null,
-    status === "load_shedding" ? startTime : null,
-    status === "load_shedding" ? endTime || null : null,
-    (note || "").trim(),
-    hashResolveToken(resolveToken)
+  const row = await get(
+    `INSERT INTO reports (division_id, district_id, area, area_id, landmark, provider_id, status, outage_date, start_time, end_time, note, resolve_token_hash)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+     RETURNING *`,
+    [
+      divisionId,
+      districtId,
+      area.trim(),
+      typeof areaId === "string" && areaId ? areaId : null,
+      typeof landmark === "string" && landmark.trim() ? landmark.trim() : null,
+      typeof providerId === "string" && providerId ? providerId : "unknown",
+      status,
+      status === "load_shedding" ? outageDate : null,
+      status === "load_shedding" ? startTime : null,
+      status === "load_shedding" ? endTime || null : null,
+      (note || "").trim(),
+      hashResolveToken(resolveToken),
+    ]
   );
 
-  const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(result.lastInsertRowid);
   // resolveToken is returned exactly once, here — it is never included in
   // serializeReport(), so it never comes back on GET /api/reports, confirm,
   // or resolve responses.
   res.status(201).json({ report: serializeReport(row), resolveToken });
-});
+}));
 
 // In production the frontend is a static build served by this same process
 // (single Render web service instead of a separate static site).

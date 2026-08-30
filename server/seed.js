@@ -1,6 +1,6 @@
-import { db } from "./db.js";
+import { get, run } from "./db.js";
 
-const minutesAgo = (m) => new Date(Date.now() - m * 60_000).toISOString().replace("Z", "") + "Z";
+const minutesAgo = (m) => new Date(Date.now() - m * 60_000).toISOString();
 
 /**
  * Outage dates and times are local wall-clock values (an outage that began at
@@ -100,33 +100,33 @@ const seedReports = [
   },
 ];
 
-export function seedIfEmpty() {
-  const row = db.prepare("SELECT COUNT(*) AS count FROM reports").get();
-  if (row.count > 0) {
+export async function seedIfEmpty() {
+  const row = await get("SELECT COUNT(*) AS count FROM reports");
+  if (Number(row.count) > 0) {
     console.log(`[seed] ${row.count} existing reports, skipping seed.`);
     return;
   }
-  insertSeedReports();
+  await insertSeedReports();
 }
 
-function insertSeedReports() {
-  const insert = db.prepare(`
-    INSERT INTO reports (division_id, district_id, area, provider_id, status, outage_date, start_time, end_time, note, confirmations, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+async function insertSeedReports() {
   for (const r of seedReports) {
-    insert.run(
-      r.division_id,
-      r.district_id,
-      r.area,
-      r.provider_id,
-      r.status,
-      r.outage_date,
-      r.start_time,
-      r.end_time,
-      r.note ?? "",
-      r.confirmations ?? 0,
-      r.created_at
+    await run(
+      `INSERT INTO reports (division_id, district_id, area, provider_id, status, outage_date, start_time, end_time, note, confirmations, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      [
+        r.division_id,
+        r.district_id,
+        r.area,
+        r.provider_id,
+        r.status,
+        r.outage_date,
+        r.start_time,
+        r.end_time,
+        r.note ?? "",
+        r.confirmations ?? 0,
+        r.created_at,
+      ]
     );
   }
   console.log(`[seed] inserted ${seedReports.length} sample reports.`);
@@ -139,19 +139,20 @@ function insertSeedReports() {
  * a live demo dataset back down to size. Never called automatically; only
  * from the `--reset` CLI flag below.
  */
-export function resetAndSeed() {
-  const before = db.prepare("SELECT COUNT(*) AS count FROM reports").get().count;
-  db.exec("DELETE FROM reports");
-  db.exec("DELETE FROM sqlite_sequence WHERE name = 'reports'");
-  insertSeedReports();
+export async function resetAndSeed() {
+  const before = Number((await get("SELECT COUNT(*) AS count FROM reports")).count);
+  await run("DELETE FROM reports");
+  await run("ALTER SEQUENCE reports_id_seq RESTART WITH 1");
+  await insertSeedReports();
   console.log(`[seed] reset: removed ${before} existing reports, inserted ${seedReports.length}.`);
 }
 
 const isMain = process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/").split("/").pop());
 if (isMain) {
   if (process.argv.includes("--reset")) {
-    resetAndSeed();
+    await resetAndSeed();
   } else {
-    seedIfEmpty();
+    await seedIfEmpty();
   }
+  process.exit(0);
 }
