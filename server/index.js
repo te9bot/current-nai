@@ -26,10 +26,16 @@ function asyncHandler(fn) {
 }
 
 const app = express();
-// Render terminates TLS and proxies to this process — without trusting the
-// proxy, every request looks like it comes from the same internal IP, which
-// would make the rate limiter below block everyone as one client.
-app.set("trust proxy", 1);
+// Requests reach this process through two hops — Cloudflare's edge, then
+// Render's internal load balancer — confirmed via X-Forwarded-For sampling:
+// "<real client ip>, <cloudflare edge ip>, <render internal ip>", where the
+// middle and last entries rotate per-request but the first stays constant
+// for the same visitor. trust proxy=1 was walking back only one hop, which
+// resolved to Render's rotating internal IP — not the visitor — silently
+// breaking both the rate limiter below (keyed to an effectively random
+// bucket instead of the real client) and reporter-IP lookups in
+// hashIp()/reporter_ip_hash. 2 hops walks back to the real, stable IP.
+app.set("trust proxy", 2);
 app.use(cors());
 app.use(compression());
 app.use(express.json());
