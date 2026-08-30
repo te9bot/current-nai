@@ -19,23 +19,19 @@ i18n
     supportedLngs: SUPPORTED_LANGUAGES as unknown as string[],
     interpolation: { escapeValue: false },
     detection: {
-      order: ["localStorage", "navigator"],
+      // "navigator" deliberately left out of the order: browser locale
+      // should never decide the default (Bangla always should, regardless
+      // of the visitor's browser language) — the toggle is how anyone
+      // switches to English. localStorage is the *only* source consulted,
+      // so a value only ever ends up here from an explicit toggle click,
+      // never from silently caching whatever the browser's locale detector
+      // guessed during init (which used to happen before this value could
+      // even be checked, making every non-Bangla browser look like it had
+      // already "chosen" English).
+      order: ["localStorage"],
       caches: ["localStorage"],
       lookupLocalStorage: "current-nai-language",
     },
-  })
-  .then(() => {
-    // Bangla is the default for every first-time visitor, regardless of
-    // browser locale — the language toggle in the header still lets anyone
-    // switch to English. Runs only once, after init fully resolves, so it
-    // can never race a later manual changeLanguage() call from the language
-    // toggle (calling changeLanguage before init resolves gets queued
-    // internally and could otherwise apply *after* — and clobber — a user's
-    // own selection).
-    const hasStoredChoice = typeof window !== "undefined" && window.localStorage.getItem("current-nai-language");
-    if (!hasStoredChoice) {
-      i18n.changeLanguage("bn");
-    }
   });
 
 export default i18n;

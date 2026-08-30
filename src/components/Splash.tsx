@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { Report } from "../types";
 import { getDivision, getDistrict, localizedName } from "../data/locations";
 import StatusBadge from "./StatusBadge";
-import { BoltIcon, BoltOffIcon, ChevronRightIcon } from "./icons";
+import { BoltIcon, BoltOffIcon } from "./icons";
 import { formatRelativeTime, useNowTick } from "../utils/time";
 import { isCurrentlyPowerOn } from "../utils/reportStatus";
 import clsx from "../utils/clsx";
@@ -105,35 +105,13 @@ export default function Splash({ reports, onDismiss }: Props) {
         );
       })}
 
-      {/* Splash has no scroll of its own, so this is the "there's more, go
-          on" affordance — deliberately on the side, not stacked with the
-          text Skip link already in the top-right corner. */}
-      <button
-        type="button"
-        onClick={onDismiss}
-        aria-label={t("landing.getStarted")}
-        className="absolute right-3 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1.5 text-grey-500 transition-colors duration-fast hover:text-grey-900 sm:right-6"
-      >
-        <span className="flex h-10 w-10 animate-float items-center justify-center rounded-full border border-black/10 bg-ink-900/80 shadow-pin backdrop-blur">
-          <ChevronRightIcon width={18} height={18} />
-        </span>
-        <span className="font-bn text-[10px] font-semibold">এগিয়ে যান</span>
-      </button>
-
-      <div className="relative z-10 flex items-center justify-between px-6 pt-8 sm:px-10">
+      <div className="relative z-10 flex items-center px-6 pt-8 sm:px-10">
         <div className="flex items-center gap-2.5">
           <span className="flex h-9 w-9 items-center justify-center rounded-md bg-amber-500 text-ink-onAccent shadow-glow-amber">
             <BoltIcon width={20} height={20} />
           </span>
           <h1 className="font-display text-lg font-extrabold tracking-tight text-grey-900">{t("app.name")}</h1>
         </div>
-        <button
-          type="button"
-          onClick={onDismiss}
-          className="text-xs font-semibold text-grey-500 transition-colors duration-fast hover:text-grey-900"
-        >
-          {t("landing.skip")}
-        </button>
       </div>
 
       <div className="relative z-10 flex flex-1 items-center justify-center px-6">
