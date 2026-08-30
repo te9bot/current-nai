@@ -9,5 +9,5 @@ services:
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
-        value: 22.11.0
+        value: 24.19.0
     autoDeploy: true
