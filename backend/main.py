@@ -3,6 +3,7 @@ import hmac
 import math
 import os
 import secrets
+from collections import OrderedDict
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -500,14 +501,71 @@ async def patterns(division: Optional[str] = None, district: Optional[str] = Non
     return {"hourly": [{"hour": hour, "count": count} for hour, count in enumerate(counts)]}
 
 
-# Same free OSM tiles this app already renders, so no separate API key or
-# service to provision. A descriptive User-Agent (Nominatim's usage policy
-# requires one identifying the calling application) plus a modest per-IP
-# rate limit keep this within fair use for an occasional, debounced,
-# type-to-find-my-address lookup — not bulk geocoding.
+# A descriptive User-Agent (required by usage policy on the Nominatim
+# fallback below) identifying the calling application.
 GEOCODE_USER_AGENT = os.environ.get(
     "GEOCODE_USER_AGENT", "current-nai/1.0 (+https://github.com/te9bot/current-nai)"
 )
+
+# Confirmed in production: Nominatim's free public API sustainedly returns
+# HTTP 429 to Render's shared outbound IP range — not a burst, not a bug
+# here, an external rate limit tied to that IP range that this server can't
+# lift. LocationIQ hosts the same Nominatim dataset behind a per-API-key
+# rate limit instead of a shared-IP one, and mirrors Nominatim's exact
+# request/response shape (same params, same address.state/state_district/
+# suburb fields), so switching is a same-shape swap, not a rewrite — the
+# parsing below is identical either way.
+#
+# Falls back to calling Nominatim directly only when no key is configured
+# (e.g. this deploy hasn't had one added to Render's env vars yet) — still
+# functional, just back to the same rate-limited behaviour already seen in
+# production until a key is set. Get a free key at https://locationiq.com
+# (5,000 requests/day, no credit card required) and set LOCATIONIQ_API_KEY
+# in Render's dashboard.
+LOCATIONIQ_API_KEY = os.environ.get("LOCATIONIQ_API_KEY")
+
+
+def _geocode_url(kind: str) -> str:
+    if LOCATIONIQ_API_KEY:
+        return f"https://us1.locationiq.com/v1/{kind}"
+    return f"https://nominatim.openstreetmap.org/{kind}"
+
+
+def _geocode_provider_params() -> dict:
+    return {"key": LOCATIONIQ_API_KEY} if LOCATIONIQ_API_KEY else {}
+
+
+# In-memory, process-lifetime cache for successful lookups only — a miss or
+# upstream failure is never cached, since it may just be transient and
+# should always be retried on the next request rather than permanently
+# treated as unresolvable. Capped and LRU-evicted so a long-running process
+# can't grow this unboundedly; admin-boundary data is effectively static, so
+# no TTL expiry is needed beyond that cap.
+_CACHE_MAX_ENTRIES = 2000
+_geocode_cache: "OrderedDict[str, dict]" = OrderedDict()
+_reverse_geocode_cache: "OrderedDict[tuple[float, float], dict]" = OrderedDict()
+
+
+def _cache_get(cache: "OrderedDict", key):
+    if key not in cache:
+        return None
+    cache.move_to_end(key)
+    return cache[key]
+
+
+def _cache_put(cache: "OrderedDict", key, value: dict) -> None:
+    cache[key] = value
+    cache.move_to_end(key)
+    if len(cache) > _CACHE_MAX_ENTRIES:
+        cache.popitem(last=False)
+
+
+def _reverse_cache_key(lat: float, lng: float) -> tuple[float, float]:
+    # ~111m precision at the equator — coarse enough that repeat lookups
+    # near the same spot (the same visitor reporting again, or several
+    # visitors in the same neighbourhood) hit the cache, fine-grained
+    # enough to still resolve the correct thana-level area.
+    return (round(lat, 3), round(lng, 3))
 
 
 @app.get("/api/geocode")
@@ -520,23 +578,35 @@ async def geocode(request: Request, q: str):
     if not query:
         raise HTTPException(status_code=400, detail={"error": "query_required"})
 
+    cache_key = query.lower()
+    cached = _cache_get(_geocode_cache, cache_key)
+    if cached is not None:
+        return cached
+
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
             resp = await client.get(
-                "https://nominatim.openstreetmap.org/search",
-                params={"q": query, "format": "json", "limit": 1, "countrycodes": "bd"},
+                _geocode_url("search"),
+                params={
+                    "q": query,
+                    "format": "json",
+                    "limit": 1,
+                    "countrycodes": "bd",
+                    **_geocode_provider_params(),
+                },
                 headers={"User-Agent": GEOCODE_USER_AGENT},
             )
             resp.raise_for_status()
             results = resp.json()
     except httpx.HTTPStatusError as e:
-        # TEMP DIAGNOSTIC — remove once the production Nominatim-reachability
-        # issue is confirmed/resolved.
-        return {"found": False, "debugError": f"upstream_status_{e.response.status_code}", "debugBody": e.response.text[:300]}
-    except httpx.HTTPError as e:
-        return {"found": False, "debugError": f"{type(e).__name__}: {e}"}
-    except ValueError as e:
-        return {"found": False, "debugError": f"json_error: {e}"}
+        # Logged, not returned to the client — a miss is a normal, expected
+        # outcome for callers — so this stays diagnosable from Render's own
+        # logs without another deploy.
+        print(f"[geocode] upstream {e.response.status_code}: {e.response.text[:200]!r}")
+        return {"found": False}
+    except (httpx.HTTPError, ValueError) as e:
+        print(f"[geocode] request failed: {e!r}")
+        return {"found": False}
 
     if not results:
         return {"found": False}
@@ -550,7 +620,9 @@ async def geocode(request: Request, q: str):
     if not valid_coordinates(lat, lng):
         return {"found": False}
 
-    return {"found": True, "lat": lat, "lng": lng, "displayName": results[0].get("display_name")}
+    result = {"found": True, "lat": lat, "lng": lng, "displayName": results[0].get("display_name")}
+    _cache_put(_geocode_cache, cache_key, result)
+    return result
 
 
 @app.get("/api/reverse-geocode")
@@ -559,16 +631,21 @@ async def reverse_geocode(request: Request, lat: float, lng: float):
     """Coordinates -> address lookup for the report form's "use my location"
     auto-fill: turns a GPS fix into candidate division/district/area names,
     which the frontend then matches against its own location list (never
-    trusted blindly — Nominatim's admin boundaries don't line up 1:1 with
+    trusted blindly — the provider's admin boundaries don't line up 1:1 with
     this app's district/thana list, hence returning several candidates per
     level instead of picking one here)."""
     if not valid_coordinates(lat, lng):
         raise HTTPException(status_code=400, detail={"error": "invalid_location"})
 
+    cache_key = _reverse_cache_key(lat, lng)
+    cached = _cache_get(_reverse_geocode_cache, cache_key)
+    if cached is not None:
+        return cached
+
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
             resp = await client.get(
-                "https://nominatim.openstreetmap.org/reverse",
+                _geocode_url("reverse"),
                 params={
                     "lat": lat,
                     "lon": lng,
@@ -576,25 +653,24 @@ async def reverse_geocode(request: Request, lat: float, lng: float):
                     "addressdetails": 1,
                     "zoom": 16,
                     "accept-language": "en",
+                    **_geocode_provider_params(),
                 },
                 headers={"User-Agent": GEOCODE_USER_AGENT},
             )
             resp.raise_for_status()
             data = resp.json()
     except httpx.HTTPStatusError as e:
-        # TEMP DIAGNOSTIC — remove once the production Nominatim-reachability
-        # issue is confirmed/resolved.
-        return {"found": False, "debugError": f"upstream_status_{e.response.status_code}", "debugBody": e.response.text[:300]}
-    except httpx.HTTPError as e:
-        return {"found": False, "debugError": f"{type(e).__name__}: {e}"}
-    except ValueError as e:
-        return {"found": False, "debugError": f"json_error: {e}"}
+        print(f"[reverse-geocode] upstream {e.response.status_code}: {e.response.text[:200]!r}")
+        return {"found": False}
+    except (httpx.HTTPError, ValueError) as e:
+        print(f"[reverse-geocode] request failed: {e!r}")
+        return {"found": False}
 
     address = data.get("address") if isinstance(data, dict) else None
     if not address:
-        return {"found": False, "debugError": "no_address_in_response", "debugBody": str(data)[:300]}
+        return {"found": False}
 
-    return {
+    result = {
         "found": True,
         "division": address.get("state"),
         "districtCandidates": [
@@ -614,6 +690,8 @@ async def reverse_geocode(request: Request, lat: float, lng: float):
             if c
         ],
     }
+    _cache_put(_reverse_geocode_cache, cache_key, result)
+    return result
 
 
 @app.post("/api/reports", status_code=201)

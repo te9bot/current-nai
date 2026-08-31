@@ -15,4 +15,10 @@ services:
       # production.
       - key: IP_HASH_SECRET
         sync: false
+      # LocationIQ API key for address geocoding (see backend/main.py) — free
+      # tier, no card required: https://locationiq.com. Without this set,
+      # geocoding falls back to Nominatim's public API directly, which is
+      # rate-limited on Render's shared outbound IP in practice.
+      - key: LOCATIONIQ_API_KEY
+        sync: false
     autoDeploy: true
