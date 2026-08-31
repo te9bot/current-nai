@@ -53,6 +53,7 @@
     "useMyLocationAutofill": "Use my location to auto-fill",
     "useMyLocationAutofillHelp": "We'll detect your division, district, and area, and pinpoint your exact location — all in one tap.",
     "autofillPartialMatch": "We found your district, but couldn't match the exact area — please pick it below.",
+    "autofillGpsUnavailable": "GPS location isn't available right now. Please select your area below, or tap the map to mark your exact location manually.",
     "division": "Division",
     "divisionPlaceholder": "Select division",
     "district": "District / City",

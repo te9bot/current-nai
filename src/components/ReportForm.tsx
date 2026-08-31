@@ -255,6 +255,12 @@ export default function ReportForm({ onClose, onCreated }: Props) {
 
   const districts = getDistricts(divisionId);
   const areas = getAreas(divisionId, districtId);
+  // GPS failure must never block manually placing an exact position: once an
+  // area is picked, or the auto-fill attempt has resolved (fully, partially,
+  // or failed outright), the map is available for a direct tap — it no
+  // longer waits on area selection alone.
+  const showLocationPicker =
+    Boolean(areaId) || autofillStatus === "error" || autofillStatus === "partial" || Boolean(location);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-950/35 backdrop-blur-[2px] sm:items-center sm:p-4">
@@ -303,7 +309,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
               </button>
               <p className="mt-1.5 text-[11px] text-grey-600">{t("form.useMyLocationAutofillHelp")}</p>
               {autofillStatus === "error" && (
-                <p className="mt-1.5 text-[11px] text-rust-400">{t("form.locationError")}</p>
+                <p className="mt-1.5 text-[11px] text-rust-400">{t("form.autofillGpsUnavailable")}</p>
               )}
               {autofillStatus === "partial" && (
                 <p className="mt-1.5 text-[11px] text-amber-500">{t("form.autofillPartialMatch")}</p>
@@ -385,7 +391,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
               )}
             </div>
 
-            {areaId && (
+            {showLocationPicker && (
               <LocationPicker
                 areaFocus={districtId ? districtCoords(districtId) ?? null : null}
                 value={location}
