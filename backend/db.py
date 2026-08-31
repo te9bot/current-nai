@@ -114,6 +114,24 @@ async def _init_schema(pool: asyncpg.Pool) -> None:
             "ALTER TABLE reports ALTER COLUMN updated_at SET NOT NULL;"
         )
 
+        # Exact reporter-supplied coordinates (GPS fix or a manually placed
+        # map pin) — distinct from division/district/area, which stay
+        # administrative context only. Range/finite-value validation happens
+        # in main.py before insert; these columns just store what already
+        # passed that check.
+        await conn.execute(
+            "ALTER TABLE reports ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;"
+        )
+        await conn.execute(
+            "ALTER TABLE reports ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;"
+        )
+        await conn.execute(
+            "ALTER TABLE reports ADD COLUMN IF NOT EXISTS location_accuracy DOUBLE PRECISION;"
+        )
+        await conn.execute(
+            "ALTER TABLE reports ADD COLUMN IF NOT EXISTS location_source TEXT;"
+        )
+
         await conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_reports_created_at ON reports (created_at DESC);"
         )

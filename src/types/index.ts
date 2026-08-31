@@ -55,6 +55,13 @@ export interface Report {
   /** Whether this anonymous visitor has already cast a restore vote. */
   restoredByYou: boolean;
   durationMinutes: number;
+  /** Exact reporter-supplied coordinates — distinct from the area/district
+   *  dropdown, which is administrative context only. Null when no GPS fix
+   *  or manual pin was captured. */
+  latitude: number | null;
+  longitude: number | null;
+  locationAccuracy: number | null;
+  locationSource: "gps" | "manual" | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -75,6 +82,10 @@ export interface NewReportInput {
   startTime?: string | null;
   endTime?: string | null;
   note?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  locationAccuracy?: number | null;
+  locationSource?: "gps" | "manual" | null;
 }
 
 export interface LedgerRow {

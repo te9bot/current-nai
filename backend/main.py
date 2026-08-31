@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import math
 import os
 import secrets
 from contextlib import asynccontextmanager
@@ -165,6 +166,17 @@ def required_restore_votes(confirmations: int) -> int:
     return 1 if confirmations < 5 else 3
 
 
+def valid_coordinates(lat: Optional[float], lng: Optional[float]) -> bool:
+    return (
+        lat is not None
+        and lng is not None
+        and math.isfinite(lat)
+        and math.isfinite(lng)
+        and -90 <= lat <= 90
+        and -180 <= lng <= 180
+    )
+
+
 def serialize_report(row, confirmed_by_you: bool = False, restore_votes: int = 0, restored_by_you: bool = False) -> dict:
     created_at = row["created_at"]
     updated_at = row["updated_at"]
@@ -182,6 +194,10 @@ def serialize_report(row, confirmed_by_you: bool = False, restore_votes: int = 0
         "startTime": row["start_time"],
         "endTime": row["end_time"],
         "note": row["note"] or "",
+        "latitude": row["latitude"],
+        "longitude": row["longitude"],
+        "locationAccuracy": row["location_accuracy"],
+        "locationSource": row["location_source"],
         "confirmations": confirmations,
         "confirmedByYou": confirmed_by_you,
         "restoreVotes": restore_votes,
@@ -202,6 +218,9 @@ async def fetch_restore_state(report_id: int, anon_hash: str) -> tuple[int, bool
 
 # --- request bodies -----------------------------------------------------------
 
+VALID_LOCATION_SOURCE = {"gps", "manual"}
+
+
 class NewReportInput(BaseModel):
     divisionId: Optional[str] = None
     districtId: Optional[str] = None
@@ -214,6 +233,12 @@ class NewReportInput(BaseModel):
     startTime: Optional[str] = None
     endTime: Optional[str] = None
     note: Optional[str] = None
+    # Exact reporter-supplied coordinates — the division/district/area fields
+    # above are administrative context, not the report's actual position.
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    locationAccuracy: Optional[float] = None
+    locationSource: Optional[str] = None
 
 
 # --- routes --------------------------------------------------------------------
@@ -490,10 +515,31 @@ async def create_report(request: Request, body: NewReportInput, anon_hash: str =
     if body.status == "load_shedding" and not body.startTime:
         raise HTTPException(status_code=400, detail={"error": "start_time_required"})
 
+    # Exact coordinates are optional (division/district/area alone is still a
+    # valid report), but if either is present both must be, in-range, and
+    # finite — never a fabricated or partial position. locationAccuracy is
+    # meaningless without coordinates, so it only survives alongside them.
+    has_coords = body.latitude is not None or body.longitude is not None
+    location_lat = location_lng = location_accuracy = location_source = None
+    if has_coords:
+        if not valid_coordinates(body.latitude, body.longitude):
+            raise HTTPException(status_code=400, detail={"error": "invalid_location"})
+        if body.locationSource not in VALID_LOCATION_SOURCE:
+            raise HTTPException(status_code=400, detail={"error": "invalid_location_source"})
+        location_lat = body.latitude
+        location_lng = body.longitude
+        location_source = body.locationSource
+        if body.locationAccuracy is not None and math.isfinite(body.locationAccuracy) and body.locationAccuracy >= 0:
+            location_accuracy = body.locationAccuracy
+
     row = await db.get(
         """
-        INSERT INTO reports (division_id, district_id, area, area_id, landmark, provider_id, status, outage_date, start_time, end_time, note, reporter_ip_hash, reporter_anon_hash)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        INSERT INTO reports (
+            division_id, district_id, area, area_id, landmark, provider_id, status,
+            outage_date, start_time, end_time, note, reporter_ip_hash, reporter_anon_hash,
+            latitude, longitude, location_accuracy, location_source
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
         RETURNING *
         """,
         body.divisionId,
@@ -509,6 +555,10 @@ async def create_report(request: Request, body: NewReportInput, anon_hash: str =
         (body.note or "").strip(),
         hash_ip(get_client_ip(request)),
         anon_hash,
+        location_lat,
+        location_lng,
+        location_accuracy,
+        location_source,
     )
 
     return {"report": serialize_report(row)}

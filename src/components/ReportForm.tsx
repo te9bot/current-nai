@@ -5,7 +5,13 @@ import { PROVIDERS } from "../data/providers";
 import { createReport } from "../api/reports";
 import type { NewReportInput, Report } from "../types";
 import { XIcon, AlertIcon, MapPinIcon } from "./icons";
+import LocationPicker, { type PickedLocation } from "./LocationPicker";
+import { districtCoords } from "../utils/geo";
 import clsx from "../utils/clsx";
+
+function isValidLatLng(lat: number, lng: number): boolean {
+  return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+}
 
 interface Props {
   onClose: () => void;
@@ -40,6 +46,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [note, setNote] = useState("");
+  const [location, setLocation] = useState<PickedLocation | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -83,6 +90,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
     const areaLabel = area ? localizedName(area, i18n.language) : "";
     const trimmedLandmark = landmark.trim();
 
+    // Area is administrative context, not the report's exact position — only
+    // a GPS fix or a manually placed pin (validated here, never fabricated)
+    // is trustworthy enough to send as the actual coordinates.
+    const hasValidLocation = location && isValidLatLng(location.lat, location.lng);
+
     const input: NewReportInput = {
       divisionId,
       districtId,
@@ -95,6 +107,10 @@ export default function ReportForm({ onClose, onCreated }: Props) {
       startTime,
       endTime: endTime || null,
       note: note.trim(),
+      latitude: hasValidLocation ? location.lat : null,
+      longitude: hasValidLocation ? location.lng : null,
+      locationAccuracy: hasValidLocation && location.accuracy ? location.accuracy : null,
+      locationSource: hasValidLocation ? location.source : null,
     };
 
     try {
@@ -217,6 +233,14 @@ export default function ReportForm({ onClose, onCreated }: Props) {
                 <p className="mt-1 text-[11px] text-grey-600">{t("form.areaHelper")}</p>
               )}
             </div>
+
+            {areaId && (
+              <LocationPicker
+                areaFocus={districtId ? districtCoords(districtId) ?? null : null}
+                value={location}
+                onChange={setLocation}
+              />
+            )}
 
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.landmark")}</label>
