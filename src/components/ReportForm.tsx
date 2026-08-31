@@ -17,6 +17,7 @@ import type { NewReportInput, Report } from "../types";
 import { XIcon, AlertIcon, MapPinIcon, LocateIcon, LoaderIcon } from "./icons";
 import LocationPicker, { type PickedLocation } from "./LocationPicker";
 import { districtCoords } from "../utils/geo";
+import { getCurrentPositionWithFallback } from "../utils/geolocation";
 import clsx from "../utils/clsx";
 
 type AutofillStatus = "idle" | "locating" | "error" | "partial";
@@ -146,57 +147,43 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   // names don't line up 1:1 with this app's thana-level area list, so an
   // area match often won't be found even when division/district are —
   // that's surfaced as a "partial" status, never guessed at.
-  function handleAutofillFromLocation() {
+  async function handleAutofillFromLocation() {
     setAutofillStatus("locating");
-    if (!("geolocation" in navigator)) {
+    try {
+      const { lat, lng, accuracy } = await getCurrentPositionWithFallback();
+      if (!isValidLatLng(lat, lng)) {
+        setAutofillStatus("error");
+        return;
+      }
+
+      const res = await fetch(`/api/reverse-geocode?lat=${lat}&lng=${lng}`);
+      if (!res.ok) throw new Error("reverse geocode request failed");
+      const data = await res.json();
+      const matchedDivision = data.found ? matchDivision(data.division) : undefined;
+      if (!matchedDivision) {
+        setAutofillStatus("error");
+        return;
+      }
+      const matchedDistrict = matchDistrictFromCandidates(matchedDivision, data.districtCandidates ?? []);
+      const matchedArea = matchedDistrict
+        ? matchAreaFromCandidates(matchedDistrict, data.areaCandidates ?? [])
+        : undefined;
+
+      skipCascadeResetRef.current = true;
+      setDivisionId(matchedDivision.id);
+      setDistrictId(matchedDistrict?.id ?? "");
+      setAreaId(matchedArea?.id ?? "");
+      setTimeout(() => {
+        skipCascadeResetRef.current = false;
+      }, 0);
+
+      setPinConfirmedByUser(true);
+      setLocation({ lat, lng, accuracy, source: "gps" });
+
+      setAutofillStatus(matchedArea ? "idle" : "partial");
+    } catch {
       setAutofillStatus("error");
-      return;
     }
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude, longitude, accuracy } = pos.coords;
-        if (!isValidLatLng(latitude, longitude)) {
-          setAutofillStatus("error");
-          return;
-        }
-        try {
-          const res = await fetch(`/api/reverse-geocode?lat=${latitude}&lng=${longitude}`);
-          if (!res.ok) throw new Error("reverse geocode request failed");
-          const data = await res.json();
-          const matchedDivision = data.found ? matchDivision(data.division) : undefined;
-          if (!matchedDivision) {
-            setAutofillStatus("error");
-            return;
-          }
-          const matchedDistrict = matchDistrictFromCandidates(matchedDivision, data.districtCandidates ?? []);
-          const matchedArea = matchedDistrict
-            ? matchAreaFromCandidates(matchedDistrict, data.areaCandidates ?? [])
-            : undefined;
-
-          skipCascadeResetRef.current = true;
-          setDivisionId(matchedDivision.id);
-          setDistrictId(matchedDistrict?.id ?? "");
-          setAreaId(matchedArea?.id ?? "");
-          setTimeout(() => {
-            skipCascadeResetRef.current = false;
-          }, 0);
-
-          setPinConfirmedByUser(true);
-          setLocation({
-            lat: latitude,
-            lng: longitude,
-            accuracy: Number.isFinite(accuracy) ? accuracy : null,
-            source: "gps",
-          });
-
-          setAutofillStatus(matchedArea ? "idle" : "partial");
-        } catch {
-          setAutofillStatus("error");
-        }
-      },
-      () => setAutofillStatus("error"),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
   }
 
   function validate(): boolean {

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { LatLng } from "../utils/geo";
+import { getCurrentPositionWithFallback } from "../utils/geolocation";
 import { LocateIcon, LoaderIcon } from "./icons";
 import clsx from "../utils/clsx";
 
@@ -157,29 +158,21 @@ export default function LocationPicker({ areaFocus, value, onChange, previewFrom
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  function handleUseMyLocation() {
+  async function handleUseMyLocation() {
     setGeoError(false);
-    if (!("geolocation" in navigator)) {
-      setGeoError(true);
-      return;
-    }
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocating(false);
-        const { latitude, longitude, accuracy } = pos.coords;
-        if (!isValidLatLng(latitude, longitude)) {
-          setGeoError(true);
-          return;
-        }
-        onChange({ lat: latitude, lng: longitude, accuracy: Number.isFinite(accuracy) ? accuracy : null, source: "gps" });
-      },
-      () => {
-        setLocating(false);
+    try {
+      const { lat, lng, accuracy } = await getCurrentPositionWithFallback();
+      if (!isValidLatLng(lat, lng)) {
         setGeoError(true);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
+        return;
+      }
+      onChange({ lat, lng, accuracy, source: "gps" });
+    } catch {
+      setGeoError(true);
+    } finally {
+      setLocating(false);
+    }
   }
 
   return (
