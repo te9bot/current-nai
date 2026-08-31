@@ -330,8 +330,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.division")}</label>
+                <label htmlFor="report-division" className="mb-1.5 block text-xs font-semibold text-grey-400">
+                  {t("form.division")}
+                </label>
                 <select
+                  id="report-division"
                   value={divisionId}
                   onChange={(e) => setDivisionId(e.target.value)}
                   className={clsx(
@@ -350,8 +353,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.district")}</label>
+                <label htmlFor="report-district" className="mb-1.5 block text-xs font-semibold text-grey-400">
+                  {t("form.district")}
+                </label>
                 <select
+                  id="report-district"
                   value={districtId}
                   onChange={(e) => setDistrictId(e.target.value)}
                   disabled={!divisionId}
@@ -374,11 +380,15 @@ export default function ReportForm({ onClose, onCreated }: Props) {
             </div>
 
             <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-grey-400">
+              <label
+                htmlFor="report-area"
+                className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-grey-400"
+              >
                 <MapPinIcon width={13} height={13} className="text-grey-500" />
                 {t("form.area")}
               </label>
               <select
+                id="report-area"
                 value={areaId}
                 onChange={(e) => setAreaId(e.target.value)}
                 disabled={!districtId}
@@ -414,8 +424,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
             )}
 
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.landmark")}</label>
+              <label htmlFor="report-landmark" className="mb-1.5 block text-xs font-semibold text-grey-400">
+                {t("form.landmark")}
+              </label>
               <input
+                id="report-landmark"
                 type="text"
                 value={landmark}
                 onChange={(e) => setLandmark(e.target.value)}
@@ -425,8 +438,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("provider.label")}</label>
+              <label htmlFor="report-provider" className="mb-1.5 block text-xs font-semibold text-grey-400">
+                {t("provider.label")}
+              </label>
               <select
+                id="report-provider"
                 value={providerId}
                 onChange={(e) => setProviderId(e.target.value)}
                 className="h-11 w-full rounded-md border border-black/10 bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast focus:border-black/30"
@@ -441,8 +457,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
 
             <div className="grid grid-cols-2 gap-3 rounded-md border border-rust-600/20 bg-rust-500/5 p-3">
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.date")}</label>
+                <label htmlFor="report-date" className="mb-1.5 block text-xs font-semibold text-grey-400">
+                  {t("form.date")}
+                </label>
                 <input
+                  id="report-date"
                   type="date"
                   value={outageDate}
                   onChange={(e) => setOutageDate(e.target.value)}
@@ -453,8 +472,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.startTime")}</label>
+                <label htmlFor="report-start-time" className="mb-1.5 block text-xs font-semibold text-grey-400">
+                  {t("form.startTime")}
+                </label>
                 <input
+                  id="report-start-time"
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
@@ -465,8 +487,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
                 />
               </div>
               <div className="col-span-2">
-                <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.endTime")}</label>
+                <label htmlFor="report-end-time" className="mb-1.5 block text-xs font-semibold text-grey-400">
+                  {t("form.endTime")}
+                </label>
                 <input
+                  id="report-end-time"
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
@@ -485,8 +510,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.note")}</label>
+              <label htmlFor="report-note" className="mb-1.5 block text-xs font-semibold text-grey-400">
+                {t("form.note")}
+              </label>
               <textarea
+                id="report-note"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder={t("form.notePlaceholder")}

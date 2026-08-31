@@ -27,6 +27,7 @@ export default function Filters({ value, onChange }: Props) {
           value={value.q}
           onChange={(e) => onChange({ ...value, q: e.target.value })}
           placeholder={t("filters.searchPlaceholder")}
+          aria-label={t("filters.search")}
           className="h-10 w-full rounded-md border border-black/10 bg-ink-800 pl-9 pr-9 text-sm text-grey-900 placeholder:text-grey-500 outline-none transition-colors duration-fast focus:border-black/30"
         />
         {value.q && (
@@ -44,6 +45,7 @@ export default function Filters({ value, onChange }: Props) {
       <select
         value={value.division}
         onChange={(e) => onChange({ ...value, division: e.target.value })}
+        aria-label={t("filters.division")}
         className="h-10 rounded-md border border-black/10 bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast focus:border-black/30 sm:w-44"
       >
         <option value="">{t("filters.allDivisions")}</option>

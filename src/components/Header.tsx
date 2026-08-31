@@ -39,6 +39,7 @@ export default function Header({ onReportClick, onHelpClick }: Props) {
           <button
             type="button"
             onClick={onReportClick}
+            aria-label={t("header.reportButton")}
             className="inline-flex h-10 items-center gap-1.5 rounded-pill bg-amber-500 px-3.5 text-sm font-semibold text-ink-onAccent transition-colors duration-fast ease-standard hover:bg-amber-400 active:scale-[.97] sm:px-4"
           >
             <PlusIcon width={16} height={16} />

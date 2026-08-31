@@ -192,7 +192,7 @@ export default function Splash({ reports, onDismiss }: Props) {
               </span>
               <StatusBadge report={latestReport} size="sm" />
             </div>
-            <h3 className="mt-2 font-display text-base font-bold text-grey-900">{latestReport.area}</h3>
+            <h2 className="mt-2 font-display text-base font-bold text-grey-900">{latestReport.area}</h2>
             <p className="text-xs text-grey-500">
               {localizedName(district, i18n.language)}, {localizedName(division, i18n.language)}
             </p>

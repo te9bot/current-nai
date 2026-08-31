@@ -29,7 +29,12 @@ export default {
           300: "#2E2E2E",
           400: "#54544F",
           500: "#6C6C68",
-          600: "#868682",
+          // Was #868682 — too light to hit WCAG AA's 4.5:1 against any of
+          // the app's backgrounds (max ~3.65:1), despite being used for
+          // genuinely-read helper text/captions/disclaimers, not decorative
+          // filler. Darkened just enough to clear 4.5:1 everywhere it's
+          // used while staying the lightest/most muted of the four tiers.
+          600: "#5E5E5A",
           900: "#151515",
         },
         // Status colors: power-on (green) and load-shedding (red) — kept
@@ -37,14 +42,21 @@ export default {
         // reads the same regardless of the app's brand color.
         leaf: {
           300: "#8FD3A2",
-          400: "#6BC183",
+          // Was #6BC183 — only ~2:1 against any of the app's backgrounds,
+          // used as actual text color (ticker, report cards, status
+          // messages) rather than just backgrounds/borders, where it needs
+          // WCAG AA's 4.5:1. Darkened to the lightest shade that clears it
+          // with margin; 300/500+ (used for badge backgrounds/rings, not
+          // text-on-light) are untouched.
+          400: "#40744F",
           500: "#50AF6C",
           600: "#3F925A",
           700: "#2F7047",
         },
         rust: {
           300: "#F0958A",
-          400: "#EB7C6C",
+          // Was #EB7C6C — same issue as leaf-400 above (~2.5:1 as text).
+          400: "#995146",
           500: "#E4573D",
           600: "#C43F28",
           700: "#9C3220",

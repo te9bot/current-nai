@@ -795,7 +795,15 @@ if os.environ.get("NODE_ENV") == "production" and DIST_DIR.is_dir():
                 # year. A week is long enough to meaningfully cut repeat-visit
                 # bytes without that risk; browsers still revalidate (via the
                 # ETag/Last-Modified FileResponse already sets) once it lapses.
-                return FileResponse(candidate, headers={"Cache-Control": "public, max-age=604800"})
+                #
+                # robots.txt/sitemap.xml get an explicit media_type rather
+                # than relying on the container's system mimetypes database —
+                # that guessed text/xml for .xml locally, and an SEO crawler
+                # validating these files cares about the exact Content-Type.
+                media_type = {"robots.txt": "text/plain", "sitemap.xml": "application/xml"}.get(candidate.name)
+                return FileResponse(
+                    candidate, media_type=media_type, headers={"Cache-Control": "public, max-age=604800"}
+                )
 
         # index.html is not fingerprinted — it's what points at the current
         # hashes — so it stays revalidate-on-every-request.

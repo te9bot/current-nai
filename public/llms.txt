@@ -1,0 +1,14 @@
+# কারেন্ট Koi?
+
+> Community-reported electricity and load-shedding status tracker for Bangladesh. Not an official government or utility app — every report comes from an ordinary visitor, not an official source, and is not verified against real grid data.
+
+## Pages
+
+- [Home](https://karentkoi.live/): Live map and list of community-submitted power outage reports across Bangladesh, filterable by division, district, provider, and status, plus a "nearby outages" panel and outage-timing charts.
+- [About](https://karentkoi.live/about): Who built the project and why.
+
+## Notes
+
+- Available in Bengali (default) and English via the language toggle in the header.
+- Report data changes continuously as visitors submit and confirm outages; there is no static content beyond the two pages above.
+- No user accounts — reports are anonymous, identified only by a hashed cookie used to prevent duplicate confirms.

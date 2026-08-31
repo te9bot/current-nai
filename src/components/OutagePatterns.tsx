@@ -119,6 +119,7 @@ export default function OutagePatterns() {
           <select
             value={division}
             onChange={(e) => setDivision(e.target.value)}
+            aria-label={t("filters.division")}
             className="h-9 rounded-md border border-black/10 bg-ink-800 px-2.5 text-xs text-grey-900 outline-none focus:border-black/30"
           >
             <option value="">{t("filters.allDivisions")}</option>
@@ -132,6 +133,7 @@ export default function OutagePatterns() {
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
             disabled={!division}
+            aria-label={t("form.district")}
             className="h-9 rounded-md border border-black/10 bg-ink-800 px-2.5 text-xs text-grey-900 outline-none focus:border-black/30 disabled:opacity-40"
           >
             <option value="">{t("patterns.allCities")}</option>
@@ -145,6 +147,7 @@ export default function OutagePatterns() {
             value={area}
             onChange={(e) => setArea(e.target.value)}
             disabled={!district}
+            aria-label={t("form.area")}
             className="h-9 rounded-md border border-black/10 bg-ink-800 px-2.5 text-xs text-grey-900 outline-none focus:border-black/30 disabled:opacity-40"
           >
             <option value="">{t("patterns.allAreas")}</option>

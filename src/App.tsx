@@ -4,7 +4,6 @@ import Header from "./components/Header";
 import Splash from "./components/Splash";
 import Ticker from "./components/Ticker";
 import SummaryCounts from "./components/SummaryCounts";
-import NearbyPanel from "./components/NearbyPanel";
 import Reveal from "./components/Reveal";
 import { useReports } from "./hooks/useReports";
 import { useRoute } from "./hooks/useRoute";
@@ -20,6 +19,13 @@ import type { LatLng } from "./utils/geo";
 const MapBackdrop = lazy(() => import("./components/MapBackdrop"));
 const ReportForm = lazy(() => import("./components/ReportForm"));
 const OnboardingGuide = lazy(() => import("./components/OnboardingGuide"));
+// NearbyPanel sits entirely behind the splash overlay on first load too (its
+// own embedded map is already deferred via deferMap below) — splitting the
+// rest of it into its own chunk means the browser doesn't have to parse its
+// code before it can paint the splash. It's still fetched immediately
+// (unlike MapBackdrop, it isn't gated on splash dismissal), just off the
+// main bundle's critical path.
+const NearbyPanel = lazy(() => import("./components/NearbyPanel"));
 // Everything from StatsPanel down is below the fold on first load — grouped
 // into one chunk so none of it competes with the hero/splash for bandwidth
 // or parse time. It fetches in the background regardless, so it's normally
@@ -141,7 +147,9 @@ export default function App() {
 
           <Reveal>
             <div className="mb-4 sm:mb-6">
-              <NearbyPanel reports={allReports} onRegionChange={setMapFocus} deferMap={showSplash} />
+              <Suspense fallback={<div className="panel h-[220px] animate-pulse sm:h-[260px]" />}>
+                <NearbyPanel reports={allReports} onRegionChange={setMapFocus} deferMap={showSplash} />
+              </Suspense>
             </div>
           </Reveal>
 
