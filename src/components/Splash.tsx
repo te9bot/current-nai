@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { Report } from "../types";
 import { getDivision, getDistrict, localizedName } from "../data/locations";
@@ -6,6 +6,7 @@ import StatusBadge from "./StatusBadge";
 import { BoltIcon, BoltOffIcon } from "./icons";
 import { formatRelativeTime, useNowTick } from "../utils/time";
 import { isCurrentlyPowerOn } from "../utils/reportStatus";
+import { prefersReducedMotion } from "../utils/motion";
 import clsx from "../utils/clsx";
 
 interface Props {
@@ -32,12 +33,36 @@ export default function Splash({ reports, onDismiss }: Props) {
   const now = useNowTick();
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const frame = useRef<number | null>(null);
+  const reducedMotion = useRef(prefersReducedMotion()).current;
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   const latestReport = reports[0] ?? null;
   const floatingReports = reports.slice(1, 1 + FLOAT_SLOTS.length);
 
   const division = latestReport ? getDivision(latestReport.divisionId) : undefined;
   const district = latestReport ? getDistrict(latestReport.divisionId, latestReport.districtId) : undefined;
+
+  useEffect(() => {
+    // Reduced-motion visitors get the same real reports without the
+    // scroll-tied zoom/reveal — same convention as MapBackdrop's parallax.
+    if (reducedMotion) return;
+
+    let scrollFrame: number | null = null;
+    const onScroll = () => {
+      if (scrollFrame) return;
+      scrollFrame = requestAnimationFrame(() => {
+        const range = Math.max(320, window.innerHeight * 0.6);
+        setScrollProgress(Math.min(1, Math.max(0, window.scrollY / range)));
+        scrollFrame = null;
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (scrollFrame) cancelAnimationFrame(scrollFrame);
+    };
+  }, [reducedMotion]);
 
   function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
     const { innerWidth, innerHeight } = window;
@@ -46,6 +71,9 @@ export default function Splash({ reports, onDismiss }: Props) {
     if (frame.current) cancelAnimationFrame(frame.current);
     frame.current = requestAnimationFrame(() => setTilt({ x, y }));
   }
+
+  // 1 -> fully zoomed in; scroll back up smoothly returns this to 0.
+  const mapScale = 1 + scrollProgress * 0.22;
 
   return (
     <div
@@ -57,10 +85,11 @@ export default function Splash({ reports, onDismiss }: Props) {
           mouse-driven offset for a parallax depth cue on desktop */}
       <div
         aria-hidden
-        className="animate-map-pan pointer-events-none absolute inset-[-8%] bg-cover bg-center opacity-45 transition-transform duration-fast ease-standard"
+        className="animate-map-pan pointer-events-none absolute inset-[-8%] bg-cover bg-center opacity-45 transition-[scale] duration-base ease-standard"
         style={{
           backgroundImage: "url(/map-dark.png)",
           translate: `${tilt.x * -14}px ${tilt.y * -14}px`,
+          scale: mapScale,
           filter: "invert(1) hue-rotate(180deg) brightness(1.08) contrast(0.92)",
         }}
       />
@@ -77,16 +106,24 @@ export default function Splash({ reports, onDismiss }: Props) {
       {floatingReports.map((r, i) => {
         const slot = FLOAT_SLOTS[i];
         const isOn = isCurrentlyPowerOn(r);
+        // Cards reveal one at a time as the visitor scrolls down, staying
+        // real data (just the next slice of `reports`) never invented rows —
+        // and fold back away on the way back up to the original view.
+        const cardProgress = reducedMotion
+          ? 1
+          : Math.min(1, Math.max(0, scrollProgress * floatingReports.length - i));
         return (
           <div
             key={r.id}
             aria-hidden
             className={clsx(
-              "pointer-events-none absolute z-10 hidden w-40 animate-float rounded-lg border border-black/10 bg-ink-900/70 p-2.5 opacity-70 shadow-pin backdrop-blur transition-transform duration-fast ease-standard lg:block",
+              "pointer-events-none absolute z-10 hidden w-40 animate-float rounded-lg border border-black/10 bg-ink-900/70 p-2.5 shadow-pin backdrop-blur transition-[opacity,scale] duration-fast ease-standard lg:block",
               slot.className
             )}
             style={{
               translate: `${tilt.x * slot.tiltFactor}px ${tilt.y * slot.tiltFactor}px`,
+              scale: 0.85 + cardProgress * 0.15,
+              opacity: cardProgress * 0.7,
               animationDelay: slot.delay,
             }}
           >
