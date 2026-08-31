@@ -22,6 +22,15 @@ import clsx from "../utils/clsx";
 
 type AutofillStatus = "idle" | "locating" | "error" | "partial";
 
+// Plain fetch() has no built-in timeout — on a slow or flaky mobile
+// connection it can hang indefinitely with the button stuck on "Detecting..."
+// forever instead of ever reaching the error state. AbortSignal.timeout()
+// guarantees this rejects (and the surrounding try/catch shows the existing
+// error message) instead of waiting forever.
+function fetchWithTimeout(url: string, timeoutMs = 10000): Promise<Response> {
+  return fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
+}
+
 function isValidLatLng(lat: number, lng: number): boolean {
   return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
 }
@@ -120,7 +129,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
     const handle = setTimeout(async () => {
       setGeocoding(true);
       try {
-        const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+        const res = await fetchWithTimeout(`/api/geocode?q=${encodeURIComponent(query)}`);
         if (!res.ok) return;
         const data = await res.json();
         if (data.found && isValidLatLng(data.lat, data.lng)) {
@@ -156,7 +165,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
         return;
       }
 
-      const res = await fetch(`/api/reverse-geocode?lat=${lat}&lng=${lng}`);
+      const res = await fetchWithTimeout(`/api/reverse-geocode?lat=${lat}&lng=${lng}`);
       if (!res.ok) throw new Error("reverse geocode request failed");
       const data = await res.json();
       const matchedDivision = data.found ? matchDivision(data.division) : undefined;
