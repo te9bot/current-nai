@@ -1,18 +1,18 @@
 services:
   - type: web
     name: current-nai
-    runtime: node
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: free
-    buildCommand: npm install --include=dev && npm run build
-    startCommand: npm run server
     envVars:
-      - key: NODE_ENV
-        value: production
-      - key: NODE_VERSION
-        value: 24.19.0
       # Postgres connection string (e.g. from Supabase: Project Settings →
       # Database → Connection string). sync: false means Render prompts for
       # the value in its dashboard instead of storing it in this file.
       - key: DATABASE_URL
+        sync: false
+      # Pepper for hashing reporter IPs (see backend/main.py). Falls back to
+      # a built-in default if unset, but should be set to a real secret in
+      # production.
+      - key: IP_HASH_SECRET
         sync: false
     autoDeploy: true

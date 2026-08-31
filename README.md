@@ -11,27 +11,30 @@ of inactivity, so the first request after a while can take ~30-60s to wake up)
 
 - **Frontend:** React + Vite + TypeScript, Tailwind CSS
 - **i18n:** react-i18next (English ⇄ বাংলা, persisted in localStorage)
-- **Backend:** Express + `node:sqlite` (Node's built-in SQLite module — no native
-  build step, no external DB to install)
+- **Backend:** FastAPI + `asyncpg`, against a Postgres database (Supabase in production)
 
 ## Running locally
 
-Requires **Node.js 22.5+** (for `node:sqlite`) — Node 24 is recommended.
+Requires **Node.js 22.5+** and **Python 3.12+**, plus a `DATABASE_URL` pointing at a
+Postgres database (e.g. a free Supabase project — Project Settings → Database →
+Connection string).
 
 ```bash
 npm install
+python -m venv .venv
+.venv\Scripts\pip install -r backend/requirements.txt   # .venv/bin/pip on macOS/Linux
+$env:DATABASE_URL = "postgresql://..."                  # or export DATABASE_URL=... on macOS/Linux
+
 npm run dev
 ```
 
 This starts two processes together (via `concurrently`):
 
 - the Vite dev server at **http://localhost:5173** (the app)
-- the Express API at **http://localhost:4000** (proxied under `/api` by Vite)
+- the FastAPI API (uvicorn) at **http://localhost:4000** (proxied under `/api` by Vite)
 
-On first run the API seeds the SQLite database (`server/current-nai.sqlite`) with a
-handful of sample reports across different divisions so the board isn't empty. The
-database file is created automatically and gitignored; delete it to reset to a fresh
-seeded state.
+On first run the API seeds the `reports` table with a handful of sample reports across
+different divisions so the board isn't empty (only if the table is currently empty).
 
 Other scripts:
 
@@ -40,6 +43,10 @@ npm run build     # type-check + production build of the frontend
 npm run server    # run only the API server
 npm run seed      # manually (re-)seed if the reports table is empty
 ```
+
+The production image is a multi-stage `Dockerfile`: a Node stage builds the frontend,
+then a Python stage runs the FastAPI app, which also serves the built `dist/` as static
+files (see `backend/main.py`).
 
 ## The load-shedding ledger
 
@@ -79,7 +86,7 @@ outages instead of money:
 data/locations.json      Bangladesh divisions/districts (English + Bangla names) —
                           shared source of truth for both frontend and backend
 data/providers.json      Electricity distribution companies (English + Bangla)
-server/                  Express API + SQLite schema/seed
+backend/                 FastAPI API + Postgres schema/seed
 src/
   api/                   fetch() wrappers for the reports API
   components/            UI components (Header, Splash, Board, ReportForm, ...)

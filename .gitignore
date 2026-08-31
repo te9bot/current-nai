@@ -1,11 +1,10 @@
 node_modules/
 dist/
 
-# SQLite database — regenerated and reseeded on first server start
-server/*.sqlite
-server/*.sqlite-journal
-server/*.sqlite-shm
-server/*.sqlite-wal
+# Python backend
+__pycache__/
+*.pyc
+.venv/
 
 # Local editor/tool settings
 .claude/settings.local.json

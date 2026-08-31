@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+*.sqlite
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+**/__pycache__
+**/*.pyc
+.venv
+*.tsbuildinfo
+.claude
+.vscode
+.idea
