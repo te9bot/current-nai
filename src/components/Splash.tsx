@@ -81,7 +81,9 @@ export default function Splash({ reports, onDismiss }: Props) {
   }
 
   // 1 -> fully zoomed in; scroll back up smoothly returns this to 0.
-  const mapScale = 1 + scrollProgress * 0.22;
+  // String, not a number: React appends "px" to unrecognized numeric style
+  // properties, which turns `scale` into an invalid value the browser drops.
+  const mapScale = String(1 + scrollProgress * 0.22);
 
   return (
     <div
@@ -130,7 +132,7 @@ export default function Splash({ reports, onDismiss }: Props) {
             )}
             style={{
               translate: `${tilt.x * slot.tiltFactor}px ${tilt.y * slot.tiltFactor}px`,
-              scale: 0.85 + cardProgress * 0.15,
+              scale: String(0.85 + cardProgress * 0.15),
               opacity: cardProgress * 0.7,
               animationDelay: slot.delay,
             }}
