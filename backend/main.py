@@ -547,6 +547,63 @@ async def geocode(request: Request, q: str):
     return {"found": True, "lat": lat, "lng": lng, "displayName": results[0].get("display_name")}
 
 
+@app.get("/api/reverse-geocode")
+@limiter.limit("15/minute")
+async def reverse_geocode(request: Request, lat: float, lng: float):
+    """Coordinates -> address lookup for the report form's "use my location"
+    auto-fill: turns a GPS fix into candidate division/district/area names,
+    which the frontend then matches against its own location list (never
+    trusted blindly — Nominatim's admin boundaries don't line up 1:1 with
+    this app's district/thana list, hence returning several candidates per
+    level instead of picking one here)."""
+    if not valid_coordinates(lat, lng):
+        raise HTTPException(status_code=400, detail={"error": "invalid_location"})
+
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            resp = await client.get(
+                "https://nominatim.openstreetmap.org/reverse",
+                params={
+                    "lat": lat,
+                    "lon": lng,
+                    "format": "json",
+                    "addressdetails": 1,
+                    "zoom": 16,
+                    "accept-language": "en",
+                },
+                headers={"User-Agent": GEOCODE_USER_AGENT},
+            )
+            resp.raise_for_status()
+            data = resp.json()
+    except (httpx.HTTPError, ValueError):
+        return {"found": False}
+
+    address = data.get("address") if isinstance(data, dict) else None
+    if not address:
+        return {"found": False}
+
+    return {
+        "found": True,
+        "division": address.get("state"),
+        "districtCandidates": [
+            c for c in [address.get("state_district"), address.get("county"), address.get("city")] if c
+        ],
+        "areaCandidates": [
+            c
+            for c in [
+                address.get("suburb"),
+                address.get("residential"),
+                address.get("neighbourhood"),
+                address.get("quarter"),
+                address.get("city_district"),
+                address.get("town"),
+                address.get("village"),
+            ]
+            if c
+        ],
+    }
+
+
 @app.post("/api/reports", status_code=201)
 @limiter.limit("20/minute")
 async def create_report(request: Request, body: NewReportInput, anon_hash: str = Depends(get_anon_hash)):

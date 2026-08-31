@@ -1,13 +1,25 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { DIVISIONS, getDistricts, getAreas, getDivision, getDistrict, localizedName } from "../data/locations";
+import {
+  DIVISIONS,
+  getDistricts,
+  getAreas,
+  getDivision,
+  getDistrict,
+  localizedName,
+  matchDivision,
+  matchDistrictFromCandidates,
+  matchAreaFromCandidates,
+} from "../data/locations";
 import { PROVIDERS } from "../data/providers";
 import { createReport } from "../api/reports";
 import type { NewReportInput, Report } from "../types";
-import { XIcon, AlertIcon, MapPinIcon } from "./icons";
+import { XIcon, AlertIcon, MapPinIcon, LocateIcon, LoaderIcon } from "./icons";
 import LocationPicker, { type PickedLocation } from "./LocationPicker";
 import { districtCoords } from "../utils/geo";
 import clsx from "../utils/clsx";
+
+type AutofillStatus = "idle" | "locating" | "error" | "partial";
 
 function isValidLatLng(lat: number, lng: number): boolean {
   return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
@@ -52,10 +64,17 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   // it, even if they keep editing the landmark field.
   const [pinConfirmedByUser, setPinConfirmedByUser] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
+  const [autofillStatus, setAutofillStatus] = useState<AutofillStatus>("idle");
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(false);
+  // The division/district cascade normally clears the levels below whenever
+  // a higher one changes (manual re-selection). The location auto-fill sets
+  // all three at once from a single GPS+reverse-geocode read, so it flips
+  // this on first to stop that cascade from wiping out the district/area it
+  // just set.
+  const skipCascadeResetRef = useRef(false);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -65,10 +84,12 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   }, []);
 
   useEffect(() => {
+    if (skipCascadeResetRef.current) return;
     setDistrictId("");
   }, [divisionId]);
 
   useEffect(() => {
+    if (skipCascadeResetRef.current) return;
     setAreaId("");
   }, [districtId]);
 
@@ -117,6 +138,65 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   function handlePickerChange(next: PickedLocation | null) {
     setPinConfirmedByUser(true);
     setLocation(next);
+  }
+
+  // One tap: GPS fix -> reverse-geocode -> match against this app's own
+  // division/district/area list -> fill all three and drop the exact pin
+  // with the same coordinates. Nominatim's admin boundaries and suburb
+  // names don't line up 1:1 with this app's thana-level area list, so an
+  // area match often won't be found even when division/district are —
+  // that's surfaced as a "partial" status, never guessed at.
+  function handleAutofillFromLocation() {
+    setAutofillStatus("locating");
+    if (!("geolocation" in navigator)) {
+      setAutofillStatus("error");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords;
+        if (!isValidLatLng(latitude, longitude)) {
+          setAutofillStatus("error");
+          return;
+        }
+        try {
+          const res = await fetch(`/api/reverse-geocode?lat=${latitude}&lng=${longitude}`);
+          if (!res.ok) throw new Error("reverse geocode request failed");
+          const data = await res.json();
+          const matchedDivision = data.found ? matchDivision(data.division) : undefined;
+          if (!matchedDivision) {
+            setAutofillStatus("error");
+            return;
+          }
+          const matchedDistrict = matchDistrictFromCandidates(matchedDivision, data.districtCandidates ?? []);
+          const matchedArea = matchedDistrict
+            ? matchAreaFromCandidates(matchedDistrict, data.areaCandidates ?? [])
+            : undefined;
+
+          skipCascadeResetRef.current = true;
+          setDivisionId(matchedDivision.id);
+          setDistrictId(matchedDistrict?.id ?? "");
+          setAreaId(matchedArea?.id ?? "");
+          setTimeout(() => {
+            skipCascadeResetRef.current = false;
+          }, 0);
+
+          setPinConfirmedByUser(true);
+          setLocation({
+            lat: latitude,
+            lng: longitude,
+            accuracy: Number.isFinite(accuracy) ? accuracy : null,
+            source: "gps",
+          });
+
+          setAutofillStatus(matchedArea ? "idle" : "partial");
+        } catch {
+          setAutofillStatus("error");
+        }
+      },
+      () => setAutofillStatus("error"),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   }
 
   function validate(): boolean {
@@ -211,6 +291,29 @@ export default function ReportForm({ onClose, onCreated }: Props) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-5 py-5">
+            <div className="rounded-md border border-black/10 bg-ink-800/60 p-3">
+              <button
+                type="button"
+                onClick={handleAutofillFromLocation}
+                disabled={autofillStatus === "locating"}
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-black/10 bg-ink-800 text-sm font-semibold text-grey-900 transition-colors duration-fast ease-standard hover:border-black/30 disabled:opacity-60"
+              >
+                {autofillStatus === "locating" ? (
+                  <LoaderIcon width={16} height={16} className="animate-spin" />
+                ) : (
+                  <LocateIcon width={16} height={16} />
+                )}
+                {autofillStatus === "locating" ? t("form.locating") : t("form.useMyLocationAutofill")}
+              </button>
+              <p className="mt-1.5 text-[11px] text-grey-600">{t("form.useMyLocationAutofillHelp")}</p>
+              {autofillStatus === "error" && (
+                <p className="mt-1.5 text-[11px] text-rust-400">{t("form.locationError")}</p>
+              )}
+              {autofillStatus === "partial" && (
+                <p className="mt-1.5 text-[11px] text-amber-500">{t("form.autofillPartialMatch")}</p>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-grey-400">{t("form.division")}</label>

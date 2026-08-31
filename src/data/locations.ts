@@ -43,3 +43,50 @@ export function localizedName(entity: { en: string; bn: string } | undefined | n
   if (!entity) return "";
   return lang.startsWith("bn") ? entity.bn : entity.en;
 }
+
+/** Loosely normalizes a place name for matching against reverse-geocoded
+ *  text — strips administrative-boundary words Nominatim tacks on (e.g.
+ *  "Dhaka District", "Dhaka Metropolitan", "Dhanmondi Residential Area")
+ *  that don't appear in this app's own division/district/area names. */
+function normalizePlaceName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\b(district|division|metropolitan|residential area|city corporation|corporation|thana|upazila)\b/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/** Matches a reverse-geocoded division name against this app's list. Exact
+ *  after normalization only — a near-miss here would silently misfile a
+ *  report under the wrong division, worse than just leaving it unmatched. */
+export function matchDivision(name: string | undefined | null): Division | undefined {
+  if (!name) return undefined;
+  const target = normalizePlaceName(name);
+  return DIVISIONS.find((d) => normalizePlaceName(d.en) === target);
+}
+
+/** Tries each candidate string in order (Nominatim's state_district, county,
+ *  city fields don't map 1:1 to this app's district list, so several
+ *  candidates are offered) and returns the first exact normalized match. */
+export function matchDistrictFromCandidates(division: Division, candidates: string[]): District | undefined {
+  for (const candidate of candidates) {
+    const target = normalizePlaceName(candidate);
+    const hit = division.districts.find((d) => normalizePlaceName(d.en) === target);
+    if (hit) return hit;
+  }
+  return undefined;
+}
+
+/** Same candidate-list approach as matchDistrictFromCandidates, for the
+ *  area level (Nominatim's suburb/neighbourhood granularity is finer than
+ *  this app's thana-level area list, so an exact match often won't be
+ *  found — that's expected, not a bug, and callers should fall back to
+ *  manual area selection rather than guessing). */
+export function matchAreaFromCandidates(district: District, candidates: string[]): Area | undefined {
+  for (const candidate of candidates) {
+    const target = normalizePlaceName(candidate);
+    const hit = district.areas.find((a) => normalizePlaceName(a.en) === target);
+    if (hit) return hit;
+  }
+  return undefined;
+}

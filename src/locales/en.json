@@ -50,6 +50,9 @@
   "form": {
     "heading": "Report a load-shedding outage",
     "subheading": "Help your neighbors know what's happening on the grid.",
+    "useMyLocationAutofill": "Use my location to auto-fill",
+    "useMyLocationAutofillHelp": "We'll detect your division, district, and area, and pinpoint your exact location — all in one tap.",
+    "autofillPartialMatch": "We found your district, but couldn't match the exact area — please pick it below.",
     "division": "Division",
     "divisionPlaceholder": "Select division",
     "district": "District / City",
