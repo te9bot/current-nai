@@ -448,10 +448,25 @@ if os.environ.get("NODE_ENV") == "production" and DIST_DIR.is_dir():
 
     app.mount("/assets", ImmutableStaticFiles(directory=DIST_DIR / "assets"), name="assets")
 
+    DIST_DIR_RESOLVED = DIST_DIR.resolve()
+
     @app.get("/{full_path:path}")
     async def spa_fallback(full_path: str):
         if full_path.startswith("api/"):
             raise HTTPException(status_code=404, detail={"error": "not_found"})
+
+        # Anything under public/ (team photos, bolt.svg, map-dark.png, etc.) is
+        # copied verbatim into dist/ by Vite — unlike assets/, it isn't
+        # fingerprinted, so it isn't covered by the mount above. Without this
+        # check every such file 200'd with index.html's HTML instead of its
+        # actual bytes, silently breaking any non-fingerprinted asset (this is
+        # exactly what broke the team photo). resolve() + is_relative_to()
+        # guards against a full_path like "../../etc/passwd" escaping DIST_DIR.
+        if full_path:
+            candidate = (DIST_DIR / full_path).resolve()
+            if candidate.is_relative_to(DIST_DIR_RESOLVED) and candidate.is_file():
+                return FileResponse(candidate)
+
         # index.html is not fingerprinted — it's what points at the current
         # hashes — so it stays revalidate-on-every-request.
         return FileResponse(DIST_DIR / "index.html", headers={"Cache-Control": "no-cache"})

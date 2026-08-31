@@ -1,7 +1,10 @@
 import { useTranslation } from "react-i18next";
 
 export default function About() {
-  const { t } = useTranslation();
+  // The creator bio is always shown in English regardless of the site
+  // language toggle — getFixedT bypasses the active language on purpose.
+  const { i18n } = useTranslation();
+  const t = i18n.getFixedT("en");
 
   return (
     <section className="panel">
