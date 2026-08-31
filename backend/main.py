@@ -529,8 +529,14 @@ async def geocode(request: Request, q: str):
             )
             resp.raise_for_status()
             results = resp.json()
-    except (httpx.HTTPError, ValueError):
-        return {"found": False}
+    except httpx.HTTPStatusError as e:
+        # TEMP DIAGNOSTIC — remove once the production Nominatim-reachability
+        # issue is confirmed/resolved.
+        return {"found": False, "debugError": f"upstream_status_{e.response.status_code}", "debugBody": e.response.text[:300]}
+    except httpx.HTTPError as e:
+        return {"found": False, "debugError": f"{type(e).__name__}: {e}"}
+    except ValueError as e:
+        return {"found": False, "debugError": f"json_error: {e}"}
 
     if not results:
         return {"found": False}
@@ -575,12 +581,18 @@ async def reverse_geocode(request: Request, lat: float, lng: float):
             )
             resp.raise_for_status()
             data = resp.json()
-    except (httpx.HTTPError, ValueError):
-        return {"found": False}
+    except httpx.HTTPStatusError as e:
+        # TEMP DIAGNOSTIC — remove once the production Nominatim-reachability
+        # issue is confirmed/resolved.
+        return {"found": False, "debugError": f"upstream_status_{e.response.status_code}", "debugBody": e.response.text[:300]}
+    except httpx.HTTPError as e:
+        return {"found": False, "debugError": f"{type(e).__name__}: {e}"}
+    except ValueError as e:
+        return {"found": False, "debugError": f"json_error: {e}"}
 
     address = data.get("address") if isinstance(data, dict) else None
     if not address:
-        return {"found": False}
+        return {"found": False, "debugError": "no_address_in_response", "debugBody": str(data)[:300]}
 
     return {
         "found": True,
