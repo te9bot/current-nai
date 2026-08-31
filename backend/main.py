@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
@@ -25,14 +25,24 @@ DIST_DIR = BASE_DIR / "dist"
 VALID_STATUS = {"power_on", "load_shedding"}
 VALID_SORT = {"latest", "longest", "confirmed"}
 
-# "My reports" recovery when local storage is lost (new browser, cleared
-# data, different device on the same network): reports are also tagged with
-# a salted hash of the reporter's IP at creation time, so a later visit from
-# the same IP can look its own reports back up and resolve them — no
-# accounts needed. HMAC (not a bare hash) because raw IPv4 space is only ~4
-# billion values and trivially reversible otherwise; the pepper keeps the
-# stored hash from being useful outside this server.
+# IP hashing is kept only as a secondary anti-abuse signal (rate limiting,
+# and reporter_ip_hash for future abuse heuristics) — never as the primary
+# way of recognizing a visitor. See ANON_ID_SECRET below for that. HMAC (not
+# a bare hash) because raw IPv4 space is only ~4 billion values and trivially
+# reversible otherwise; the pepper keeps the stored hash from being useful
+# outside this server.
 IP_HASH_SECRET = os.environ.get("IP_HASH_SECRET", "current-nai-ip-pepper-fallback")
+
+# The app is fully anonymous — no accounts, no login — but still needs a way
+# to (a) stop one visitor from confirming the same report over and over and
+# (b) let anyone nearby resolve a report without proving they created it.
+# Both are handled with a random, HttpOnly, server-issued identifier stored
+# in a cookie: never readable by frontend JS, never sent anywhere but back to
+# this server, and never itself stored — only its HMAC (anon_hash) is, so a
+# leaked database still can't be used to forge or replay a visitor's cookie.
+ANON_ID_SECRET = os.environ.get("ANON_ID_SECRET", "current-nai-anon-pepper-fallback")
+ANON_COOKIE_NAME = "cnai_anon"
+ANON_COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2  # 2 years
 
 
 # Requests reach this process through two hops — Cloudflare's edge, then
@@ -81,22 +91,33 @@ app.add_middleware(GZipMiddleware)
 
 # --- helpers -----------------------------------------------------------------
 
-def generate_resolve_token() -> str:
-    return secrets.token_urlsafe(32)
-
-
-def hash_resolve_token(token: str) -> str:
-    return hashlib.sha256(token.encode()).hexdigest()
-
-
-def resolve_token_matches(provided_token: Optional[str], stored_hash: Optional[str]) -> bool:
-    if not stored_hash or not isinstance(provided_token, str) or not provided_token:
-        return False
-    return hmac.compare_digest(hash_resolve_token(provided_token), stored_hash)
-
-
 def hash_ip(ip: Optional[str]) -> str:
     return hmac.new(IP_HASH_SECRET.encode(), (ip or "").encode(), hashlib.sha256).hexdigest()
+
+
+def hash_anon_id(raw: str) -> str:
+    return hmac.new(ANON_ID_SECRET.encode(), raw.encode(), hashlib.sha256).hexdigest()
+
+
+def get_anon_hash(request: Request, response: Response) -> str:
+    """Resolves this visitor's anonymous identity for dedup/anti-abuse
+    purposes, issuing a fresh cookie on first contact if none exists yet.
+    Secure is conditional on production because Vite's local dev proxy serves
+    the app over plain http, where a Secure cookie would be silently dropped
+    by the browser."""
+    raw = request.cookies.get(ANON_COOKIE_NAME)
+    if not raw:
+        raw = secrets.token_urlsafe(32)
+        response.set_cookie(
+            ANON_COOKIE_NAME,
+            raw,
+            max_age=ANON_COOKIE_MAX_AGE,
+            httponly=True,
+            secure=os.environ.get("NODE_ENV") == "production",
+            samesite="lax",
+            path="/",
+        )
+    return hash_anon_id(raw)
 
 
 def local_time(d: datetime) -> str:
@@ -135,8 +156,19 @@ def _iso_z(dt: datetime) -> str:
     return dt.strftime("%Y-%m-%dT%H:%M:%S.") + f"{dt.microsecond // 1000:03d}Z"
 
 
-def serialize_report(row) -> dict:
+def required_restore_votes(confirmations: int) -> int:
+    """How many distinct anonymous 'power's back' votes a report needs before
+    it actually resolves. Barely-corroborated outages (few confirmations)
+    resolve on a single vote; strongly-corroborated ones need independent
+    agreement, capped at 3 so a heavily-confirmed report is never practically
+    impossible to resolve."""
+    return 1 if confirmations < 5 else 3
+
+
+def serialize_report(row, confirmed_by_you: bool = False, restore_votes: int = 0, restored_by_you: bool = False) -> dict:
     created_at = row["created_at"]
+    updated_at = row["updated_at"]
+    confirmations = row["confirmations"] or 0
     return {
         "id": row["id"],
         "divisionId": row["division_id"],
@@ -150,10 +182,22 @@ def serialize_report(row) -> dict:
         "startTime": row["start_time"],
         "endTime": row["end_time"],
         "note": row["note"] or "",
-        "confirmations": row["confirmations"] or 0,
+        "confirmations": confirmations,
+        "confirmedByYou": confirmed_by_you,
+        "restoreVotes": restore_votes,
+        "restoreVotesNeeded": required_restore_votes(confirmations),
+        "restoredByYou": restored_by_you,
         "durationMinutes": outage_minutes(row),
         "createdAt": _iso_z(created_at) if isinstance(created_at, datetime) else created_at,
+        "updatedAt": _iso_z(updated_at) if isinstance(updated_at, datetime) else updated_at,
     }
+
+
+async def fetch_restore_state(report_id: int, anon_hash: str) -> tuple[int, bool]:
+    """(distinct vote count, whether this anon has voted) for a single report."""
+    rows = await db.all("SELECT anon_hash FROM report_restore_votes WHERE report_id = $1", report_id)
+    hashes = {r["anon_hash"] for r in rows}
+    return len(hashes), anon_hash in hashes
 
 
 # --- request bodies -----------------------------------------------------------
@@ -172,10 +216,6 @@ class NewReportInput(BaseModel):
     note: Optional[str] = None
 
 
-class ResolveInput(BaseModel):
-    resolveToken: Optional[str] = None
-
-
 # --- routes --------------------------------------------------------------------
 
 @app.get("/api/reports")
@@ -185,6 +225,7 @@ async def list_reports(
     provider: Optional[str] = None,
     q: Optional[str] = None,
     sort: Optional[str] = None,
+    anon_hash: str = Depends(get_anon_hash),
 ):
     sql = "SELECT * FROM reports WHERE 1=1"
     params: list = []
@@ -213,7 +254,37 @@ async def list_reports(
     sql += " LIMIT 500"
 
     rows = await db.all(sql, *params)
-    reports = [serialize_report(r) for r in rows]
+
+    confirmed_ids: set = set()
+    restore_votes_by_report: dict = {}
+    restored_by_you_ids: set = set()
+    if rows:
+        ids = [r["id"] for r in rows]
+        confirmed_rows = await db.all(
+            "SELECT report_id FROM report_confirmations WHERE anon_hash = $1 AND report_id = ANY($2::int[])",
+            anon_hash,
+            ids,
+        )
+        confirmed_ids = {r["report_id"] for r in confirmed_rows}
+
+        restore_rows = await db.all(
+            "SELECT report_id, anon_hash FROM report_restore_votes WHERE report_id = ANY($1::int[])",
+            ids,
+        )
+        for r in restore_rows:
+            restore_votes_by_report[r["report_id"]] = restore_votes_by_report.get(r["report_id"], 0) + 1
+            if r["anon_hash"] == anon_hash:
+                restored_by_you_ids.add(r["report_id"])
+
+    reports = [
+        serialize_report(
+            r,
+            confirmed_by_you=r["id"] in confirmed_ids,
+            restore_votes=restore_votes_by_report.get(r["id"], 0),
+            restored_by_you=r["id"] in restored_by_you_ids,
+        )
+        for r in rows
+    ]
     if sort_key == "longest":
         reports.sort(key=lambda r: r["durationMinutes"], reverse=True)
 
@@ -233,19 +304,6 @@ async def debug_ip(request: Request):
         "xff": xff,
         "remoteAddress": request.client.host if request.client else None,
     }
-
-
-@app.get("/api/reports/mine")
-async def my_reports(request: Request):
-    """Reports created from this same IP, regardless of local storage state —
-    lets "My reports" recover after a cleared browser, a new device, or a
-    plain logged-out/back-again visit. See hash_ip() above."""
-    ip_hash = hash_ip(get_client_ip(request))
-    rows = await db.all(
-        "SELECT * FROM reports WHERE reporter_ip_hash = $1 ORDER BY created_at DESC LIMIT 50",
-        ip_hash,
-    )
-    return {"reports": [serialize_report(r) for r in rows]}
 
 
 @app.get("/api/summary")
@@ -318,43 +376,69 @@ async def stats():
 
 @app.post("/api/reports/{report_id}/confirm")
 @limiter.limit("20/minute")
-async def confirm_report(request: Request, report_id: int):
+async def confirm_report(request: Request, report_id: int, anon_hash: str = Depends(get_anon_hash)):
     existing = await db.get("SELECT id FROM reports WHERE id = $1", report_id)
     if not existing:
         raise HTTPException(status_code=404, detail={"error": "not_found"})
 
-    await db.run("UPDATE reports SET confirmations = confirmations + 1 WHERE id = $1", report_id)
+    # One confirmation per anonymous visitor per report, enforced by the
+    # (report_id, anon_hash) primary key — replaces the old client-side
+    # localStorage "already confirmed" set with a server-side guarantee.
+    inserted = await db.get(
+        "INSERT INTO report_confirmations (report_id, anon_hash) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING report_id",
+        report_id,
+        anon_hash,
+    )
+    if inserted:
+        await db.run(
+            "UPDATE reports SET confirmations = confirmations + 1, updated_at = now() WHERE id = $1",
+            report_id,
+        )
     row = await db.get("SELECT * FROM reports WHERE id = $1", report_id)
-    return {"report": serialize_report(row)}
+    restore_votes, restored_by_you = await fetch_restore_state(report_id, anon_hash)
+    return {"report": serialize_report(row, confirmed_by_you=True, restore_votes=restore_votes, restored_by_you=restored_by_you)}
 
 
 @app.post("/api/reports/{report_id}/resolve")
 @limiter.limit("20/minute")
-async def resolve_report(request: Request, report_id: int, body: ResolveInput):
-    """Marks an ongoing outage report as resolved ("power's back") by setting
-    its end time to now, instead of the reporter filing a duplicate new
-    report. Requires proof of ownership — the per-report resolve token issued
-    at creation time, or (if that's been lost) a request from the same IP
-    that created it — since report ids are sequential and therefore
-    guessable, so the id alone proves nothing."""
+async def resolve_report(request: Request, report_id: int, anon_hash: str = Depends(get_anon_hash)):
+    """Casts one anonymous 'power's back' vote on an ongoing report. The area +
+    current power state is the object here, not who filed the original
+    report — so any nearby anonymous visitor can vote, gated only by the
+    report still being ongoing and the usual per-IP rate limit (secondary
+    anti-abuse signal, not identity). A barely-confirmed report resolves on
+    the first vote; a strongly-confirmed one needs independent agreement from
+    several distinct anonymous visitors first (required_restore_votes()) —
+    otherwise a single visitor could falsely "restore" a widely-confirmed
+    active outage with one click."""
     existing = await db.get("SELECT * FROM reports WHERE id = $1", report_id)
     if not existing:
         raise HTTPException(status_code=404, detail={"error": "not_found"})
-
-    # Either proof works: the token handed back at creation time, or a request
-    # from the same IP that created the report (see hash_ip() above) — the
-    # latter is what lets "My reports" resolve things after local storage is
-    # gone.
-    owns_by_token = resolve_token_matches(body.resolveToken, existing["resolve_token_hash"])
-    owns_by_ip = bool(existing["reporter_ip_hash"]) and existing["reporter_ip_hash"] == hash_ip(get_client_ip(request))
-    if not owns_by_token and not owns_by_ip:
-        raise HTTPException(status_code=403, detail={"error": "invalid_resolve_token"})
     if existing["status"] != "load_shedding" or existing["end_time"]:
         raise HTTPException(status_code=409, detail={"error": "not_resolvable"})
 
-    await db.run("UPDATE reports SET end_time = $1 WHERE id = $2", local_time(datetime.now()), report_id)
+    # Idempotent: a second vote from the same anon is a no-op here, counted
+    # only once below via COUNT(DISTINCT anon_hash) semantics (the primary
+    # key guarantees at most one row per (report, anon) anyway).
+    await db.run(
+        "INSERT INTO report_restore_votes (report_id, anon_hash) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+        report_id,
+        anon_hash,
+    )
+    restore_votes, restored_by_you = await fetch_restore_state(report_id, anon_hash)
+    required = required_restore_votes(existing["confirmations"] or 0)
+
+    if restore_votes >= required:
+        # end_time IS NULL guard makes this safe if two votes race past the
+        # threshold concurrently — only the first UPDATE actually applies.
+        await db.run(
+            "UPDATE reports SET end_time = $1, updated_at = now() WHERE id = $2 AND end_time IS NULL",
+            local_time(datetime.now()),
+            report_id,
+        )
+
     row = await db.get("SELECT * FROM reports WHERE id = $1", report_id)
-    return {"report": serialize_report(row)}
+    return {"report": serialize_report(row, restore_votes=restore_votes, restored_by_you=restored_by_you)}
 
 
 @app.get("/api/patterns")
@@ -392,7 +476,7 @@ async def patterns(division: Optional[str] = None, district: Optional[str] = Non
 
 @app.post("/api/reports", status_code=201)
 @limiter.limit("20/minute")
-async def create_report(request: Request, body: NewReportInput):
+async def create_report(request: Request, body: NewReportInput, anon_hash: str = Depends(get_anon_hash)):
     if not body.divisionId or not isinstance(body.divisionId, str):
         raise HTTPException(status_code=400, detail={"error": "division_required"})
     if not body.districtId or not isinstance(body.districtId, str):
@@ -406,11 +490,9 @@ async def create_report(request: Request, body: NewReportInput):
     if body.status == "load_shedding" and not body.startTime:
         raise HTTPException(status_code=400, detail={"error": "start_time_required"})
 
-    resolve_token = generate_resolve_token()
-
     row = await db.get(
         """
-        INSERT INTO reports (division_id, district_id, area, area_id, landmark, provider_id, status, outage_date, start_time, end_time, note, resolve_token_hash, reporter_ip_hash)
+        INSERT INTO reports (division_id, district_id, area, area_id, landmark, provider_id, status, outage_date, start_time, end_time, note, reporter_ip_hash, reporter_anon_hash)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         RETURNING *
         """,
@@ -425,14 +507,11 @@ async def create_report(request: Request, body: NewReportInput):
         body.startTime if body.status == "load_shedding" else None,
         (body.endTime or None) if body.status == "load_shedding" else None,
         (body.note or "").strip(),
-        hash_resolve_token(resolve_token),
         hash_ip(get_client_ip(request)),
+        anon_hash,
     )
 
-    # resolve_token is returned exactly once, here — it is never included in
-    # serialize_report(), so it never comes back on GET /api/reports, confirm,
-    # or resolve responses.
-    return {"report": serialize_report(row), "resolveToken": resolve_token}
+    return {"report": serialize_report(row)}
 
 
 # In production the frontend is a static build served by this same process

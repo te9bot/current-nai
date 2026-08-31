@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { DIVISIONS, getDistricts, getAreas, localizedName } from "../data/locations";
 import { PROVIDERS } from "../data/providers";
 import { createReport } from "../api/reports";
-import { rememberMyReport } from "../utils/myReports";
 import type { NewReportInput, Report } from "../types";
 import { XIcon, AlertIcon, MapPinIcon } from "./icons";
 import clsx from "../utils/clsx";
@@ -99,8 +98,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
     };
 
     try {
-      const { report, resolveToken } = await createReport(input);
-      rememberMyReport(report.id, resolveToken);
+      const { report } = await createReport(input);
       onCreated(report);
       setSuccess(true);
       setTimeout(onClose, 1100);

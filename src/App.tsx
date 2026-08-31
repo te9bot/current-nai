@@ -12,7 +12,6 @@ import OutagePatterns from "./components/OutagePatterns";
 import Filters, { EMPTY_FILTERS, type FilterState } from "./components/Filters";
 import Board from "./components/Board";
 import ReportForm from "./components/ReportForm";
-import MyReports from "./components/MyReports";
 import Faq from "./components/Faq";
 import AboutPage from "./components/AboutPage";
 import Reveal from "./components/Reveal";
@@ -20,8 +19,6 @@ import { useReports } from "./hooks/useReports";
 import { useRoute } from "./hooks/useRoute";
 import { getDistrict } from "./data/locations";
 import { providerName } from "./data/providers";
-import { readMyReports } from "./utils/myReports";
-import { fetchMyReports } from "./api/reports";
 import type { Report } from "./types";
 import type { LatLng } from "./utils/geo";
 
@@ -31,27 +28,9 @@ export default function App() {
   const { reports, summary, stats, loading, error, refresh, applyUpdate } = useReports();
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
   const [formOpen, setFormOpen] = useState(false);
-  const [myReportsOpen, setMyReportsOpen] = useState(false);
-  const [hasMyReports, setHasMyReports] = useState(false);
   const [localReports, setLocalReports] = useState<Report[]>([]);
   const [showSplash, setShowSplash] = useState(true);
   const [mapFocus, setMapFocus] = useState<LatLng | null>(null);
-  // Reports the server recognizes as ours by IP, independent of local
-  // storage — recovers "My reports" after a cleared browser, a new device,
-  // or just logging out and back in.
-  const [ipReports, setIpReports] = useState<Report[]>([]);
-
-  useEffect(() => {
-    setHasMyReports(readMyReports().size > 0 || ipReports.length > 0);
-  }, [formOpen, ipReports]);
-
-  useEffect(() => {
-    fetchMyReports()
-      .then(setIpReports)
-      .catch(() => {
-        /* recovery is best-effort — local tokens still work if this fails */
-      });
-  }, [formOpen]);
 
   useEffect(() => {
     document.documentElement.lang = i18n.language.startsWith("bn") ? "bn" : "en";
@@ -101,20 +80,7 @@ export default function App() {
   function handleResolved(updated: Report) {
     applyUpdate(updated);
     setLocalReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
-    setIpReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
   }
-
-  const myReportTokens = useMemo(() => readMyReports(), [myReportsOpen]);
-  const myReports = useMemo(() => {
-    const byId = new Map<number, Report>();
-    // ipReports first, allReports second: allReports carries any optimistic
-    // confirm/resolve update, so it should win when a report appears in both.
-    for (const r of ipReports) byId.set(r.id, r);
-    for (const r of allReports) {
-      if (myReportTokens.has(r.id) || byId.has(r.id)) byId.set(r.id, r);
-    }
-    return [...byId.values()].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [allReports, myReportTokens, ipReports]);
 
   if (route === "/about") {
     return <AboutPage onBack={() => navigate("/")} />;
@@ -127,11 +93,7 @@ export default function App() {
 
       {/* Everything above the backdrop */}
       <div className="relative z-10">
-        <Header
-          onReportClick={() => setFormOpen(true)}
-          onMyReportsClick={() => setMyReportsOpen(true)}
-          showMyReports={hasMyReports}
-        />
+        <Header onReportClick={() => setFormOpen(true)} />
         <Ticker reports={allReports} />
 
         <main className="mx-auto max-w-6xl px-3 py-5 sm:px-6 sm:py-8">
@@ -173,6 +135,7 @@ export default function App() {
             error={error}
             hasFilters={hasFilters}
             onConfirmed={handleConfirmed}
+            onResolved={handleResolved}
           />
 
           <Reveal>
@@ -202,15 +165,6 @@ export default function App() {
             setLocalReports((prev) => [report, ...prev]);
             refresh();
           }}
-        />
-      )}
-
-      {myReportsOpen && (
-        <MyReports
-          reports={myReports}
-          tokens={myReportTokens}
-          onClose={() => setMyReportsOpen(false)}
-          onResolved={handleResolved}
         />
       )}
     </div>

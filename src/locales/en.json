@@ -136,6 +136,14 @@
     "count_other": "{{count}} confirmations",
     "hint": "Tap if the same thing is happening where you are"
   },
+  "restore": {
+    "action": "Power's back",
+    "pending": "Updating...",
+    "voted": "Vote recorded",
+    "hint": "Tap if power has come back in this area",
+    "progress": "{{votes}} of {{needed}} confirmed power's back",
+    "error": "Couldn't update this report. Try again."
+  },
   "sort": {
     "label": "Sort",
     "latest": "Latest",
@@ -200,11 +208,11 @@
     },
     "resolveHow": {
       "q": "How do I mark my area as having power again?",
-      "a": "Open \"My reports\" in the header and tap \"Power's back\" on your ongoing report — no need to file a new one."
+      "a": "Tap \"Power's back\" directly on any ongoing report on the board — yours or anyone else's nearby. No login or ownership check needed. A barely-confirmed report resolves right away; a widely-confirmed one needs a few other nearby visitors to agree first, so one person can't falsely mark a well-corroborated outage as fixed."
     },
     "privacy": {
       "q": "Is my location or personal data tracked?",
-      "a": "No accounts and no personal data are collected. The only location info stored is the division/district/area you choose when reporting. Which reports you've confirmed is remembered only in your own browser, not on a server."
+      "a": "No accounts, no login, and no personal data are collected. The only location info stored is the division/district/area you choose when reporting. A random, anonymous identifier in a browser cookie stops the same visitor from confirming a report more than once — it carries no personal information and is never readable by this or any other website's JavaScript."
     }
   },
   "about": {
@@ -215,15 +223,6 @@
     "role": "Creator",
     "name": "Talha Zobayed Tanim",
     "bio": "Building AI that actually solves real-world problems. Data Science student, quantum computing researcher, and founder of ELAKAI — turning ideas into tech that makes communities smarter, more connected, and a little less chaotic."
-  },
-  "myReports": {
-    "entryButton": "My reports",
-    "title": "My reports",
-    "subtitle": "Update your reports when your power comes back.",
-    "empty": "You don't have any ongoing outage reports right now.",
-    "resolveAction": "Power's back",
-    "resolving": "Updating...",
-    "resolveError": "Couldn't update this report. Try again."
   },
   "landing": {
     "headline": "Know your area's power status,\nreported live by your neighbors",

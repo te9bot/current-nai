@@ -95,6 +95,25 @@ async def _init_schema(pool: asyncpg.Pool) -> None:
             "ALTER TABLE reports ADD COLUMN IF NOT EXISTS reporter_ip_hash TEXT;"
         )
 
+        # Anonymous-identity redesign: reporter_ip_hash and resolve_token_hash
+        # (above/CREATE TABLE) are kept but no longer used for authorization —
+        # see reporter_anon_hash and report_confirmations below.
+        await conn.execute(
+            "ALTER TABLE reports ADD COLUMN IF NOT EXISTS reporter_anon_hash TEXT;"
+        )
+        await conn.execute(
+            "ALTER TABLE reports ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ;"
+        )
+        await conn.execute(
+            "UPDATE reports SET updated_at = COALESCE(updated_at, created_at);"
+        )
+        await conn.execute(
+            "ALTER TABLE reports ALTER COLUMN updated_at SET DEFAULT now();"
+        )
+        await conn.execute(
+            "ALTER TABLE reports ALTER COLUMN updated_at SET NOT NULL;"
+        )
+
         await conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_reports_created_at ON reports (created_at DESC);"
         )
@@ -112,4 +131,34 @@ async def _init_schema(pool: asyncpg.Pool) -> None:
         )
         await conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_reports_reporter_ip ON reports (reporter_ip_hash);"
+        )
+
+        # Anonymous per-visitor confirm dedup: one row per (report, anon_hash)
+        # replaces the old client-side localStorage "already confirmed" set —
+        # enforced here via the primary key instead of trusting the browser.
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS report_confirmations (
+                report_id  INTEGER NOT NULL REFERENCES reports(id) ON DELETE CASCADE,
+                anon_hash  TEXT NOT NULL,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                PRIMARY KEY (report_id, anon_hash)
+            );
+            """
+        )
+
+        # Anonymous per-visitor restore-vote dedup — structurally identical to
+        # report_confirmations above, but for "power's back" votes. A report
+        # only actually resolves once enough distinct anon votes land (see
+        # required_restore_votes() in main.py); this table is what makes "one
+        # visitor, one vote" enforceable without accounts or localStorage.
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS report_restore_votes (
+                report_id  INTEGER NOT NULL REFERENCES reports(id) ON DELETE CASCADE,
+                anon_hash  TEXT NOT NULL,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                PRIMARY KEY (report_id, anon_hash)
+            );
+            """
         )

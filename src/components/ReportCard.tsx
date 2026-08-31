@@ -3,50 +3,34 @@ import { useTranslation } from "react-i18next";
 import type { Report } from "../types";
 import { getDivision, getDistrict, localizedName } from "../data/locations";
 import { providerName, providerFullName } from "../data/providers";
-import { confirmReport } from "../api/reports";
+import { confirmReport, resolveReport } from "../api/reports";
 import StatusBadge from "./StatusBadge";
-import { UsersIcon } from "./icons";
+import { UsersIcon, CheckCircleIcon, AlertIcon } from "./icons";
 import { formatRelativeTime, formatDuration, toLocalizedDigits } from "../utils/time";
 import { isCurrentlyPowerOn } from "../utils/reportStatus";
 import clsx from "../utils/clsx";
-
-const CONFIRMED_KEY = "current-nai-confirmed";
-
-/** Report ids this browser has already confirmed, so one person can't stack votes. */
-function readConfirmed(): Set<number> {
-  try {
-    const raw = localStorage.getItem(CONFIRMED_KEY);
-    return new Set<number>(raw ? JSON.parse(raw) : []);
-  } catch {
-    return new Set();
-  }
-}
-
-function rememberConfirmed(id: number) {
-  try {
-    const next = readConfirmed();
-    next.add(id);
-    localStorage.setItem(CONFIRMED_KEY, JSON.stringify([...next]));
-  } catch {
-    /* storage unavailable (private mode) — the button just won't persist */
-  }
-}
 
 interface Props {
   report: Report;
   now: number;
   onConfirmed: (report: Report) => void;
+  onResolved: (report: Report) => void;
 }
 
-export default function ReportCard({ report, now, onConfirmed }: Props) {
+export default function ReportCard({ report, now, onConfirmed, onResolved }: Props) {
   const { t, i18n } = useTranslation();
-  const [confirmed, setConfirmed] = useState(() => readConfirmed().has(report.id));
+  // Confirmed-state comes entirely from the server (report.confirmedByYou,
+  // derived from the anonymous HttpOnly identity cookie) — no client storage.
+  const [confirmed, setConfirmed] = useState(report.confirmedByYou);
   const [pending, setPending] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+  const [restoreFailed, setRestoreFailed] = useState(false);
 
   const division = getDivision(report.divisionId);
   const district = getDistrict(report.divisionId, report.districtId);
   const isOn = isCurrentlyPowerOn(report);
   const localize = (v: string) => toLocalizedDigits(v, i18n.language);
+  const canRestore = report.status === "load_shedding" && !report.endTime;
 
   // Shown regardless of current status: a resolved outage still reports its
   // start/end window, just no longer flagged as ongoing.
@@ -63,12 +47,27 @@ export default function ReportCard({ report, now, onConfirmed }: Props) {
     setConfirmed(true); // optimistic — reverted below if the request fails
     try {
       const updated = await confirmReport(report.id);
-      rememberConfirmed(report.id);
       onConfirmed(updated);
     } catch {
       setConfirmed(false);
     } finally {
       setPending(false);
+    }
+  }
+
+  // Any nearby anonymous visitor can mark a report resolved — not just
+  // whoever created it — so this is available on every ongoing report.
+  async function handleRestore() {
+    if (restoring) return;
+    setRestoring(true);
+    setRestoreFailed(false);
+    try {
+      const updated = await resolveReport(report.id);
+      onResolved(updated);
+    } catch {
+      setRestoreFailed(true);
+    } finally {
+      setRestoring(false);
     }
   }
 
@@ -144,6 +143,44 @@ export default function ReportCard({ report, now, onConfirmed }: Props) {
             </span>
           )}
         </div>
+
+        {canRestore && (
+          <div className="flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={handleRestore}
+              disabled={restoring || report.restoredByYou}
+              title={report.restoredByYou ? undefined : t("restore.hint")}
+              className={clsx(
+                "inline-flex items-center gap-1.5 self-start rounded-pill border px-2.5 py-1 text-[11px] font-semibold transition-colors duration-fast",
+                report.restoredByYou
+                  ? "cursor-default border-leaf-600/40 bg-leaf-500/10 text-leaf-400"
+                  : "border-leaf-600/40 bg-leaf-500/10 text-leaf-400 hover:bg-leaf-500/20 active:scale-[.97] disabled:opacity-50"
+              )}
+            >
+              <CheckCircleIcon width={12} height={12} />
+              {restoring
+                ? t("restore.pending")
+                : report.restoredByYou
+                  ? t("restore.voted")
+                  : t("restore.action")}
+            </button>
+            {report.restoreVotesNeeded > 1 && (
+              <span className="font-mono text-[11px] text-grey-500">
+                {localize(
+                  t("restore.progress", { votes: report.restoreVotes, needed: report.restoreVotesNeeded })
+                )}
+              </span>
+            )}
+            {restoreFailed && (
+              <p className="flex items-center gap-1.5 text-[11px] text-rust-400">
+                <AlertIcon width={12} height={12} />
+                {t("restore.error")}
+              </p>
+            )}
+          </div>
+        )}
+
         <time className="whitespace-nowrap font-mono text-[11px] text-grey-500" dateTime={report.createdAt}>
           {localize(formatRelativeTime(report.createdAt, now, t))}
         </time>

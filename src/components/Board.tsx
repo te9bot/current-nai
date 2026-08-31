@@ -10,9 +10,10 @@ interface Props {
   error: boolean;
   hasFilters: boolean;
   onConfirmed: (report: Report) => void;
+  onResolved: (report: Report) => void;
 }
 
-export default function Board({ reports, loading, error, hasFilters, onConfirmed }: Props) {
+export default function Board({ reports, loading, error, hasFilters, onConfirmed, onResolved }: Props) {
   const { t, i18n } = useTranslation();
   const now = useNowTick();
 
@@ -47,7 +48,7 @@ export default function Board({ reports, loading, error, hasFilters, onConfirmed
       ) : (
         <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {reports.map((r) => (
-            <ReportCard key={r.id} report={r} now={now} onConfirmed={onConfirmed} />
+            <ReportCard key={r.id} report={r} now={now} onConfirmed={onConfirmed} onResolved={onResolved} />
           ))}
         </div>
       )}

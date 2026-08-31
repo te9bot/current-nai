@@ -51,7 +51,7 @@ export async function createReport(input: NewReportInput): Promise<CreateReportR
     throw new Error(body.error || `Failed to create report: ${res.status}`);
   }
   const data = await res.json();
-  return { report: data.report as Report, resolveToken: data.resolveToken as string };
+  return { report: data.report as Report };
 }
 
 export async function confirmReport(id: number): Promise<Report> {
@@ -61,21 +61,10 @@ export async function confirmReport(id: number): Promise<Report> {
   return data.report as Report;
 }
 
-/** Reports created from this same IP — recovers "My reports" after local storage is lost. */
-export async function fetchMyReports(): Promise<Report[]> {
-  const res = await fetch("/api/reports/mine");
-  if (!res.ok) throw new Error(`Failed to fetch your reports: ${res.status}`);
-  const data = await res.json();
-  return data.reports as Report[];
-}
-
-/** resolveToken may be omitted when a report was only recovered via IP match, not local storage. */
-export async function resolveReport(id: number, resolveToken?: string): Promise<Report> {
-  const res = await fetch(`/api/reports/${id}/resolve`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ resolveToken }),
-  });
+/** Any nearby anonymous visitor can mark an ongoing report resolved — there is
+ *  no ownership check, so no token is needed here. */
+export async function resolveReport(id: number): Promise<Report> {
+  const res = await fetch(`/api/reports/${id}/resolve`, { method: "POST" });
   if (!res.ok) throw new Error(`Failed to resolve report: ${res.status}`);
   const data = await res.json();
   return data.report as Report;

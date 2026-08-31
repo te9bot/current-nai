@@ -42,15 +42,25 @@ export interface Report {
   endTime: string | null;
   note: string;
   confirmations: number;
+  /** Whether this anonymous visitor (via the server-side identity cookie)
+   *  has already confirmed this report — drives the Confirm button's
+   *  disabled state without any client-side storage. */
+  confirmedByYou: boolean;
+  /** Distinct anonymous "power's back" votes recorded so far. A report only
+   *  actually resolves once this reaches restoreVotesNeeded. */
+  restoreVotes: number;
+  /** How many distinct restore votes this report needs to resolve — 1 for a
+   *  barely-confirmed report, more for a strongly-confirmed one. */
+  restoreVotesNeeded: number;
+  /** Whether this anonymous visitor has already cast a restore vote. */
+  restoredByYou: boolean;
   durationMinutes: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateReportResult {
   report: Report;
-  /** Proves ownership for a later resolve call. Returned once, at creation
-   *  time, and never included on any other endpoint's response. */
-  resolveToken: string;
 }
 
 export interface NewReportInput {

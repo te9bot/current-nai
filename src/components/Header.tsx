@@ -1,14 +1,12 @@
 import { useTranslation } from "react-i18next";
 import LanguageToggle from "./LanguageToggle";
-import { BoltIcon, PlusIcon, MapPinIcon } from "./icons";
+import { BoltIcon, PlusIcon } from "./icons";
 
 interface Props {
   onReportClick: () => void;
-  onMyReportsClick: () => void;
-  showMyReports: boolean;
 }
 
-export default function Header({ onReportClick, onMyReportsClick, showMyReports }: Props) {
+export default function Header({ onReportClick }: Props) {
   const { t } = useTranslation();
 
   return (
@@ -28,16 +26,6 @@ export default function Header({ onReportClick, onMyReportsClick, showMyReports 
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <LanguageToggle />
-          {showMyReports && (
-            <button
-              type="button"
-              onClick={onMyReportsClick}
-              className="inline-flex h-10 items-center gap-1.5 rounded-pill border border-black/15 px-3 text-sm font-semibold text-grey-300 transition-colors duration-fast ease-standard hover:border-black/30 hover:text-grey-900 active:scale-[.97] sm:px-3.5"
-            >
-              <MapPinIcon width={16} height={16} />
-              <span className="hidden sm:inline">{t("myReports.entryButton")}</span>
-            </button>
-          )}
           <button
             type="button"
             onClick={onReportClick}
