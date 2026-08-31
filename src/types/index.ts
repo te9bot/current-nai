@@ -111,6 +111,16 @@ export interface Stats {
 
 export type SortKey = "latest" | "longest" | "confirmed";
 
+export interface FilterState {
+  division: string;
+  status: "" | ReportStatus;
+  provider: string;
+  sort: SortKey;
+  q: string;
+}
+
+export const EMPTY_FILTERS: FilterState = { division: "", status: "", provider: "", sort: "latest", q: "" };
+
 export interface Summary {
   total: number;
   powerOn: number;

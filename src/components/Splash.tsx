@@ -110,7 +110,7 @@ export default function Splash({ reports, onDismiss }: Props) {
         aria-hidden
         className="animate-map-pan pointer-events-none absolute inset-[-8%] bg-cover bg-center opacity-45 transition-[scale] duration-base ease-standard"
         style={{
-          backgroundImage: "url(/map-dark.png)",
+          backgroundImage: "url(/map-dark.webp)",
           translate: `${tilt.x * -14}px ${tilt.y * -14}px`,
           scale: mapScale,
           filter: "invert(1) hue-rotate(180deg) brightness(1.08) contrast(0.92)",

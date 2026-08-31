@@ -4,20 +4,13 @@ import Header from "./components/Header";
 import Splash from "./components/Splash";
 import Ticker from "./components/Ticker";
 import SummaryCounts from "./components/SummaryCounts";
-import StatsPanel from "./components/StatsPanel";
 import NearbyPanel from "./components/NearbyPanel";
-import LedgerTable from "./components/LedgerTable";
-import OutagePatterns from "./components/OutagePatterns";
-import Filters, { EMPTY_FILTERS, type FilterState } from "./components/Filters";
-import Board from "./components/Board";
-import Faq from "./components/Faq";
-import AboutPage from "./components/AboutPage";
 import Reveal from "./components/Reveal";
 import { useReports } from "./hooks/useReports";
 import { useRoute } from "./hooks/useRoute";
 import { getDistrict } from "./data/locations";
 import { providerName } from "./data/providers";
-import type { Report } from "./types";
+import { EMPTY_FILTERS, type FilterState, type Report } from "./types";
 import type { LatLng } from "./utils/geo";
 
 // Leaflet (and everything that imports it) is code-split out of the main
@@ -27,6 +20,13 @@ import type { LatLng } from "./utils/geo";
 const MapBackdrop = lazy(() => import("./components/MapBackdrop"));
 const ReportForm = lazy(() => import("./components/ReportForm"));
 const OnboardingGuide = lazy(() => import("./components/OnboardingGuide"));
+// Everything from StatsPanel down is below the fold on first load — grouped
+// into one chunk so none of it competes with the hero/splash for bandwidth
+// or parse time. It fetches in the background regardless, so it's normally
+// already cached by the time a visitor scrolls this far.
+const BelowFold = lazy(() => import("./components/BelowFold"));
+// Only reachable via the /about route, never the landing page itself.
+const AboutPage = lazy(() => import("./components/AboutPage"));
 
 // Same convention as i18next's own language cache key (current-nai-language)
 // — a plain client-side preference flag, not report/session identity, so it
@@ -109,7 +109,11 @@ export default function App() {
   }
 
   if (route === "/about") {
-    return <AboutPage onBack={() => navigate("/")} />;
+    return (
+      <Suspense fallback={null}>
+        <AboutPage onBack={() => navigate("/")} />
+      </Suspense>
+    );
   }
 
   return (
@@ -141,42 +145,19 @@ export default function App() {
             </div>
           </Reveal>
 
-          <Reveal>
-            <div className="mb-4 sm:mb-6">
-              <StatsPanel stats={stats} loading={loading} />
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <div className="mb-4 sm:mb-6">
-              <LedgerTable stats={stats} loading={loading} />
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <div className="mb-4 sm:mb-6">
-              <OutagePatterns />
-            </div>
-          </Reveal>
-
-          <div className="mb-4">
-            <Filters value={filters} onChange={setFilters} />
-          </div>
-
-          <Board
-            reports={filteredReports}
-            loading={loading}
-            error={error}
-            hasFilters={hasFilters}
-            onConfirmed={handleConfirmed}
-            onResolved={handleResolved}
-          />
-
-          <Reveal>
-            <div className="mb-4 mt-4 sm:mt-6">
-              <Faq />
-            </div>
-          </Reveal>
+          <Suspense fallback={null}>
+            <BelowFold
+              stats={stats}
+              loading={loading}
+              error={error}
+              filters={filters}
+              onFiltersChange={setFilters}
+              filteredReports={filteredReports}
+              hasFilters={hasFilters}
+              onConfirmed={handleConfirmed}
+              onResolved={handleResolved}
+            />
+          </Suspense>
 
           <footer className="mt-8 border-t border-black/8 pt-6 text-center text-[11px] leading-relaxed text-grey-600">
             <p>{t("footer.disclaimer")}</p>

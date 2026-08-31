@@ -789,7 +789,13 @@ if os.environ.get("NODE_ENV") == "production" and DIST_DIR.is_dir():
         if full_path:
             candidate = (DIST_DIR / full_path).resolve()
             if candidate.is_relative_to(DIST_DIR_RESOLVED) and candidate.is_file():
-                return FileResponse(candidate)
+                # Not fingerprinted like assets/, so not "immutable" — a
+                # future content change (e.g. swapping the team photo) needs
+                # to be visible within a bounded window, not cached for a
+                # year. A week is long enough to meaningfully cut repeat-visit
+                # bytes without that risk; browsers still revalidate (via the
+                # ETag/Last-Modified FileResponse already sets) once it lapses.
+                return FileResponse(candidate, headers={"Cache-Control": "public, max-age=604800"})
 
         # index.html is not fingerprinted — it's what points at the current
         # hashes — so it stays revalidate-on-every-request.

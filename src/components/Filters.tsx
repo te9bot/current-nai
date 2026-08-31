@@ -3,17 +3,10 @@ import { DIVISIONS, localizedName } from "../data/locations";
 import { PROVIDERS, providerName } from "../data/providers";
 import { SearchIcon, XIcon } from "./icons";
 import clsx from "../utils/clsx";
-import type { ReportStatus, SortKey } from "../types";
+import { EMPTY_FILTERS, type FilterState, type SortKey } from "../types";
 
-export interface FilterState {
-  division: string;
-  status: "" | ReportStatus;
-  provider: string;
-  sort: SortKey;
-  q: string;
-}
-
-export const EMPTY_FILTERS: FilterState = { division: "", status: "", provider: "", sort: "latest", q: "" };
+export type { FilterState } from "../types";
+export { EMPTY_FILTERS } from "../types";
 
 interface Props {
   value: FilterState;

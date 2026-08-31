@@ -7,6 +7,11 @@ import bn from "../locales/bn.json";
 export const SUPPORTED_LANGUAGES = ["en", "bn"] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
+// Tried lazy-loading English on demand to shave ~5KB gzip off the main
+// bundle, but it meant either delaying first paint to await it (defeating
+// the point) or a multi-second flash of stale Bangla text on toggle/return
+// visits while react-i18next's re-render caught up component by component.
+// Not worth the correctness risk for this little: both ship eagerly.
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
