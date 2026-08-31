@@ -65,6 +65,8 @@
     "locating": "Detecting...",
     "locationDetectedGps": "Location detected",
     "locationDetectedManual": "Location selected manually",
+    "locationFromAddress": "Pinned from your address — tap the map or use GPS if this isn't quite right",
+    "locationSearching": "Looking up your address...",
     "locationError": "Could not detect your location. Please enable location access or select your location manually.",
     "locationEmpty": "Tap the button to detect your GPS location, or tap the map to place it yourself.",
     "landmark": "Landmark / extra detail (optional)",

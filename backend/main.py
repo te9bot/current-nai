@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+import httpx
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -497,6 +498,53 @@ async def patterns(division: Optional[str] = None, district: Optional[str] = Non
             counts[hour] += 1
 
     return {"hourly": [{"hour": hour, "count": count} for hour, count in enumerate(counts)]}
+
+
+# Same free OSM tiles this app already renders, so no separate API key or
+# service to provision. A descriptive User-Agent (Nominatim's usage policy
+# requires one identifying the calling application) plus a modest per-IP
+# rate limit keep this within fair use for an occasional, debounced,
+# type-to-find-my-address lookup — not bulk geocoding.
+GEOCODE_USER_AGENT = os.environ.get(
+    "GEOCODE_USER_AGENT", "current-nai/1.0 (+https://github.com/te9bot/current-nai)"
+)
+
+
+@app.get("/api/geocode")
+@limiter.limit("15/minute")
+async def geocode(request: Request, q: str):
+    """Best-effort address -> coordinates lookup for the report form's
+    "pin my exact address" flow. A miss or upstream failure just means no
+    pin update on the frontend — never a fabricated coordinate."""
+    query = q.strip()
+    if not query:
+        raise HTTPException(status_code=400, detail={"error": "query_required"})
+
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            resp = await client.get(
+                "https://nominatim.openstreetmap.org/search",
+                params={"q": query, "format": "json", "limit": 1, "countrycodes": "bd"},
+                headers={"User-Agent": GEOCODE_USER_AGENT},
+            )
+            resp.raise_for_status()
+            results = resp.json()
+    except (httpx.HTTPError, ValueError):
+        return {"found": False}
+
+    if not results:
+        return {"found": False}
+
+    try:
+        lat = float(results[0]["lat"])
+        lng = float(results[0]["lon"])
+    except (KeyError, TypeError, ValueError):
+        return {"found": False}
+
+    if not valid_coordinates(lat, lng):
+        return {"found": False}
+
+    return {"found": True, "lat": lat, "lng": lng, "displayName": results[0].get("display_name")}
 
 
 @app.post("/api/reports", status_code=201)

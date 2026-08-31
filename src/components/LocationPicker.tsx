@@ -22,6 +22,12 @@ interface Props {
   areaFocus: LatLng | null;
   value: PickedLocation | null;
   onChange: (location: PickedLocation | null) => void;
+  /** True while `value` is a live guess from the typed address rather than
+   *  something the reporter confirmed themselves (GPS or a map tap/drag) —
+   *  swaps the status line to say so instead of claiming it as confirmed. */
+  previewFromAddress?: boolean;
+  /** True while an address lookup is in flight and there's no pin yet. */
+  geocoding?: boolean;
 }
 
 const AREA_ZOOM = 13;
@@ -47,7 +53,7 @@ function markerIcon(source: LocationSource): L.DivIcon {
   });
 }
 
-export default function LocationPicker({ areaFocus, value, onChange }: Props) {
+export default function LocationPicker({ areaFocus, value, onChange, previewFromAddress, geocoding }: Props) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -203,6 +209,8 @@ export default function LocationPicker({ areaFocus, value, onChange }: Props) {
         // the visitor still needs to know that latest tap didn't work,
         // rather than the failure being silently swallowed by the old value.
         <p className="mt-2 text-[11px] text-rust-400">{t("form.locationError")}</p>
+      ) : value && previewFromAddress ? (
+        <p className="mt-2 text-[11px] font-semibold text-amber-500">{t("form.locationFromAddress")}</p>
       ) : value ? (
         <p
           className={clsx(
@@ -213,6 +221,8 @@ export default function LocationPicker({ areaFocus, value, onChange }: Props) {
           {value.source === "gps" ? t("form.locationDetectedGps") : t("form.locationDetectedManual")}
           {value.accuracy ? ` (±${Math.round(value.accuracy)}m)` : ""}
         </p>
+      ) : geocoding ? (
+        <p className="mt-2 text-[11px] text-grey-600">{t("form.locationSearching")}</p>
       ) : (
         <p className="mt-2 text-[11px] text-grey-600">{t("form.locationEmpty")}</p>
       )}

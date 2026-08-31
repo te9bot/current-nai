@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { DIVISIONS, getDistricts, getAreas, localizedName } from "../data/locations";
+import { DIVISIONS, getDistricts, getAreas, getDivision, getDistrict, localizedName } from "../data/locations";
 import { PROVIDERS } from "../data/providers";
 import { createReport } from "../api/reports";
 import type { NewReportInput, Report } from "../types";
@@ -47,6 +47,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   const [endTime, setEndTime] = useState("");
   const [note, setNote] = useState("");
   const [location, setLocation] = useState<PickedLocation | null>(null);
+  // True once the reporter has explicitly used GPS or tapped/dragged the pin
+  // themselves — from then on their address text no longer silently moves
+  // it, even if they keep editing the landmark field.
+  const [pinConfirmedByUser, setPinConfirmedByUser] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -66,6 +71,53 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   useEffect(() => {
     setAreaId("");
   }, [districtId]);
+
+  // Turning a typed house/road number into an actual pin: the area dropdown
+  // alone only gets a district-level centroid, nowhere near exact — this
+  // geocodes the full address (landmark + area + district + division) so
+  // "Road 5, House 10" in Dhanmondi lands on that street, not just somewhere
+  // in Dhanmondi. Debounced so it fires once typing pauses, not per
+  // keystroke, and skipped entirely once the reporter has set the pin
+  // themselves (GPS or a direct map tap always wins).
+  useEffect(() => {
+    if (pinConfirmedByUser) return;
+    const trimmed = landmark.trim();
+    if (!areaId || trimmed.length < 3) return;
+
+    const area = getAreas(divisionId, districtId).find((a) => a.id === areaId);
+    const query = [
+      trimmed,
+      area ? localizedName(area, i18n.language) : "",
+      localizedName(getDistrict(divisionId, districtId), i18n.language),
+      localizedName(getDivision(divisionId), i18n.language),
+      "Bangladesh",
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    const handle = setTimeout(async () => {
+      setGeocoding(true);
+      try {
+        const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.found && isValidLatLng(data.lat, data.lng)) {
+          setLocation({ lat: data.lat, lng: data.lng, accuracy: null, source: "manual" });
+        }
+      } catch {
+        // A failed lookup just means no pin update — never a fabricated one.
+      } finally {
+        setGeocoding(false);
+      }
+    }, 700);
+
+    return () => clearTimeout(handle);
+  }, [landmark, areaId, districtId, divisionId, pinConfirmedByUser, i18n.language]);
+
+  function handlePickerChange(next: PickedLocation | null) {
+    setPinConfirmedByUser(true);
+    setLocation(next);
+  }
 
   function validate(): boolean {
     const next: FormErrors = {};
@@ -238,7 +290,9 @@ export default function ReportForm({ onClose, onCreated }: Props) {
               <LocationPicker
                 areaFocus={districtId ? districtCoords(districtId) ?? null : null}
                 value={location}
-                onChange={setLocation}
+                onChange={handlePickerChange}
+                previewFromAddress={Boolean(location) && !pinConfirmedByUser}
+                geocoding={geocoding}
               />
             )}
 
