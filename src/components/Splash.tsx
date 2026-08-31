@@ -17,21 +17,34 @@ interface Props {
 }
 
 /** Fixed (not random) placement/timing per floating card slot — stable across
- *  re-renders, and spread so no two bob in sync. Hidden below `lg`: at
- *  phone/tablet width there isn't room around the main card without overlap.
- *  Five rows between the header and the headline/CTA band, alternating
- *  left/right so cards revealed later land beside the earlier ones rather
- *  than on top of them. */
+ *  re-renders, and spread so no two bob in sync. Each slot's className
+ *  carries its own visibility + position + width so mobile and desktop can
+ *  differ per slot: the first four also show on phones (there's open space
+ *  directly above/below the centered main card there), sized to fit; the
+ *  rest are desktop-only ("hidden … lg:block") where there's room on the
+ *  sides. Five rows between the header and the headline/CTA band on
+ *  desktop, alternating left/right so cards revealed later land beside the
+ *  earlier ones rather than on top of them. */
 const FLOAT_SLOTS = [
-  { className: "left-[8%] top-[8%]", tiltFactor: 5, delay: "0s" },
-  { className: "right-[8%] top-[6%]", tiltFactor: -6, delay: "1.1s" },
-  { className: "left-[11%] top-[20%]", tiltFactor: -4, delay: "2.2s" },
-  { className: "right-[9%] top-[18%]", tiltFactor: 6, delay: "0.6s" },
-  { className: "left-[7%] top-[31%]", tiltFactor: 4, delay: "1.6s" },
-  { className: "right-[12%] top-[29%]", tiltFactor: -5, delay: "2.6s" },
-  { className: "left-[13%] top-[42%]", tiltFactor: -6, delay: "0.3s" },
-  { className: "right-[7%] top-[40%]", tiltFactor: 5, delay: "1.9s" },
-  { className: "left-[9%] top-[53%]", tiltFactor: 3, delay: "2.9s" },
+  { className: "block left-[4%] top-[9%] w-[44%] lg:left-[8%] lg:top-[8%] lg:w-40", tiltFactor: 5, delay: "0s" },
+  { className: "block right-[4%] top-[9%] w-[44%] lg:right-[8%] lg:top-[6%] lg:w-40", tiltFactor: -6, delay: "1.1s" },
+  {
+    className:
+      "block left-[4%] bottom-[9%] w-[44%] lg:left-[11%] lg:bottom-auto lg:top-[20%] lg:w-40",
+    tiltFactor: -4,
+    delay: "2.2s",
+  },
+  {
+    className:
+      "block right-[4%] bottom-[9%] w-[44%] lg:right-[9%] lg:bottom-auto lg:top-[18%] lg:w-40",
+    tiltFactor: 6,
+    delay: "0.6s",
+  },
+  { className: "hidden left-[7%] top-[31%] w-40 lg:block", tiltFactor: 4, delay: "1.6s" },
+  { className: "hidden right-[12%] top-[29%] w-40 lg:block", tiltFactor: -5, delay: "2.6s" },
+  { className: "hidden left-[13%] top-[42%] w-40 lg:block", tiltFactor: -6, delay: "0.3s" },
+  { className: "hidden right-[7%] top-[40%] w-40 lg:block", tiltFactor: 5, delay: "1.9s" },
+  { className: "hidden left-[9%] top-[53%] w-40 lg:block", tiltFactor: 3, delay: "2.9s" },
 ];
 
 export default function Splash({ reports, onDismiss }: Props) {
@@ -111,8 +124,10 @@ export default function Splash({ reports, onDismiss }: Props) {
       />
 
       {/* Smaller reports drifting around the main card — atmosphere, not a
-          second focal point, so they're muted, blurred, and skip mobile
-          where there's no room beside the centered card. */}
+          second focal point, so they're muted, blurred. The first four also
+          show on phones (there's open space above/below the centered card
+          there); the rest need the side margins only desktop has, so each
+          slot's own className carries its visibility + size. */}
       {floatingReports.map((r, i) => {
         const slot = FLOAT_SLOTS[i];
         const isOn = isCurrentlyPowerOn(r);
@@ -127,7 +142,7 @@ export default function Splash({ reports, onDismiss }: Props) {
             key={r.id}
             aria-hidden
             className={clsx(
-              "pointer-events-none absolute z-10 hidden w-40 animate-float rounded-lg border border-black/10 bg-ink-900/70 p-2.5 shadow-pin backdrop-blur transition-[opacity,scale] duration-fast ease-standard lg:block",
+              "pointer-events-none absolute z-10 animate-float rounded-lg border border-black/10 bg-ink-900/70 p-2.5 shadow-pin backdrop-blur transition-[opacity,scale] duration-fast ease-standard",
               slot.className
             )}
             style={{
@@ -206,7 +221,7 @@ export default function Splash({ reports, onDismiss }: Props) {
         {/* Fixed bilingual, not tied to the language toggle — always Bangla then
             English, so the disclaimer reads regardless of which language a
             first-time visitor's browser defaulted the rest of the UI to. */}
-        <p className="mx-auto mt-4 max-w-xs text-center text-[11px] leading-relaxed text-grey-500">
+        <p className="mx-auto mt-4 max-w-xs text-center text-[11px] font-bold leading-relaxed text-grey-500">
           <span className="font-bn block">
             এটি কোনো সরকারি বা অফিসিয়াল অ্যাপ নয় — লোডশেডিংয়ের সময় অনুমান করতে ও পরবর্তী বিভ্রাট কখন হতে পারে তা বোঝার জন্য তৈরি।
           </span>

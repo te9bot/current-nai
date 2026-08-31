@@ -65,7 +65,7 @@
     "startTime": "Start time",
     "endTime": "End time (optional)",
     "endTimeHelper": "Already back on? Add when it ended — leave blank if it's still ongoing.",
-    "note": "Note (optional)",
+    "note": "কারেন্ট নিয়ে কিছু বলে যান / Tell us something about the power outage",
     "notePlaceholder": "Any extra details for your neighbors...",
     "submit": "Submit report",
     "submitting": "Submitting...",
