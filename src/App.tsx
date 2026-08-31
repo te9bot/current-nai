@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "./components/Header";
 import Splash from "./components/Splash";
+import OnboardingGuide from "./components/OnboardingGuide";
 import MapBackdrop from "./components/MapBackdrop";
 import Ticker from "./components/Ticker";
 import SummaryCounts from "./components/SummaryCounts";
@@ -22,6 +23,11 @@ import { providerName } from "./data/providers";
 import type { Report } from "./types";
 import type { LatLng } from "./utils/geo";
 
+// Same convention as i18next's own language cache key (current-nai-language)
+// — a plain client-side preference flag, not report/session identity, so it
+// doesn't need the anonymous server-side cookie system reports use.
+const ONBOARDING_STORAGE_KEY = "current-nai-onboarding-completed";
+
 export default function App() {
   const { t, i18n } = useTranslation();
   const [route, navigate] = useRoute();
@@ -31,10 +37,25 @@ export default function App() {
   const [localReports, setLocalReports] = useState<Report[]>([]);
   const [showSplash, setShowSplash] = useState(true);
   const [mapFocus, setMapFocus] = useState<LatLng | null>(null);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(
+    () => localStorage.getItem(ONBOARDING_STORAGE_KEY) === "1"
+  );
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     document.documentElement.lang = i18n.language.startsWith("bn") ? "bn" : "en";
   }, [i18n.language]);
+
+  // Auto-show once, right after the splash is dismissed, for genuinely new
+  // visitors only — never again once they've skipped or finished it.
+  useEffect(() => {
+    if (!showSplash && !onboardingCompleted) setShowOnboarding(true);
+  }, [showSplash, onboardingCompleted]);
+
+  function markOnboardingComplete() {
+    localStorage.setItem(ONBOARDING_STORAGE_KEY, "1");
+    setOnboardingCompleted(true);
+  }
 
   const allReports = useMemo(() => {
     const localIds = new Set(localReports.map((r) => r.id));
@@ -93,7 +114,7 @@ export default function App() {
 
       {/* Everything above the backdrop */}
       <div className="relative z-10">
-        <Header onReportClick={() => setFormOpen(true)} />
+        <Header onReportClick={() => setFormOpen(true)} onHelpClick={() => setShowOnboarding(true)} />
         <Ticker reports={allReports} />
 
         <main className="mx-auto max-w-6xl px-3 py-5 sm:px-6 sm:py-8">
@@ -164,6 +185,21 @@ export default function App() {
           onCreated={(report) => {
             setLocalReports((prev) => [report, ...prev]);
             refresh();
+          }}
+        />
+      )}
+
+      {showOnboarding && (
+        <OnboardingGuide
+          onSkip={() => {
+            markOnboardingComplete();
+            setShowOnboarding(false);
+          }}
+          onFinish={markOnboardingComplete}
+          onLater={() => setShowOnboarding(false)}
+          onReportClick={() => {
+            setShowOnboarding(false);
+            setFormOpen(true);
           }}
         />
       )}

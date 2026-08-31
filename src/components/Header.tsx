@@ -1,12 +1,13 @@
 import { useTranslation } from "react-i18next";
 import LanguageToggle from "./LanguageToggle";
-import { BoltIcon, PlusIcon } from "./icons";
+import { BoltIcon, HelpIcon, PlusIcon } from "./icons";
 
 interface Props {
   onReportClick: () => void;
+  onHelpClick: () => void;
 }
 
-export default function Header({ onReportClick }: Props) {
+export default function Header({ onReportClick, onHelpClick }: Props) {
   const { t } = useTranslation();
 
   return (
@@ -26,6 +27,15 @@ export default function Header({ onReportClick }: Props) {
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <LanguageToggle />
+          <button
+            type="button"
+            onClick={onHelpClick}
+            aria-label={t("onboarding.helpButton")}
+            title={t("onboarding.helpButton")}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill text-grey-500 transition-colors duration-fast ease-standard hover:bg-black/10 hover:text-grey-900"
+          >
+            <HelpIcon width={18} height={18} />
+          </button>
           <button
             type="button"
             onClick={onReportClick}
