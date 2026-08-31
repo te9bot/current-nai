@@ -1,9 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "./components/Header";
 import Splash from "./components/Splash";
-import OnboardingGuide from "./components/OnboardingGuide";
-import MapBackdrop from "./components/MapBackdrop";
 import Ticker from "./components/Ticker";
 import SummaryCounts from "./components/SummaryCounts";
 import StatsPanel from "./components/StatsPanel";
@@ -12,7 +10,6 @@ import LedgerTable from "./components/LedgerTable";
 import OutagePatterns from "./components/OutagePatterns";
 import Filters, { EMPTY_FILTERS, type FilterState } from "./components/Filters";
 import Board from "./components/Board";
-import ReportForm from "./components/ReportForm";
 import Faq from "./components/Faq";
 import AboutPage from "./components/AboutPage";
 import Reveal from "./components/Reveal";
@@ -22,6 +19,14 @@ import { getDistrict } from "./data/locations";
 import { providerName } from "./data/providers";
 import type { Report } from "./types";
 import type { LatLng } from "./utils/geo";
+
+// Leaflet (and everything that imports it) is code-split out of the main
+// bundle: it's a sizeable dependency that none of these need for first
+// paint, so keeping it out of the initial chunk shrinks the JS the browser
+// must download/parse/execute before anything on screen can render.
+const MapBackdrop = lazy(() => import("./components/MapBackdrop"));
+const ReportForm = lazy(() => import("./components/ReportForm"));
+const OnboardingGuide = lazy(() => import("./components/OnboardingGuide"));
 
 // Same convention as i18next's own language cache key (current-nai-language)
 // — a plain client-side preference flag, not report/session identity, so it
@@ -109,7 +114,15 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-ink-950">
-      <MapBackdrop focus={mapFocus} />
+      {/* Purely decorative — invisible behind the splash anyway, so there's
+          no reason to load Leaflet or fetch a single map tile until the
+          splash is gone. Mounting it immediately was previously the mobile
+          LCP element (a background OSM tile no one had actually seen yet). */}
+      {!showSplash && (
+        <Suspense fallback={null}>
+          <MapBackdrop focus={mapFocus} />
+        </Suspense>
+      )}
       {showSplash && <Splash reports={allReports.slice(0, 10)} onDismiss={() => setShowSplash(false)} />}
 
       {/* Everything above the backdrop */}
@@ -124,7 +137,7 @@ export default function App() {
 
           <Reveal>
             <div className="mb-4 sm:mb-6">
-              <NearbyPanel reports={allReports} onRegionChange={setMapFocus} />
+              <NearbyPanel reports={allReports} onRegionChange={setMapFocus} deferMap={showSplash} />
             </div>
           </Reveal>
 
@@ -180,28 +193,32 @@ export default function App() {
       </div>
 
       {formOpen && (
-        <ReportForm
-          onClose={() => setFormOpen(false)}
-          onCreated={(report) => {
-            setLocalReports((prev) => [report, ...prev]);
-            refresh();
-          }}
-        />
+        <Suspense fallback={null}>
+          <ReportForm
+            onClose={() => setFormOpen(false)}
+            onCreated={(report) => {
+              setLocalReports((prev) => [report, ...prev]);
+              refresh();
+            }}
+          />
+        </Suspense>
       )}
 
       {showOnboarding && (
-        <OnboardingGuide
-          onSkip={() => {
-            markOnboardingComplete();
-            setShowOnboarding(false);
-          }}
-          onFinish={markOnboardingComplete}
-          onLater={() => setShowOnboarding(false)}
-          onReportClick={() => {
-            setShowOnboarding(false);
-            setFormOpen(true);
-          }}
-        />
+        <Suspense fallback={null}>
+          <OnboardingGuide
+            onSkip={() => {
+              markOnboardingComplete();
+              setShowOnboarding(false);
+            }}
+            onFinish={markOnboardingComplete}
+            onLater={() => setShowOnboarding(false)}
+            onReportClick={() => {
+              setShowOnboarding(false);
+              setFormOpen(true);
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

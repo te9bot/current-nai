@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Report } from "../types";
 import { DIVISIONS, getDistricts, getDistrict, localizedName } from "../data/locations";
 import { districtCoords, reportsNear, formatKm, type LatLng } from "../utils/geo";
 import { isCurrentlyPowerOn } from "../utils/reportStatus";
-import MapView from "./MapView";
 import StatusBadge from "./StatusBadge";
 import { SearchIcon } from "./icons";
 import { formatDuration, toLocalizedDigits } from "../utils/time";
@@ -12,14 +11,23 @@ import clsx from "../utils/clsx";
 
 const RADIUS_OPTIONS = [25, 50, 100, 0] as const; // 0 = no limit
 
+// Leaflet is a sizeable dependency this panel doesn't need for its first
+// paint (the pickers/results list render fine without it), so it's split
+// into its own chunk and fetched only once this section is reached.
+const MapView = lazy(() => import("./MapView"));
+
 interface Props {
   reports: Report[];
   /** Called whenever the picked area (or geolocation) changes, so the
    *  full-page map backdrop can follow along — null once cleared. */
   onRegionChange?: (origin: LatLng | null) => void;
+  /** While true, the embedded Leaflet map is skipped — it's hidden behind
+   *  the splash screen at that point anyway, and mounting it early was
+   *  making an invisible tile the page's Largest Contentful Paint. */
+  deferMap?: boolean;
 }
 
-export default function NearbyPanel({ reports, onRegionChange }: Props) {
+export default function NearbyPanel({ reports, onRegionChange, deferMap }: Props) {
   const { t, i18n } = useTranslation();
   const [divisionId, setDivisionId] = useState("");
   const [districtId, setDistrictId] = useState("");
@@ -166,7 +174,13 @@ export default function NearbyPanel({ reports, onRegionChange }: Props) {
         )}
       </div>
 
-      <MapView reports={reports} focus={origin} focusLabel={originLabel || undefined} radiusKm={radiusKm} />
+      {deferMap ? (
+        <div className="h-[340px] w-full bg-black/5 sm:h-[420px]" />
+      ) : (
+        <Suspense fallback={<div className="h-[340px] w-full animate-pulse bg-black/5 sm:h-[420px]" />}>
+          <MapView reports={reports} focus={origin} focusLabel={originLabel || undefined} radiusKm={radiusKm} />
+        </Suspense>
+      )}
 
       {/* Nearby results */}
       <div className="border-t border-black/8">
