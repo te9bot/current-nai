@@ -11,21 +11,27 @@ import clsx from "../utils/clsx";
 
 interface Props {
   /** Most recent reports, newest first. reports[0] drives the big "LIVE NOW"
-   *  card; a few more (if present) float as smaller cards around it. */
+   *  card; up to 9 more (if present) float in as scrolling continues. */
   reports: Report[];
   onDismiss: () => void;
 }
 
 /** Fixed (not random) placement/timing per floating card slot — stable across
  *  re-renders, and spread so no two bob in sync. Hidden below `lg`: at
- *  phone/tablet width there isn't room around the main card without overlap. */
-// All within the band between the header and the headline/CTA — that button
-// runs nearly full-width, so anything lower would sit behind it instead.
+ *  phone/tablet width there isn't room around the main card without overlap.
+ *  Five rows between the header and the headline/CTA band, alternating
+ *  left/right so cards revealed later land beside the earlier ones rather
+ *  than on top of them. */
 const FLOAT_SLOTS = [
-  { className: "left-[6%] top-[18%]", tiltFactor: 5, delay: "0s" },
-  { className: "right-[6%] top-[14%]", tiltFactor: -6, delay: "1.1s" },
-  { className: "left-[11%] top-[46%]", tiltFactor: -4, delay: "2.2s" },
-  { className: "right-[10%] top-[50%]", tiltFactor: 6, delay: "0.6s" },
+  { className: "left-[8%] top-[8%]", tiltFactor: 5, delay: "0s" },
+  { className: "right-[8%] top-[6%]", tiltFactor: -6, delay: "1.1s" },
+  { className: "left-[11%] top-[20%]", tiltFactor: -4, delay: "2.2s" },
+  { className: "right-[9%] top-[18%]", tiltFactor: 6, delay: "0.6s" },
+  { className: "left-[7%] top-[31%]", tiltFactor: 4, delay: "1.6s" },
+  { className: "right-[12%] top-[29%]", tiltFactor: -5, delay: "2.6s" },
+  { className: "left-[13%] top-[42%]", tiltFactor: -6, delay: "0.3s" },
+  { className: "right-[7%] top-[40%]", tiltFactor: 5, delay: "1.9s" },
+  { className: "left-[9%] top-[53%]", tiltFactor: 3, delay: "2.9s" },
 ];
 
 export default function Splash({ reports, onDismiss }: Props) {
@@ -51,7 +57,9 @@ export default function Splash({ reports, onDismiss }: Props) {
     const onScroll = () => {
       if (scrollFrame) return;
       scrollFrame = requestAnimationFrame(() => {
-        const range = Math.max(320, window.innerHeight * 0.6);
+        // Wider than the 4-card version: 9 cards now stagger across this
+        // distance, so it needs more room to keep each reveal legible.
+        const range = Math.max(480, window.innerHeight);
         setScrollProgress(Math.min(1, Math.max(0, window.scrollY / range)));
         scrollFrame = null;
       });

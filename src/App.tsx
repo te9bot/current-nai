@@ -89,7 +89,7 @@ export default function App() {
   return (
     <div className="relative min-h-screen bg-ink-950">
       <MapBackdrop focus={mapFocus} />
-      {showSplash && <Splash reports={allReports.slice(0, 5)} onDismiss={() => setShowSplash(false)} />}
+      {showSplash && <Splash reports={allReports.slice(0, 10)} onDismiss={() => setShowSplash(false)} />}
 
       {/* Everything above the backdrop */}
       <div className="relative z-10">
