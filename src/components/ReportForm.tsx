@@ -81,10 +81,18 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   const [submitError, setSubmitError] = useState(false);
   // The division/district cascade normally clears the levels below whenever
   // a higher one changes (manual re-selection). The location auto-fill sets
-  // all three at once from a single GPS+reverse-geocode read, so it flips
-  // this on first to stop that cascade from wiping out the district/area it
-  // just set.
-  const skipCascadeResetRef = useRef(false);
+  // all three at once from a single GPS+reverse-geocode read, so these hold
+  // the exact value each cascade-reset effect should let through this one
+  // time — a value comparison, not a time-limited "pause" flag. A
+  // setTimeout-based pause isn't ordered relative to React's own effect
+  // scheduling, so on a slower device the "resume" timeout can fire before
+  // the guarded effect actually runs, wiping out the very values auto-fill
+  // just set with no error shown (autofillStatus already reached its
+  // success state before the wipe). Each ref is consumed — set back to null
+  // — by the one effect it exists for, so it can't accidentally suppress a
+  // later, unrelated manual reset.
+  const expectedDistrictAfterAutofillRef = useRef<string | null>(null);
+  const expectedAreaAfterAutofillRef = useRef<string | null>(null);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -94,12 +102,18 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   }, []);
 
   useEffect(() => {
-    if (skipCascadeResetRef.current) return;
+    if (expectedDistrictAfterAutofillRef.current !== null && expectedDistrictAfterAutofillRef.current === districtId) {
+      expectedDistrictAfterAutofillRef.current = null;
+      return;
+    }
     setDistrictId("");
   }, [divisionId]);
 
   useEffect(() => {
-    if (skipCascadeResetRef.current) return;
+    if (expectedAreaAfterAutofillRef.current !== null && expectedAreaAfterAutofillRef.current === areaId) {
+      expectedAreaAfterAutofillRef.current = null;
+      return;
+    }
     setAreaId("");
   }, [districtId]);
 
@@ -178,13 +192,11 @@ export default function ReportForm({ onClose, onCreated }: Props) {
         ? matchAreaFromCandidates(matchedDistrict, data.areaCandidates ?? [])
         : undefined;
 
-      skipCascadeResetRef.current = true;
+      expectedDistrictAfterAutofillRef.current = matchedDistrict?.id ?? "";
+      expectedAreaAfterAutofillRef.current = matchedArea?.id ?? "";
       setDivisionId(matchedDivision.id);
       setDistrictId(matchedDistrict?.id ?? "");
       setAreaId(matchedArea?.id ?? "");
-      setTimeout(() => {
-        skipCascadeResetRef.current = false;
-      }, 0);
 
       setPinConfirmedByUser(true);
       setLocation({ lat, lng, accuracy, source: "gps" });
