@@ -28,13 +28,33 @@ DIST_DIR = BASE_DIR / "dist"
 VALID_STATUS = {"power_on", "load_shedding"}
 VALID_SORT = {"latest", "longest", "confirmed"}
 
+IS_PRODUCTION = os.environ.get("NODE_ENV") == "production"
+
+
+def _required_secret(env_var: str, dev_fallback: str) -> str:
+    """Peppers used to HMAC low-entropy values (an IP address) or gate a
+    forgeable identity cookie must be real secrets in production — a fallback
+    baked into public source code defeats the point (e.g. it would let anyone
+    precompute a rainbow table over the ~4 billion IPv4 space and reverse a
+    leaked reporter_ip_hash back to a real IP). Only production enforces
+    this; local dev keeps a fixed fallback so `npm run dev` works without
+    extra setup, matching DATABASE_URL's already-required-in-all-envs
+    strictness being the exception, not the rule, for local ergonomics."""
+    value = os.environ.get(env_var)
+    if value:
+        return value
+    if IS_PRODUCTION:
+        raise RuntimeError(f"{env_var} is required in production — set it to a random secret string.")
+    return dev_fallback
+
+
 # IP hashing is kept only as a secondary anti-abuse signal (rate limiting,
 # and reporter_ip_hash for future abuse heuristics) — never as the primary
 # way of recognizing a visitor. See ANON_ID_SECRET below for that. HMAC (not
 # a bare hash) because raw IPv4 space is only ~4 billion values and trivially
 # reversible otherwise; the pepper keeps the stored hash from being useful
 # outside this server.
-IP_HASH_SECRET = os.environ.get("IP_HASH_SECRET", "current-nai-ip-pepper-fallback")
+IP_HASH_SECRET = _required_secret("IP_HASH_SECRET", "current-nai-ip-pepper-fallback")
 
 # The app is fully anonymous — no accounts, no login — but still needs a way
 # to (a) stop one visitor from confirming the same report over and over and
@@ -43,7 +63,7 @@ IP_HASH_SECRET = os.environ.get("IP_HASH_SECRET", "current-nai-ip-pepper-fallbac
 # in a cookie: never readable by frontend JS, never sent anywhere but back to
 # this server, and never itself stored — only its HMAC (anon_hash) is, so a
 # leaked database still can't be used to forge or replay a visitor's cookie.
-ANON_ID_SECRET = os.environ.get("ANON_ID_SECRET", "current-nai-anon-pepper-fallback")
+ANON_ID_SECRET = _required_secret("ANON_ID_SECRET", "current-nai-anon-pepper-fallback")
 ANON_COOKIE_NAME = "cnai_anon"
 ANON_COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2  # 2 years
 
@@ -84,11 +104,41 @@ async def lifespan(app: FastAPI):
     await db.close_pool()
 
 
-app = FastAPI(lifespan=lifespan)
+# /docs, /redoc, and /openapi.json default to publicly reachable, which in
+# production only helps an attacker enumerate every route (this is how a
+# leftover debug endpoint would get found) — nothing here needs interactive
+# API docs in production, so they're switched off there and left on for local
+# development/testing.
+app = FastAPI(
+    lifespan=lifespan,
+    docs_url=None if IS_PRODUCTION else "/docs",
+    redoc_url=None if IS_PRODUCTION else "/redoc",
+    openapi_url=None if IS_PRODUCTION else "/openapi.json",
+)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+# The frontend is always served same-origin by this same process in
+# production, so no third-party origin has a legitimate reason to call this
+# API directly — a wildcard here would let any website drive the anonymous,
+# rate-limited write endpoints (reports/confirm/resolve/suggestions) from a
+# visitor's own browser. Configurable via ALLOWED_ORIGINS (comma-separated)
+# in case the production domain changes without a code deploy; defaults cover
+# the known production domain, the Render fallback URL, and local dev.
+DEFAULT_ALLOWED_ORIGINS = [
+    "https://karentkoi.live",
+    "https://www.karentkoi.live",
+    "https://current-nai-k2e1.onrender.com",
+    "http://localhost:5173",
+    "http://localhost:4000",
+]
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("ALLOWED_ORIGINS", ",".join(DEFAULT_ALLOWED_ORIGINS)).split(",")
+    if origin.strip()
+]
+
+app.add_middleware(CORSMiddleware, allow_origins=ALLOWED_ORIGINS, allow_methods=["*"], allow_headers=["*"])
 app.add_middleware(GZipMiddleware)
 
 
@@ -116,7 +166,7 @@ def get_anon_hash(request: Request, response: Response) -> str:
             raw,
             max_age=ANON_COOKIE_MAX_AGE,
             httponly=True,
-            secure=os.environ.get("NODE_ENV") == "production",
+            secure=IS_PRODUCTION,
             samesite="lax",
             path="/",
         )
@@ -243,6 +293,15 @@ class NewReportInput(BaseModel):
     locationSource: Optional[str] = None
 
 
+VALID_SUGGESTION_CATEGORY = {"new_feature", "improvement", "bug", "design", "other"}
+MAX_SUGGESTION_MESSAGE_LENGTH = 2000
+
+
+class NewSuggestionInput(BaseModel):
+    message: Optional[str] = None
+    category: Optional[str] = None
+
+
 # --- routes --------------------------------------------------------------------
 
 @app.get("/api/reports")
@@ -318,19 +377,29 @@ async def list_reports(
     return {"reports": reports}
 
 
-# TEMP DEBUG — remove before finalizing. Diagnosing req.ip/XFF behavior behind
-# Render + Cloudflare + Docker; carried over from the Node backend this
-# replaces so the new get_client_ip() can be verified in production before
-# this is deleted.
-@app.get("/api/debug/ip")
-async def debug_ip(request: Request):
-    xff = request.headers.get("x-forwarded-for")
-    return {
-        "ip": get_client_ip(request),
-        "ips": [ip.strip() for ip in xff.split(",")] if xff else [],
-        "xff": xff,
-        "remoteAddress": request.client.host if request.client else None,
-    }
+@app.post("/api/suggestions", status_code=201)
+@limiter.limit("5/minute")
+async def create_suggestion(request: Request, body: NewSuggestionInput):
+    """Fully anonymous site-feedback submission — no anon cookie is read or
+    issued here (unlike every report route), so nothing ties a suggestion
+    back to a visitor even indirectly. Anti-spam is the same per-IP limiter
+    used everywhere else in this file, tighter than reports' 20/minute since
+    a bare text field is a cheaper spam target than the multi-field report
+    form."""
+    message = (body.message or "").strip()
+    if not message:
+        raise HTTPException(status_code=400, detail={"error": "message_required"})
+    if len(message) > MAX_SUGGESTION_MESSAGE_LENGTH:
+        raise HTTPException(status_code=400, detail={"error": "message_too_long"})
+    if not body.category or body.category not in VALID_SUGGESTION_CATEGORY:
+        raise HTTPException(status_code=400, detail={"error": "category_required"})
+
+    await db.run(
+        "INSERT INTO suggestions (message, category) VALUES ($1, $2)",
+        message,
+        body.category,
+    )
+    return {"success": True}
 
 
 @app.get("/api/summary")
@@ -761,7 +830,7 @@ async def create_report(request: Request, body: NewReportInput, anon_hash: str =
 
 # In production the frontend is a static build served by this same process
 # (single Render service instead of a separate static site).
-if os.environ.get("NODE_ENV") == "production" and DIST_DIR.is_dir():
+if IS_PRODUCTION and DIST_DIR.is_dir():
     class ImmutableStaticFiles(StaticFiles):
         # Vite fingerprints everything under assets/ with a content hash, so
         # those files are safe to cache indefinitely.

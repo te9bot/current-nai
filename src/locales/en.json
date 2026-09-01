@@ -3,6 +3,9 @@
     "name": "কারেন্ট Koi?",
     "tagline": "Live Bangladesh power outage tracker"
   },
+  "location": {
+    "inAppBrowserHint": "Can't detect your location? Select your area manually"
+  },
   "header": {
     "switchToEnglish": "English",
     "switchToBangla": "বাংলা",
@@ -227,6 +230,29 @@
     "privacy": {
       "q": "Is my location or personal data tracked?",
       "a": "No accounts, no login, and no personal data are collected. The only location info stored is the division/district/area you choose when reporting. A random, anonymous identifier in a browser cookie stops the same visitor from confirming a report more than once — it carries no personal information and is never readable by this or any other website's JavaScript."
+    }
+  },
+  "suggestions": {
+    "link": "Send a suggestion",
+    "title": "Suggestions",
+    "subtitle": "Tell us how to make the website better — completely anonymously.",
+    "messageLabel": "Your suggestion",
+    "messagePlaceholder": "Tell us how the website could be improved...",
+    "categoryLabel": "Category",
+    "category": {
+      "newFeature": "New feature",
+      "improvement": "Improvement",
+      "bug": "Bug",
+      "design": "Design",
+      "other": "Other"
+    },
+    "submit": "Send suggestion",
+    "submitting": "Sending...",
+    "success": "Thanks! Your suggestion has been sent.",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "privacyNote": "This is completely anonymous — no name, email, or personal information is collected.",
+    "validation": {
+      "messageRequired": "Please write your suggestion"
     }
   },
   "about": {

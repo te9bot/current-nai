@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { LatLng } from "../utils/geo";
-import { getCurrentPositionWithFallback } from "../utils/geolocation";
+import { getCurrentPositionWithFallback, isInAppBrowser } from "../utils/geolocation";
 import { LocateIcon, LoaderIcon } from "./icons";
 import clsx from "../utils/clsx";
 
@@ -201,7 +201,12 @@ export default function LocationPicker({ areaFocus, value, onChange, previewFrom
         // and a later GPS attempt fails, the old pin stays on the map — but
         // the visitor still needs to know that latest tap didn't work,
         // rather than the failure being silently swallowed by the old value.
-        <p className="mt-2 text-[11px] text-rust-400">{t("form.locationError")}</p>
+        <>
+          <p className="mt-2 text-[11px] text-rust-400">{t("form.locationError")}</p>
+          {isInAppBrowser() && (
+            <p className="mt-1 text-[11px] text-grey-600">{t("location.inAppBrowserHint")}</p>
+          )}
+        </>
       ) : value && previewFromAddress ? (
         <p className="mt-2 text-[11px] font-semibold text-amber-500">{t("form.locationFromAddress")}</p>
       ) : value ? (

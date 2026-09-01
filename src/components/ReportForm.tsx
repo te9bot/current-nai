@@ -17,7 +17,7 @@ import type { NewReportInput, Report } from "../types";
 import { XIcon, AlertIcon, MapPinIcon, LocateIcon, LoaderIcon } from "./icons";
 import LocationPicker, { type PickedLocation } from "./LocationPicker";
 import { districtCoords } from "../utils/geo";
-import { getCurrentPositionWithFallback } from "../utils/geolocation";
+import { getCurrentPositionWithFallback, isInAppBrowser } from "../utils/geolocation";
 import clsx from "../utils/clsx";
 
 type AutofillStatus = "idle" | "locating" | "error" | "partial";
@@ -321,7 +321,16 @@ export default function ReportForm({ onClose, onCreated }: Props) {
               </button>
               <p className="mt-1.5 text-[11px] text-grey-600">{t("form.useMyLocationAutofillHelp")}</p>
               {autofillStatus === "error" && (
-                <p className="mt-1.5 text-[11px] text-rust-400">{t("form.autofillGpsUnavailable")}</p>
+                <>
+                  <p className="mt-1.5 text-[11px] text-rust-400">{t("form.autofillGpsUnavailable")}</p>
+                  {/* In-app browsers (Facebook/Messenger and similar) are the
+                      most likely place for GPS to fail in a way no settings
+                      toggle fixes — the division/district/area selects below
+                      already work fine without it. */}
+                  {isInAppBrowser() && (
+                    <p className="mt-1 text-[11px] text-grey-600">{t("location.inAppBrowserHint")}</p>
+                  )}
+                </>
               )}
               {autofillStatus === "partial" && (
                 <p className="mt-1.5 text-[11px] text-amber-500">{t("form.autofillPartialMatch")}</p>

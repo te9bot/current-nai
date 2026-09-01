@@ -10,10 +10,15 @@ services:
       # the value in its dashboard instead of storing it in this file.
       - key: DATABASE_URL
         sync: false
-      # Pepper for hashing reporter IPs (see backend/main.py). Falls back to
-      # a built-in default if unset, but should be set to a real secret in
-      # production.
+      # Pepper for hashing reporter IPs (see backend/main.py). Required in
+      # production — the server refuses to start without it, since a
+      # fallback baked into public source code would defeat the point.
       - key: IP_HASH_SECRET
+        sync: false
+      # Pepper for the anonymous per-visitor identity cookie (see
+      # backend/main.py). Also required in production for the same reason
+      # as IP_HASH_SECRET above.
+      - key: ANON_ID_SECRET
         sync: false
       # LocationIQ API key for address geocoding (see backend/main.py) — free
       # tier, no card required: https://locationiq.com. Without this set,

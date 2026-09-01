@@ -18,6 +18,7 @@ import {
   LocateFixed,
   Loader2,
   HelpCircle,
+  Lightbulb,
 } from "lucide-react";
 
 // Thin re-exports under the app's existing names, so call sites don't change.
@@ -42,3 +43,4 @@ export const CoinIcon = Coins;
 export const LocateIcon = LocateFixed;
 export const LoaderIcon = Loader2;
 export const HelpIcon = HelpCircle;
+export const SuggestionIcon = Lightbulb;

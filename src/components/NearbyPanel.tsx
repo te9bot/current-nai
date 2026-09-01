@@ -7,6 +7,7 @@ import { isCurrentlyPowerOn } from "../utils/reportStatus";
 import StatusBadge from "./StatusBadge";
 import { SearchIcon } from "./icons";
 import { formatDuration, toLocalizedDigits } from "../utils/time";
+import { GeoError, isInAppBrowser, requestPosition } from "../utils/geolocation";
 import clsx from "../utils/clsx";
 
 const RADIUS_OPTIONS = [25, 50, 100, 0] as const; // 0 = no limit
@@ -36,6 +37,7 @@ export default function NearbyPanel({ reports, onRegionChange, deferMap }: Props
     "idle"
   );
   const [myLocation, setMyLocation] = useState<LatLng | null>(null);
+  const isGeoError = geoState === "denied" || geoState === "unavailable" || geoState === "timeout" || geoState === "unsupported";
 
   const localize = (v: string) => toLocalizedDigits(v, i18n.language);
   const districts = getDistricts(divisionId);
@@ -61,30 +63,30 @@ export default function NearbyPanel({ reports, onRegionChange, deferMap }: Props
     return reportsNear(reports, origin, radiusKm === 0 ? Infinity : radiusKm).slice(0, 25);
   }, [reports, origin, radiusKm]);
 
-  function useMyLocation() {
-    if (!("geolocation" in navigator)) {
-      setGeoState("unsupported");
-      return;
-    }
+  // requestPosition() (src/utils/geolocation.ts) covers everything a plain
+  // navigator.geolocation call can't be trusted to on its own: no
+  // geolocation support, an insecure context, and — critically for in-app
+  // browsers like Facebook/Messenger's, which are known to sometimes drop a
+  // geolocation request without ever calling back — a JS-level watchdog so
+  // this always resolves one way or another instead of leaving "locating"
+  // spinning forever. Whatever happens, the division/district pickers above
+  // work completely independently of this button.
+  async function useMyLocation() {
     setGeoState("locating");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setMyLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setGeoState("idle");
-      },
-      (err) => {
-        // Codes per the Geolocation API spec: 1 = permission actually denied,
-        // 2 = no position could be determined (e.g. Windows Location Services
-        // off, no GPS/Wi-Fi fix), 3 = timed out. Chrome returns 2 far more
-        // often than 1 on desktops with location services disabled, so
-        // collapsing everything into "permission denied" sent people to the
-        // wrong settings screen.
-        if (err.code === err.PERMISSION_DENIED) setGeoState("denied");
-        else if (err.code === err.TIMEOUT) setGeoState("timeout");
-        else setGeoState("unavailable");
-      },
-      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 }
-    );
+    try {
+      const { lat, lng } = await requestPosition({ enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 });
+      setMyLocation({ lat, lng });
+      setGeoState("idle");
+    } catch (err) {
+      const reason = err instanceof GeoError ? err.reason : "unavailable";
+      if (reason === "denied") setGeoState("denied");
+      else if (reason === "timeout") setGeoState("timeout");
+      else if (reason === "unsupported") setGeoState("unsupported");
+      // "unavailable" and "insecure_context" share one message: neither is
+      // something the visitor can fix from a settings prompt, so both just
+      // point at picking a district manually instead.
+      else setGeoState("unavailable");
+    }
   }
 
   function clearLocation() {
@@ -171,6 +173,13 @@ export default function NearbyPanel({ reports, onRegionChange, deferMap }: Props
         {geoState === "timeout" && <span className="text-[11px] text-rust-400">{t("map.locationTimeout")}</span>}
         {geoState === "unsupported" && (
           <span className="text-[11px] text-rust-400">{t("map.locationUnsupported")}</span>
+        )}
+        {/* In-app browsers (Facebook/Messenger and similar) are the most
+            likely place for GPS to fail in a way no settings toggle fixes —
+            a gentler nudge toward the pickers above instead of the more
+            technical per-reason message alone. */}
+        {isGeoError && isInAppBrowser() && (
+          <span className="text-[11px] text-grey-500">{t("location.inAppBrowserHint")}</span>
         )}
       </div>
 

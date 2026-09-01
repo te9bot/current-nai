@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { BANGLADESH_CENTER, BANGLADESH_BOUNDS, type LatLng } from "../utils/geo";
@@ -21,7 +21,11 @@ const FOCUS_ZOOM = 11;
 export default function MapBackdrop({ focus }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
-  const [offset, setOffset] = useState(0);
+  // Scroll-driven parallax offset is written straight to the DOM (below)
+  // instead of through React state — this element re-renders on every
+  // scroll frame otherwise, which is pure overhead for a transform string
+  // no other part of the tree reads.
+  const parallaxRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -85,7 +89,10 @@ export default function MapBackdrop({ focus }: Props) {
       if (frame) return;
       frame = requestAnimationFrame(() => {
         // Move the map a fraction of the scroll distance so it lags behind.
-        setOffset(window.scrollY * 0.16);
+        // Direct style write, not setState — this runs on every scroll
+        // frame and must not trigger a React commit.
+        const el = parallaxRef.current;
+        if (el) el.style.transform = `translate3d(0, ${-(window.scrollY * 0.16)}px, 0)`;
         frame = null;
       });
     };
@@ -98,10 +105,7 @@ export default function MapBackdrop({ focus }: Props) {
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      <div
-        className="absolute inset-[-6%]"
-        style={{ transform: `translate3d(0, ${-offset}px, 0)`, opacity: 0.55 }}
-      >
+      <div ref={parallaxRef} className="absolute inset-[-6%]" style={{ transform: "translate3d(0, 0, 0)", opacity: 0.55 }}>
         <div
           ref={containerRef}
           className="h-full w-full"

@@ -33,6 +33,8 @@ const NearbyPanel = lazy(() => import("./components/NearbyPanel"));
 const BelowFold = lazy(() => import("./components/BelowFold"));
 // Only reachable via the /about route, never the landing page itself.
 const AboutPage = lazy(() => import("./components/AboutPage"));
+// Only reachable via the /suggestions route, never the landing page itself.
+const SuggestionsPage = lazy(() => import("./components/SuggestionsPage"));
 
 // Same convention as i18next's own language cache key (current-nai-language)
 // — a plain client-side preference flag, not report/session identity, so it
@@ -122,6 +124,14 @@ export default function App() {
     );
   }
 
+  if (route === "/suggestions") {
+    return (
+      <Suspense fallback={null}>
+        <SuggestionsPage onBack={() => navigate("/")} />
+      </Suspense>
+    );
+  }
+
   return (
     <div className="relative min-h-screen bg-ink-950">
       {/* Purely decorative — invisible behind the splash anyway, so there's
@@ -170,13 +180,23 @@ export default function App() {
           <footer className="mt-8 border-t border-black/8 pt-6 text-center text-[11px] leading-relaxed text-grey-600">
             <p>{t("footer.disclaimer")}</p>
             <p className="mt-1">{t("footer.builtWith")}</p>
-            <button
-              type="button"
-              onClick={() => navigate("/about")}
-              className="mt-3 font-semibold text-grey-500 underline-offset-2 hover:text-grey-900 hover:underline"
-            >
-              {t("about.link")}
-            </button>
+            <div className="mt-3 flex items-center justify-center gap-2 font-semibold text-grey-500">
+              <button
+                type="button"
+                onClick={() => navigate("/about")}
+                className="underline-offset-2 hover:text-grey-900 hover:underline"
+              >
+                {t("about.link")}
+              </button>
+              <span aria-hidden>·</span>
+              <button
+                type="button"
+                onClick={() => navigate("/suggestions")}
+                className="underline-offset-2 hover:text-grey-900 hover:underline"
+              >
+                {t("suggestions.link")}
+              </button>
+            </div>
           </footer>
         </main>
       </div>

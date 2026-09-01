@@ -16,6 +16,8 @@ export default function About() {
         <img
           src="/team/talha.jpg"
           alt={t("about.name")}
+          loading="lazy"
+          decoding="async"
           className="h-24 w-24 shrink-0 rounded-lg border border-black/8 object-cover sm:h-28 sm:w-28"
         />
         <div className="min-w-0">

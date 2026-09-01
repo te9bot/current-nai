@@ -180,3 +180,23 @@ async def _init_schema(pool: asyncpg.Pool) -> None:
             );
             """
         )
+
+        # Site-feedback suggestions. Deliberately carries less than reports —
+        # no reporter_ip_hash, no anon_hash, nothing else that could identify
+        # who submitted it. Anti-spam is enforced entirely at the request
+        # layer (rate limiting in main.py), never persisted here, so a
+        # suggestion row can never be traced back to a visitor even from a
+        # full database leak.
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS suggestions (
+                id SERIAL PRIMARY KEY,
+                message TEXT NOT NULL,
+                category TEXT NOT NULL CHECK (category IN ('new_feature', 'improvement', 'bug', 'design', 'other')),
+                created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+            );
+            """
+        )
+        await conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_suggestions_created_at ON suggestions (created_at DESC);"
+        )

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { Report } from "../types";
 import { getDivision, getDistrict, localizedName } from "../data/locations";
@@ -50,16 +50,65 @@ const FLOAT_SLOTS = [
 export default function Splash({ reports, onDismiss }: Props) {
   const { t, i18n } = useTranslation();
   const now = useNowTick();
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const frame = useRef<number | null>(null);
   const reducedMotion = useRef(prefersReducedMotion()).current;
-  const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Scroll/mousemove-driven values live in refs, not state: both are written
+  // every animation frame during a gesture, and driving them through
+  // setState would force this whole tree (main card + up to 9 floating
+  // cards) to re-render every frame just to update a transform/opacity
+  // string. The rAF callbacks below write straight to each element's style
+  // via these refs instead — same values, same easing, no React commit in
+  // the scroll/pointer hot path.
+  const tiltRef = useRef({ x: 0, y: 0 });
+  const scrollProgressRef = useRef(0);
+  const tiltFrame = useRef<number | null>(null);
+  const bgRef = useRef<HTMLDivElement | null>(null);
+  const bloomRef = useRef<HTMLDivElement | null>(null);
+  const mainCardRef = useRef<HTMLDivElement | null>(null);
+  const floatingCardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const latestReport = reports[0] ?? null;
   const floatingReports = reports.slice(1, 1 + FLOAT_SLOTS.length);
+  // Kept in sync with the render-scoped `floatingReports` on every render, so
+  // the stable rAF callbacks set up once on mount (below) always see the
+  // latest report list instead of the one from whichever render happened to
+  // be current when they were created.
+  const floatingReportsRef = useRef(floatingReports);
+  floatingReportsRef.current = floatingReports;
 
   const division = latestReport ? getDivision(latestReport.divisionId) : undefined;
   const district = latestReport ? getDistrict(latestReport.divisionId, latestReport.districtId) : undefined;
+
+  function applyTilt() {
+    const { x, y } = tiltRef.current;
+    if (bgRef.current) bgRef.current.style.translate = `${x * -14}px ${y * -14}px`;
+    if (bloomRef.current) bloomRef.current.style.translate = `${x * 18}px ${y * 18}px`;
+    if (mainCardRef.current) mainCardRef.current.style.translate = `${x * 8}px ${y * 8}px`;
+    floatingReportsRef.current.forEach((_, i) => {
+      const el = floatingCardRefs.current[i];
+      const slot = FLOAT_SLOTS[i];
+      if (el && slot) el.style.translate = `${x * slot.tiltFactor}px ${y * slot.tiltFactor}px`;
+    });
+  }
+
+  function applyScroll() {
+    const progress = scrollProgressRef.current;
+    // String, not a number: React/DOM appends "px" to unrecognized numeric
+    // style values, which turns `scale` into an invalid value the browser
+    // drops — same reasoning the original state-driven version relied on.
+    if (bgRef.current) bgRef.current.style.scale = String(1 + progress * 0.22);
+    const cards = floatingReportsRef.current;
+    cards.forEach((_, i) => {
+      const el = floatingCardRefs.current[i];
+      if (!el) return;
+      // Cards reveal one at a time as the visitor scrolls down, staying real
+      // data (just the next slice of `reports`) never invented rows — and
+      // fold back away on the way back up to the original view.
+      const cardProgress = reducedMotion ? 1 : Math.min(1, Math.max(0, progress * cards.length - i));
+      el.style.scale = String(0.85 + cardProgress * 0.15);
+      el.style.opacity = String(cardProgress * 0.7);
+    });
+  }
 
   useEffect(() => {
     // Reduced-motion visitors get the same real reports without the
@@ -73,7 +122,8 @@ export default function Splash({ reports, onDismiss }: Props) {
         // Wider than the 4-card version: 9 cards now stagger across this
         // distance, so it needs more room to keep each reveal legible.
         const range = Math.max(480, window.innerHeight);
-        setScrollProgress(Math.min(1, Math.max(0, window.scrollY / range)));
+        scrollProgressRef.current = Math.min(1, Math.max(0, window.scrollY / range));
+        applyScroll();
         scrollFrame = null;
       });
     };
@@ -83,44 +133,49 @@ export default function Splash({ reports, onDismiss }: Props) {
       window.removeEventListener("scroll", onScroll);
       if (scrollFrame) cancelAnimationFrame(scrollFrame);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reducedMotion]);
 
   function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
     const { innerWidth, innerHeight } = window;
-    const x = (e.clientX / innerWidth - 0.5) * 2;
-    const y = (e.clientY / innerHeight - 0.5) * 2;
-    if (frame.current) cancelAnimationFrame(frame.current);
-    frame.current = requestAnimationFrame(() => setTilt({ x, y }));
+    tiltRef.current = {
+      x: (e.clientX / innerWidth - 0.5) * 2,
+      y: (e.clientY / innerHeight - 0.5) * 2,
+    };
+    if (tiltFrame.current) cancelAnimationFrame(tiltFrame.current);
+    tiltFrame.current = requestAnimationFrame(applyTilt);
   }
 
-  // 1 -> fully zoomed in; scroll back up smoothly returns this to 0.
-  // String, not a number: React appends "px" to unrecognized numeric style
-  // properties, which turns `scale` into an invalid value the browser drops.
-  const mapScale = String(1 + scrollProgress * 0.22);
+  function handleMouseLeave() {
+    tiltRef.current = { x: 0, y: 0 };
+    applyTilt();
+  }
 
   return (
     <div
       className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-ink-950"
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => setTilt({ x: 0, y: 0 })}
+      onMouseLeave={handleMouseLeave}
     >
       {/* map background layer: ambient auto-pan for touch devices, plus a faster
           mouse-driven offset for a parallax depth cue on desktop */}
       <div
+        ref={bgRef}
         aria-hidden
         className="animate-map-pan pointer-events-none absolute inset-[-8%] bg-cover bg-center opacity-45 transition-[scale] duration-base ease-standard"
         style={{
           backgroundImage: "url(/map-dark.webp)",
-          translate: `${tilt.x * -14}px ${tilt.y * -14}px`,
-          scale: mapScale,
+          translate: "0px 0px",
+          scale: "1",
           filter: "invert(1) hue-rotate(180deg) brightness(1.08) contrast(0.92)",
         }}
       />
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink-950/40 via-ink-950/70 to-ink-950" />
       <div
+        ref={bloomRef}
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-1/3 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/20 blur-[100px] transition-transform duration-fast ease-standard"
-        style={{ translate: `${tilt.x * 18}px ${tilt.y * 18}px` }}
+        style={{ translate: "0px 0px" }}
       />
 
       {/* Smaller reports drifting around the main card — atmosphere, not a
@@ -131,24 +186,22 @@ export default function Splash({ reports, onDismiss }: Props) {
       {floatingReports.map((r, i) => {
         const slot = FLOAT_SLOTS[i];
         const isOn = isCurrentlyPowerOn(r);
-        // Cards reveal one at a time as the visitor scrolls down, staying
-        // real data (just the next slice of `reports`) never invented rows —
-        // and fold back away on the way back up to the original view.
-        const cardProgress = reducedMotion
-          ? 1
-          : Math.min(1, Math.max(0, scrollProgress * floatingReports.length - i));
+        const initialCardProgress = reducedMotion ? 1 : 0;
         return (
           <div
             key={r.id}
+            ref={(el) => {
+              floatingCardRefs.current[i] = el;
+            }}
             aria-hidden
             className={clsx(
               "pointer-events-none absolute z-10 animate-float rounded-lg border border-black/10 bg-ink-900/70 p-2.5 shadow-pin backdrop-blur transition-[opacity,scale] duration-fast ease-standard",
               slot.className
             )}
             style={{
-              translate: `${tilt.x * slot.tiltFactor}px ${tilt.y * slot.tiltFactor}px`,
-              scale: String(0.85 + cardProgress * 0.15),
-              opacity: cardProgress * 0.7,
+              translate: "0px 0px",
+              scale: String(0.85 + initialCardProgress * 0.15),
+              opacity: initialCardProgress * 0.7,
               animationDelay: slot.delay,
             }}
           >
@@ -179,8 +232,9 @@ export default function Splash({ reports, onDismiss }: Props) {
       <div className="relative z-10 flex flex-1 items-center justify-center px-6">
         {latestReport ? (
           <div
+            ref={mainCardRef}
             className="w-full max-w-xs rounded-lg border border-black/10 bg-ink-900/90 p-4 shadow-callout backdrop-blur transition-transform duration-fast ease-standard"
-            style={{ translate: `${tilt.x * 8}px ${tilt.y * 8}px` }}
+            style={{ translate: "0px 0px" }}
           >
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-grey-500">

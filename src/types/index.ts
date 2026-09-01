@@ -135,3 +135,10 @@ export interface HourlyPattern {
 export interface Patterns {
   hourly: HourlyPattern[];
 }
+
+export type SuggestionCategory = "new_feature" | "improvement" | "bug" | "design" | "other";
+
+export interface NewSuggestionInput {
+  message: string;
+  category: SuggestionCategory;
+}
