@@ -264,7 +264,12 @@
     "privacyNote": "This is completely anonymous — no name, email, or personal information is collected.",
     "validation": {
       "messageRequired": "Please write your suggestion"
-    }
+    },
+    "listTitle": "Recent suggestions",
+    "listSubtitle": "Everyone's suggestions, newest first — also anonymous.",
+    "listLoading": "Loading suggestions...",
+    "listEmpty": "No suggestions yet — be the first!",
+    "listError": "Couldn't load suggestions right now."
   },
   "about": {
     "link": "Meet the team",

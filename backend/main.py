@@ -261,6 +261,16 @@ def serialize_report(row, confirmed_by_you: bool = False, restore_votes: int = 0
     }
 
 
+def serialize_suggestion(row) -> dict:
+    created_at = row["created_at"]
+    return {
+        "id": row["id"],
+        "message": row["message"],
+        "category": row["category"],
+        "createdAt": _iso_z(created_at) if isinstance(created_at, datetime) else created_at,
+    }
+
+
 async def fetch_restore_state(report_id: int, anon_hash: str) -> tuple[int, bool]:
     """(distinct vote count, whether this anon has voted) for a single report."""
     rows = await db.all("SELECT anon_hash FROM report_restore_votes WHERE report_id = $1", report_id)
@@ -377,6 +387,16 @@ async def list_reports(
     return {"reports": reports}
 
 
+@app.get("/api/suggestions")
+async def list_suggestions():
+    """Public feedback wall — same anonymity guarantee as the write side
+    (see create_suggestion below): rows carry no reporter identity at all,
+    so there's nothing sensitive to gate this read behind. Newest first,
+    capped the same way /api/reports is."""
+    rows = await db.all("SELECT * FROM suggestions ORDER BY created_at DESC LIMIT 200")
+    return {"suggestions": [serialize_suggestion(r) for r in rows]}
+
+
 @app.post("/api/suggestions", status_code=201)
 @limiter.limit("5/minute")
 async def create_suggestion(request: Request, body: NewSuggestionInput):
@@ -394,12 +414,12 @@ async def create_suggestion(request: Request, body: NewSuggestionInput):
     if not body.category or body.category not in VALID_SUGGESTION_CATEGORY:
         raise HTTPException(status_code=400, detail={"error": "category_required"})
 
-    await db.run(
-        "INSERT INTO suggestions (message, category) VALUES ($1, $2)",
+    row = await db.get(
+        "INSERT INTO suggestions (message, category) VALUES ($1, $2) RETURNING *",
         message,
         body.category,
     )
-    return {"success": True}
+    return {"suggestion": serialize_suggestion(row)}
 
 
 @app.get("/api/summary")

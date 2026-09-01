@@ -176,3 +176,12 @@ export interface NewSuggestionInput {
   message: string;
   category: SuggestionCategory;
 }
+
+/** Fully anonymous by design (see backend/main.py) — no author, no
+ *  identity of any kind, just the message/category/timestamp. */
+export interface Suggestion {
+  id: number;
+  message: string;
+  category: SuggestionCategory;
+  createdAt: string;
+}
