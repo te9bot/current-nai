@@ -3,6 +3,7 @@ import hmac
 import math
 import os
 import secrets
+import time
 from collections import OrderedDict
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
@@ -16,7 +17,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -96,6 +97,35 @@ def get_client_ip(request: Request) -> str:
 limiter = Limiter(key_func=get_client_ip)
 
 
+# --- rate limit configuration -------------------------------------------------
+# Every limit enforced anywhere in this file is defined here — never inline a
+# limit string directly on a route decorator — so tuning abuse protection is a
+# one-place edit instead of a hunt through the routes below.
+#
+# Storage: slowapi's default in-memory MemoryStorage (per-process, per-IP
+# sliding window). That's a deliberate fit for the current deployment, not an
+# oversight — see the TRUST_PROXY_HOPS comment above for the IP resolution
+# side of this, and the module docstring-style note below for the instance
+# scaling side:
+#
+# This Render service (render.yaml) runs a single "web" service on the free
+# plan with no autoscaling/multi-instance configuration, so a single
+# in-memory limiter sees every request and its counts are authoritative. If
+# this is ever scaled to multiple Render instances, an in-memory limiter
+# would under-enforce (each instance would allow up to N * instance_count
+# requests, since IPs aren't sticky across instances) — at that point, switch
+# Limiter(storage_uri=...) to a shared store (e.g. Redis) rather than
+# in-memory. No such shared datastore is configured for this project today
+# (Postgres/Supabase is used for application data only, not as a rate-limit
+# store), so one isn't introduced here.
+class RateLimit:
+    REPORT_CREATE = "5/minute"  # POST /api/reports
+    SUGGESTION_CREATE = "3/10minutes"  # POST /api/suggestions
+    REPORT_VOTE = "20/minute"  # POST /api/reports/{id}/confirm|resolve
+    GEOCODING = "30/minute"  # /api/geocode, /api/reverse-geocode
+    READ_DEFAULT = "100/minute"  # public read-only GET endpoints (reports/suggestions lists, summary, stats, patterns)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     pool = await db.init_pool()
@@ -116,7 +146,35 @@ app = FastAPI(
     openapi_url=None if IS_PRODUCTION else "/openapi.json",
 )
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    """Same flat-JSON shape as http_exception_handler below (the frontend
+    only ever reads response bodies in that shape), but with a
+    human-readable message instead of slowapi's default "Rate limit
+    exceeded: 5 per 1 minute" wording.
+
+    Retry-After is computed by hand here rather than via slowapi's built-in
+    headers_enabled=True, which was tried and reverted: it makes slowapi's
+    route decorator also try to inject X-RateLimit-* headers into every
+    *successful* response, but every route in this file returns a plain
+    dict rather than a Response object, which crashes that path outright.
+    request.state.view_rate_limit — the (limit item, identifiers) pair that
+    was just evaluated — is set unconditionally before RateLimitExceeded is
+    raised (independent of headers_enabled), so it's reused here to query
+    the same in-memory limiter storage slowapi itself would have read.
+    """
+    response = JSONResponse(
+        status_code=429,
+        content={"detail": "Too many requests. Please try again later."},
+    )
+    current_limit = getattr(request.state, "view_rate_limit", None)
+    if current_limit is not None:
+        item, identifiers = current_limit
+        reset_time, _ = limiter.limiter.get_window_stats(item, *identifiers)
+        response.headers["Retry-After"] = str(max(int(reset_time - time.time()), 1))
+    return response
 
 # The frontend is always served same-origin by this same process in
 # production, so no third-party origin has a legitimate reason to call this
@@ -315,7 +373,9 @@ class NewSuggestionInput(BaseModel):
 # --- routes --------------------------------------------------------------------
 
 @app.get("/api/reports")
+@limiter.limit(RateLimit.READ_DEFAULT)
 async def list_reports(
+    request: Request,
     division: Optional[str] = None,
     status: Optional[str] = None,
     provider: Optional[str] = None,
@@ -388,7 +448,8 @@ async def list_reports(
 
 
 @app.get("/api/suggestions")
-async def list_suggestions():
+@limiter.limit(RateLimit.READ_DEFAULT)
+async def list_suggestions(request: Request):
     """Public feedback wall — same anonymity guarantee as the write side
     (see create_suggestion below): rows carry no reporter identity at all,
     so there's nothing sensitive to gate this read behind. Newest first,
@@ -398,14 +459,13 @@ async def list_suggestions():
 
 
 @app.post("/api/suggestions", status_code=201)
-@limiter.limit("5/minute")
+@limiter.limit(RateLimit.SUGGESTION_CREATE)
 async def create_suggestion(request: Request, body: NewSuggestionInput):
     """Fully anonymous site-feedback submission — no anon cookie is read or
     issued here (unlike every report route), so nothing ties a suggestion
     back to a visitor even indirectly. Anti-spam is the same per-IP limiter
-    used everywhere else in this file, tighter than reports' 20/minute since
-    a bare text field is a cheaper spam target than the multi-field report
-    form."""
+    used everywhere else in this file, tighter than reports' since a bare
+    text field is a cheaper spam target than the multi-field report form."""
     message = (body.message or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail={"error": "message_required"})
@@ -422,76 +482,123 @@ async def create_suggestion(request: Request, body: NewSuggestionInput):
     return {"suggestion": serialize_suggestion(row)}
 
 
+# --- short-lived response cache -----------------------------------------------
+# summary/stats/patterns each scan the full `reports` table on every call. The
+# rate limits above cap outright abuse, but under legitimate heavy read
+# traffic (e.g. many visitors with the homepage open at once) every one of
+# those requests would still still hit Postgres. A short TTL absorbs that:
+# a few seconds of staleness on aggregate stats is a fine trade for the DB
+# load saved, and new reports/confirmations still surface within one TTL
+# window with no manual invalidation to wire up on the write side.
+#
+# Deliberately separate from the geocode caches below (OrderedDict, LRU-only,
+# no expiry) — that data is genuinely static; this data changes continuously,
+# so it needs an actual TTL rather than permanent caching.
+READ_CACHE_TTL_SECONDS = 15
+_READ_CACHE_MAX_ENTRIES = 200
+_read_cache: "OrderedDict[str, tuple[float, dict]]" = OrderedDict()
+
+
+async def _cached_read(key: str, compute) -> dict:
+    now = time.monotonic()
+    cached = _read_cache.get(key)
+    if cached is not None:
+        expires_at, value = cached
+        if expires_at > now:
+            _read_cache.move_to_end(key)
+            return value
+
+    value = await compute()
+    _read_cache[key] = (now + READ_CACHE_TTL_SECONDS, value)
+    _read_cache.move_to_end(key)
+    if len(_read_cache) > _READ_CACHE_MAX_ENTRIES:
+        _read_cache.popitem(last=False)
+    return value
+
+
 @app.get("/api/summary")
-async def summary():
-    total = (await db.get("SELECT COUNT(*) AS count FROM reports"))["count"]
-    # A load-shedding report whose reporter has since marked it resolved
-    # (end_time set) means the area currently has power again, even though its
-    # status column stays 'load_shedding' forever for the ledger's sake — so it
-    # counts toward powerOn here, not loadShedding. Keep this in sync with the
-    # client's isCurrentlyPowerOn() (src/utils/reportStatus.ts).
-    power_on = (
-        await db.get(
-            "SELECT COUNT(*) AS count FROM reports WHERE status = 'power_on' OR (status = 'load_shedding' AND end_time IS NOT NULL)"
-        )
-    )["count"]
-    load_shedding = (
-        await db.get("SELECT COUNT(*) AS count FROM reports WHERE status = 'load_shedding' AND end_time IS NULL")
-    )["count"]
-    return {"total": total, "powerOn": power_on, "loadShedding": load_shedding}
+@limiter.limit(RateLimit.READ_DEFAULT)
+async def summary(request: Request):
+    async def compute() -> dict:
+        total = (await db.get("SELECT COUNT(*) AS count FROM reports"))["count"]
+        # A load-shedding report whose reporter has since marked it resolved
+        # (end_time set) means the area currently has power again, even though its
+        # status column stays 'load_shedding' forever for the ledger's sake — so it
+        # counts toward powerOn here, not loadShedding. Keep this in sync with the
+        # client's isCurrentlyPowerOn() (src/utils/reportStatus.ts).
+        power_on = (
+            await db.get(
+                "SELECT COUNT(*) AS count FROM reports WHERE status = 'power_on' OR (status = 'load_shedding' AND end_time IS NOT NULL)"
+            )
+        )["count"]
+        load_shedding = (
+            await db.get("SELECT COUNT(*) AS count FROM reports WHERE status = 'load_shedding' AND end_time IS NULL")
+        )["count"]
+        return {"total": total, "powerOn": power_on, "loadShedding": load_shedding}
+
+    return await _cached_read("summary", compute)
 
 
 @app.get("/api/stats")
-async def stats():
+@limiter.limit(RateLimit.READ_DEFAULT)
+async def stats(request: Request):
     """Aggregate ledger stats, in the spirit of a public accountability record:
     how much outage time has been reported, how much of it is still unresolved,
     and a provider x division breakdown of where it is concentrated."""
-    rows = await db.all("SELECT * FROM reports")
-    now = datetime.now()
 
-    outages = [r for r in rows if r["status"] == "load_shedding"]
-    ongoing = [r for r in outages if not r["end_time"]]
-    total_minutes = sum(outage_minutes(r, now) for r in outages)
-    total_confirmations = sum(r["confirmations"] or 0 for r in rows)
+    async def compute() -> dict:
+        rows = await db.all("SELECT * FROM reports")
+        now = datetime.now()
 
-    by_provider: dict = {}
-    by_division: dict = {}
+        outages = [r for r in rows if r["status"] == "load_shedding"]
+        ongoing = [r for r in outages if not r["end_time"]]
+        total_minutes = sum(outage_minutes(r, now) for r in outages)
+        total_confirmations = sum(r["confirmations"] or 0 for r in rows)
 
-    for r in outages:
-        mins = outage_minutes(r, now)
+        by_provider: dict = {}
+        by_division: dict = {}
 
-        p = by_provider.setdefault(r["provider_id"], {"id": r["provider_id"], "reports": 0, "minutes": 0, "ongoing": 0})
-        p["reports"] += 1
-        p["minutes"] += mins
-        if not r["end_time"]:
-            p["ongoing"] += 1
+        for r in outages:
+            mins = outage_minutes(r, now)
 
-        d = by_division.setdefault(r["division_id"], {"id": r["division_id"], "reports": 0, "minutes": 0, "ongoing": 0})
-        d["reports"] += 1
-        d["minutes"] += mins
-        if not r["end_time"]:
-            d["ongoing"] += 1
+            p = by_provider.setdefault(
+                r["provider_id"], {"id": r["provider_id"], "reports": 0, "minutes": 0, "ongoing": 0}
+            )
+            p["reports"] += 1
+            p["minutes"] += mins
+            if not r["end_time"]:
+                p["ongoing"] += 1
 
-    def sort_by_minutes(items):
-        return sorted(items, key=lambda x: x["minutes"], reverse=True)
+            d = by_division.setdefault(
+                r["division_id"], {"id": r["division_id"], "reports": 0, "minutes": 0, "ongoing": 0}
+            )
+            d["reports"] += 1
+            d["minutes"] += mins
+            if not r["end_time"]:
+                d["ongoing"] += 1
 
-    return {
-        "totalReports": len(rows),
-        "outageReports": len(outages),
-        "ongoingCount": len(ongoing),
-        "ongoingRate": round((len(ongoing) / len(outages)) * 100) if outages else 0,
-        "totalOutageMinutes": total_minutes,
-        "averageOutageMinutes": round(total_minutes / len(outages)) if outages else 0,
-        "totalConfirmations": total_confirmations,
-        "divisionsCovered": len(by_division),
-        "providersCovered": len(by_provider),
-        "byProvider": sort_by_minutes(by_provider.values()),
-        "byDivision": sort_by_minutes(by_division.values()),
-    }
+        def sort_by_minutes(items):
+            return sorted(items, key=lambda x: x["minutes"], reverse=True)
+
+        return {
+            "totalReports": len(rows),
+            "outageReports": len(outages),
+            "ongoingCount": len(ongoing),
+            "ongoingRate": round((len(ongoing) / len(outages)) * 100) if outages else 0,
+            "totalOutageMinutes": total_minutes,
+            "averageOutageMinutes": round(total_minutes / len(outages)) if outages else 0,
+            "totalConfirmations": total_confirmations,
+            "divisionsCovered": len(by_division),
+            "providersCovered": len(by_provider),
+            "byProvider": sort_by_minutes(by_provider.values()),
+            "byDivision": sort_by_minutes(by_division.values()),
+        }
+
+    return await _cached_read("stats", compute)
 
 
 @app.post("/api/reports/{report_id}/confirm")
-@limiter.limit("20/minute")
+@limiter.limit(RateLimit.REPORT_VOTE)
 async def confirm_report(request: Request, report_id: int, anon_hash: str = Depends(get_anon_hash)):
     existing = await db.get("SELECT id FROM reports WHERE id = $1", report_id)
     if not existing:
@@ -516,7 +623,7 @@ async def confirm_report(request: Request, report_id: int, anon_hash: str = Depe
 
 
 @app.post("/api/reports/{report_id}/resolve")
-@limiter.limit("20/minute")
+@limiter.limit(RateLimit.REPORT_VOTE)
 async def resolve_report(request: Request, report_id: int, anon_hash: str = Depends(get_anon_hash)):
     """Casts one anonymous 'power's back' vote on an ongoing report. The area +
     current power state is the object here, not who filed the original
@@ -558,36 +665,46 @@ async def resolve_report(request: Request, report_id: int, anon_hash: str = Depe
 
 
 @app.get("/api/patterns")
-async def patterns(division: Optional[str] = None, district: Optional[str] = None, area: Optional[str] = None):
+@limiter.limit(RateLimit.READ_DEFAULT)
+async def patterns(
+    request: Request, division: Optional[str] = None, district: Optional[str] = None, area: Optional[str] = None
+):
     """Hour-of-day breakdown of reported outages, so an area can see when it
     tends to lose power (e.g. "6-8pm most nights") rather than just aggregate
     totals."""
-    sql = "SELECT start_time FROM reports WHERE status = 'load_shedding'"
-    params: list = []
-    if division:
-        params.append(division)
-        sql += f" AND division_id = ${len(params)}"
-    if district:
-        params.append(district)
-        sql += f" AND district_id = ${len(params)}"
-    if area:
-        params.append(area)
-        sql += f" AND area_id = ${len(params)}"
 
-    rows = await db.all(sql, *params)
-    counts = [0] * 24
-    for r in rows:
-        start_time = r["start_time"]
-        if not start_time:
-            continue
-        try:
-            hour = int(start_time.split(":")[0])
-        except (ValueError, IndexError):
-            continue
-        if 0 <= hour < 24:
-            counts[hour] += 1
+    async def compute() -> dict:
+        sql = "SELECT start_time FROM reports WHERE status = 'load_shedding'"
+        params: list = []
+        if division:
+            params.append(division)
+            sql += f" AND division_id = ${len(params)}"
+        if district:
+            params.append(district)
+            sql += f" AND district_id = ${len(params)}"
+        if area:
+            params.append(area)
+            sql += f" AND area_id = ${len(params)}"
 
-    return {"hourly": [{"hour": hour, "count": count} for hour, count in enumerate(counts)]}
+        rows = await db.all(sql, *params)
+        counts = [0] * 24
+        for r in rows:
+            start_time = r["start_time"]
+            if not start_time:
+                continue
+            try:
+                hour = int(start_time.split(":")[0])
+            except (ValueError, IndexError):
+                continue
+            if 0 <= hour < 24:
+                counts[hour] += 1
+
+        return {"hourly": [{"hour": hour, "count": count} for hour, count in enumerate(counts)]}
+
+    # Bounded by the app's finite division/district/area combinations (see
+    # _READ_CACHE_MAX_ENTRIES), unlike summary/stats which use one fixed key.
+    cache_key = f"patterns:{division or ''}:{district or ''}:{area or ''}"
+    return await _cached_read(cache_key, compute)
 
 
 # A descriptive User-Agent (required by usage policy on the Nominatim
@@ -658,7 +775,7 @@ def _reverse_cache_key(lat: float, lng: float) -> tuple[float, float]:
 
 
 @app.get("/api/geocode")
-@limiter.limit("15/minute")
+@limiter.limit(RateLimit.GEOCODING)
 async def geocode(request: Request, q: str):
     """Best-effort address -> coordinates lookup for the report form's
     "pin my exact address" flow. A miss or upstream failure just means no
@@ -715,7 +832,7 @@ async def geocode(request: Request, q: str):
 
 
 @app.get("/api/reverse-geocode")
-@limiter.limit("15/minute")
+@limiter.limit(RateLimit.GEOCODING)
 async def reverse_geocode(request: Request, lat: float, lng: float):
     """Coordinates -> address lookup for the report form's "use my location"
     auto-fill: turns a GPS fix into candidate division/district/area names,
@@ -784,7 +901,7 @@ async def reverse_geocode(request: Request, lat: float, lng: float):
 
 
 @app.post("/api/reports", status_code=201)
-@limiter.limit("20/minute")
+@limiter.limit(RateLimit.REPORT_CREATE)
 async def create_report(request: Request, body: NewReportInput, anon_hash: str = Depends(get_anon_hash)):
     if not body.divisionId or not isinstance(body.divisionId, str):
         raise HTTPException(status_code=400, detail={"error": "division_required"})
