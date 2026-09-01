@@ -104,15 +104,26 @@ export function getCurrentPositionQuick(): Promise<GeoResult> {
   return requestPosition({ enableHighAccuracy: false, timeout: 6000, maximumAge: 60000 });
 }
 
-// Common in-app browser UA tokens (Facebook/Messenger, Instagram, WhatsApp,
-// Line, WeChat) — these are the browsers most likely to restrict or silently
-// break the geolocation permission prompt at the native-app level, so GPS
-// failure there gets a reassuring "just pick your area" hint instead of the
-// more technical denied/timeout/unavailable message.
-const IN_APP_BROWSER_PATTERN = /FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger|WhatsApp|Messenger/i;
+// Known embedded/in-app browser UA tokens. These WebViews commonly restrict
+// or silently break the geolocation permission prompt at the native-app
+// level, which no in-page setting can fix — so they're routed through the
+// external-browser handoff screen instead of being left to fail at GPS.
+//   FBAN/FBAV/FB_IAB/FBIOS  - Facebook & Messenger (iOS and Android)
+//   Messenger               - Messenger's own token on some builds
+//   Instagram               - Instagram's in-app browser
+//   WhatsApp                - WhatsApp's in-app browser
+//   Line/, MicroMessenger   - LINE, WeChat
+//   Twitter, TikTok, Snapchat, Pinterest, GSA - other common embedded browsers
+//   ; wv                    - the generic Android WebView marker
+const IN_APP_BROWSER_PATTERN =
+  /FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|WhatsApp|Line\/|MicroMessenger|Twitter|TikTok|Snapchat|Pinterest|GSA\/|; wv\)/i;
 
 export function isInAppBrowser(): boolean {
   return typeof navigator !== "undefined" && IN_APP_BROWSER_PATTERN.test(navigator.userAgent || "");
+}
+
+export function isAndroid(): boolean {
+  return typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent || "");
 }
 
 /**
