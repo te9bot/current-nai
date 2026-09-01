@@ -262,8 +262,14 @@ export default function Splash({ reports, onDismiss }: Props) {
       </div>
 
       <div className="relative z-10 px-6 pb-10 sm:px-10">
-        <p className="whitespace-pre-line text-center font-display text-2xl font-extrabold leading-tight tracking-tight text-grey-900 sm:text-3xl">
-          {t("landing.headline")}
+        {/* Fixed, not translated — this exact Bengali headline is the hero's
+            identity regardless of the EN/BN toggle, unlike every other
+            string on the page. font-bn (not font-display) is forced
+            explicitly so it always renders with a Bengali-capable typeface
+            even while the rest of the UI is toggled to English (html[lang]
+            would otherwise be "en" and pull in a Latin-only stack). */}
+        <p className="whitespace-pre-line text-center font-bn text-2xl font-extrabold leading-tight tracking-tight text-grey-900 sm:text-3xl">
+          কি Bhai কারেন্ট নাই? আসেন দেখি আপনার নাকি সবার!
         </p>
         <button
           type="button"

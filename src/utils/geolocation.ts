@@ -89,22 +89,19 @@ export function requestPosition(options: PositionOptions): Promise<GeoResult> {
 }
 
 /**
- * Tries a high-accuracy GPS fix first (best for pinning an exact address),
- * then — if that times out or the device can't get a lock, which is common
- * indoors or with a weak sky view even when location permission is fully
- * granted — falls back once to a faster, lower-accuracy fix (Wi-Fi/cell
- * positioning instead of forcing the GPS chip). A real permission denial (or
- * an insecure context, or no geolocation support at all) skips the fallback
- * and rejects immediately, since retrying can't change any of those.
+ * One bounded GPS attempt, tuned for a fast, predictable UI: a visitor
+ * should never wait more than ~7-8s (5-7s geolocation timeout + the
+ * watchdog's buffer) to find out whether GPS worked. Deliberately does not
+ * retry with different accuracy settings — a slow/failed fix almost always
+ * means the same thing will happen again immediately, so a second attempt
+ * only doubles the wait without meaningfully improving the odds; the
+ * division/district/area pickers are the real fallback, not a longer GPS
+ * timeout. enableHighAccuracy is off: a Wi-Fi/cell fix resolves well inside
+ * this budget far more reliably than waiting on a GPS chip lock, and
+ * thana-level accuracy is all a division/district/area report needs anyway.
  */
-export function getCurrentPositionWithFallback(): Promise<GeoResult> {
-  return requestPosition({ enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }).catch((err: unknown) => {
-    const reason = err instanceof GeoError ? err.reason : "unavailable";
-    if (reason === "denied" || reason === "insecure_context" || reason === "unsupported") {
-      throw err;
-    }
-    return requestPosition({ enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 });
-  });
+export function getCurrentPositionQuick(): Promise<GeoResult> {
+  return requestPosition({ enableHighAccuracy: false, timeout: 6000, maximumAge: 60000 });
 }
 
 // Common in-app browser UA tokens (Facebook/Messenger, Instagram, WhatsApp,
@@ -116,4 +113,27 @@ const IN_APP_BROWSER_PATTERN = /FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger
 
 export function isInAppBrowser(): boolean {
   return typeof navigator !== "undefined" && IN_APP_BROWSER_PATTERN.test(navigator.userAgent || "");
+}
+
+/**
+ * Best-effort escape from an in-app WebView into a real browser — never
+ * guaranteed to work, since no web-standard mechanism can force another app
+ * to open on every platform. On Android, an `intent://` URL targeting
+ * Chrome's package is the one broadly reliable trick (falls through to the
+ * Play Store listing if Chrome isn't installed); elsewhere (iOS in
+ * particular, where no such mechanism exists) this just opens the current
+ * URL in a new tab/window, which some in-app browsers honor and others
+ * silently ignore. Either way, the manual division/district/area pickers
+ * already work fine in the current WebView, so this is only ever a
+ * convenience shortcut, never something the report flow depends on.
+ */
+export function tryOpenInChrome(): void {
+  const url = window.location.href;
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent || "" : "";
+  if (/Android/i.test(ua)) {
+    const withoutScheme = url.replace(/^https?:\/\//, "");
+    window.location.href = `intent://${withoutScheme}#Intent;scheme=https;package=com.android.chrome;end`;
+    return;
+  }
+  window.open(url, "_blank", "noopener,noreferrer");
 }

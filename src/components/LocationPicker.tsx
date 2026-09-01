@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { LatLng } from "../utils/geo";
-import { getCurrentPositionWithFallback, isInAppBrowser } from "../utils/geolocation";
+import { getCurrentPositionQuick, isInAppBrowser } from "../utils/geolocation";
 import { LocateIcon, LoaderIcon } from "./icons";
 import clsx from "../utils/clsx";
 
@@ -162,7 +162,7 @@ export default function LocationPicker({ areaFocus, value, onChange, previewFrom
     setGeoError(false);
     setLocating(true);
     try {
-      const { lat, lng, accuracy } = await getCurrentPositionWithFallback();
+      const { lat, lng, accuracy } = await getCurrentPositionQuick();
       if (!isValidLatLng(lat, lng)) {
         setGeoError(true);
         return;

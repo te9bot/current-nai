@@ -28,9 +28,9 @@ export function districtCoords(districtId: string | undefined | null): LatLng | 
 }
 
 /**
- * Great-circle distance in kilometres. Reports are pinned at district
- * granularity, so this measures district-to-district separation, not the exact
- * distance to someone's street.
+ * Great-circle distance in kilometres between two points — as exact as the
+ * two LatLngs it's given, which for a report is its own GPS/manual pin when
+ * it has one, or otherwise its district's centroid (see pinCoords below).
  */
 export function haversineKm(a: LatLng, b: LatLng): number {
   const R = 6371;
@@ -43,12 +43,44 @@ export function haversineKm(a: LatLng, b: LatLng): number {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
+function hasValidCoords(report: Report): report is Report & { latitude: number; longitude: number } {
+  return (
+    typeof report.latitude === "number" &&
+    typeof report.longitude === "number" &&
+    Number.isFinite(report.latitude) &&
+    Number.isFinite(report.longitude) &&
+    report.latitude >= -90 &&
+    report.latitude <= 90 &&
+    report.longitude >= -180 &&
+    report.longitude <= 180
+  );
+}
+
 /**
- * Several reports can share one district centroid, which would stack their pins
- * into a single dot. Offset each by a small deterministic amount derived from
- * its id, so the spread is stable across refreshes instead of jittering.
+ * A report's exact GPS/manual pin — when the reporter provided one — is
+ * always the true position and must be used as-is, unrounded and
+ * unperturbed; a district centroid (below) is only ever a stand-in for
+ * reports that never captured a real coordinate. Conflating the two was the
+ * bug behind reports rendering at their district's center (e.g. Kushtia)
+ * instead of the exact area the reporter confirmed (e.g. Bheramara) —
+ * `districtCoords` was being applied unconditionally, discarding
+ * `report.latitude`/`report.longitude` even when present.
  */
 export function pinCoords(report: Report): LatLng | undefined {
+  if (hasValidCoords(report)) {
+    return { lat: report.latitude, lng: report.longitude };
+  }
+  return districtFallbackCoords(report);
+}
+
+/**
+ * District-centroid-plus-jitter fallback, used only for reports that never
+ * captured an exact coordinate. Several such reports can share one district
+ * centroid, which would stack their pins into a single dot — each is offset
+ * by a small deterministic amount derived from its id, so the spread is
+ * stable across refreshes instead of jittering.
+ */
+function districtFallbackCoords(report: Report): LatLng | undefined {
   const base = districtCoords(report.districtId);
   if (!base) return undefined;
   // Two decorrelated pseudo-random values in [-1, 1] from the report id.
@@ -64,11 +96,16 @@ export interface NearbyReport {
   distanceKm: number;
 }
 
-/** Reports sorted by distance from a point, nearest first. */
+/** Reports sorted by distance from a point, nearest first. Uses each
+ *  report's own exact coordinates when it has one (same precedence as
+ *  pinCoords above), falling back to its district centroid only when it
+ *  doesn't — otherwise a report with a real pin in, say, Bheramara would be
+ *  measured from Kushtia's centroid instead, skewing both the distance
+ *  shown and which reports "nearby" even includes. */
 export function reportsNear(reports: Report[], origin: LatLng, radiusKm = Infinity): NearbyReport[] {
   const out: NearbyReport[] = [];
   for (const report of reports) {
-    const coords = districtCoords(report.districtId);
+    const coords = pinCoords(report);
     if (!coords) continue;
     const distanceKm = haversineKm(origin, coords);
     if (distanceKm <= radiusKm) out.push({ report, distanceKm });

@@ -17,7 +17,7 @@ import type { NewReportInput, Report } from "../types";
 import { XIcon, AlertIcon, MapPinIcon, LocateIcon, LoaderIcon } from "./icons";
 import LocationPicker, { type PickedLocation } from "./LocationPicker";
 import { districtCoords } from "../utils/geo";
-import { getCurrentPositionWithFallback, isInAppBrowser } from "../utils/geolocation";
+import { getCurrentPositionQuick, isInAppBrowser, tryOpenInChrome } from "../utils/geolocation";
 import clsx from "../utils/clsx";
 
 type AutofillStatus = "idle" | "locating" | "error" | "partial";
@@ -75,6 +75,14 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   const [pinConfirmedByUser, setPinConfirmedByUser] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
   const [autofillStatus, setAutofillStatus] = useState<AutofillStatus>("idle");
+  // Shown up front for in-app browsers (Messenger/WhatsApp/Instagram/
+  // Facebook and similar), before any GPS attempt — those WebViews are the
+  // most likely place for geolocation to silently fail, so there's no
+  // reason to make the visitor wait through a timeout first. Dismissible
+  // (not persisted anywhere — no localStorage/cookie for this) since it's a
+  // convenience shortcut, not a gate: the division/district/area pickers
+  // below work identically whether this card is shown or not.
+  const [showChromeCard, setShowChromeCard] = useState(() => isInAppBrowser());
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -173,7 +181,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   async function handleAutofillFromLocation() {
     setAutofillStatus("locating");
     try {
-      const { lat, lng, accuracy } = await getCurrentPositionWithFallback();
+      const { lat, lng, accuracy } = await getCurrentPositionQuick();
       if (!isValidLatLng(lat, lng)) {
         setAutofillStatus("error");
         return;
@@ -305,6 +313,32 @@ export default function ReportForm({ onClose, onCreated }: Props) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-5 py-5">
+            {showChromeCard && (
+              <div className="rounded-md border border-amber-500/30 bg-amber-500/10 p-3">
+                <p className="text-sm font-semibold text-grey-900">{t("form.chromeCard.heading")}</p>
+                <p className="mt-1 text-[11px] leading-relaxed text-grey-600">{t("form.chromeCard.body")}</p>
+                <div className="mt-2.5 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      tryOpenInChrome();
+                      setShowChromeCard(false);
+                    }}
+                    className="inline-flex h-9 items-center rounded-pill bg-amber-500 px-3.5 text-xs font-bold text-ink-onAccent transition-colors duration-fast hover:bg-amber-400"
+                  >
+                    {t("form.chromeCard.openChrome")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowChromeCard(false)}
+                    className="inline-flex h-9 items-center rounded-pill border border-black/10 px-3.5 text-xs font-semibold text-grey-400 transition-colors duration-fast hover:text-grey-900"
+                  >
+                    {t("form.chromeCard.selectManually")}
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="rounded-md border border-black/10 bg-ink-800/60 p-3">
               <button
                 type="button"

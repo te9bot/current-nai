@@ -74,7 +74,7 @@ export default function NearbyPanel({ reports, onRegionChange, deferMap }: Props
   async function useMyLocation() {
     setGeoState("locating");
     try {
-      const { lat, lng } = await requestPosition({ enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 });
+      const { lat, lng } = await requestPosition({ enableHighAccuracy: false, timeout: 6000, maximumAge: 300_000 });
       setMyLocation({ lat, lng });
       setGeoState("idle");
     } catch (err) {

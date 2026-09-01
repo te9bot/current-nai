@@ -55,6 +55,12 @@
     "subheading": "Help your neighbors know what's happening on the grid.",
     "useMyLocationAutofill": "Use my location to auto-fill",
     "useMyLocationAutofillHelp": "We'll detect your division, district, and area, and pinpoint your exact location — all in one tap.",
+    "chromeCard": {
+      "heading": "📍 Open in Chrome for location",
+      "body": "GPS may not work properly in this browser. Opening in Chrome will make it easier to detect your location.",
+      "openChrome": "Open in Chrome",
+      "selectManually": "Select your area manually"
+    },
     "autofillPartialMatch": "We found your district, but couldn't match the exact area — please pick it below.",
     "autofillGpsUnavailable": "GPS location isn't available right now. Please select your area below, or tap the map to mark your exact location manually.",
     "division": "Division",
@@ -265,7 +271,6 @@
     "bio": "Building AI that actually solves real-world problems. Data Science student, quantum computing researcher, and founder of ELAKAI — turning ideas into tech that makes communities smarter, more connected, and a little less chaotic."
   },
   "landing": {
-    "headline": "Know your area's power status,\nreported live by your neighbors",
     "getStarted": "Get Started",
     "previewLabel": "Live now",
     "previewEmpty": "First report coming soon",
