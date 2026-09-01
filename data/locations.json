@@ -12,17 +12,23 @@
           {
             "id": "motijheel",
             "en": "Motijheel",
-            "bn": "মতিঝিল"
+            "bn": "মতিঝিল",
+            "lat": 23.73444,
+            "lng": 90.4215
           },
           {
             "id": "paltan",
             "en": "Paltan",
-            "bn": "পল্টন"
+            "bn": "পল্টন",
+            "lat": 23.73625,
+            "lng": 90.41426
           },
           {
             "id": "ramna",
             "en": "Ramna",
-            "bn": "রমনা"
+            "bn": "রমনা",
+            "lat": 23.73333,
+            "lng": 90.4
           },
           {
             "id": "shahbagh",
@@ -37,7 +43,9 @@
           {
             "id": "dhanmondi",
             "en": "Dhanmondi",
-            "bn": "ধানমন্ডি"
+            "bn": "ধানমন্ডি",
+            "lat": 23.74,
+            "lng": 90.385
           },
           {
             "id": "kalabagan",
@@ -52,7 +60,9 @@
           {
             "id": "lalbagh",
             "en": "Lalbagh",
-            "bn": "লালবাগ"
+            "bn": "লালবাগ",
+            "lat": 23.71739,
+            "lng": 90.38787
           },
           {
             "id": "chawkbazar",
@@ -62,7 +72,9 @@
           {
             "id": "bangshal",
             "en": "Bangshal",
-            "bn": "বংশাল"
+            "bn": "বংশাল",
+            "lat": 23.71558,
+            "lng": 90.40628
           },
           {
             "id": "kotwali",
@@ -77,12 +89,16 @@
           {
             "id": "wari",
             "en": "Wari",
-            "bn": "ওয়ারী"
+            "bn": "ওয়ারী",
+            "lat": 23.71667,
+            "lng": 90.41667
           },
           {
             "id": "gandaria",
             "en": "Gandaria",
-            "bn": "গেন্ডারিয়া"
+            "bn": "গেন্ডারিয়া",
+            "lat": 23.70576,
+            "lng": 90.42954
           },
           {
             "id": "kamrangirchar",
@@ -92,27 +108,37 @@
           {
             "id": "jatrabari",
             "en": "Jatrabari",
-            "bn": "যাত্রাবাড়ী"
+            "bn": "যাত্রাবাড়ী",
+            "lat": 23.98966,
+            "lng": 90.21528
           },
           {
             "id": "kadamtali",
             "en": "Kadamtali",
-            "bn": "কদমতলী"
+            "bn": "কদমতলী",
+            "lat": 23.6795,
+            "lng": 90.44086
           },
           {
             "id": "shyampur",
             "en": "Shyampur",
-            "bn": "শ্যামপুর"
+            "bn": "শ্যামপুর",
+            "lat": 23.68501,
+            "lng": 90.44649
           },
           {
             "id": "demra",
             "en": "Demra",
-            "bn": "ডেমরা"
+            "bn": "ডেমরা",
+            "lat": 23.71,
+            "lng": 90.482
           },
           {
             "id": "khilgaon",
             "en": "Khilgaon",
-            "bn": "খিলগাঁও"
+            "bn": "খিলগাঁও",
+            "lat": 23.75722,
+            "lng": 90.46443
           },
           {
             "id": "sabujbagh",
@@ -127,12 +153,16 @@
           {
             "id": "shahjahanpur",
             "en": "Shahjahanpur",
-            "bn": "শাহজাহানপুর"
+            "bn": "শাহজাহানপুর",
+            "lat": 23.74217,
+            "lng": 90.42293
           },
           {
             "id": "gulshan",
             "en": "Gulshan",
-            "bn": "গুলশান"
+            "bn": "গুলশান",
+            "lat": 23.78971,
+            "lng": 90.41043
           },
           {
             "id": "banani",
@@ -142,12 +172,16 @@
           {
             "id": "baridhara",
             "en": "Baridhara",
-            "bn": "বারিধারা"
+            "bn": "বারিধারা",
+            "lat": 23.80254,
+            "lng": 90.42117
           },
           {
             "id": "badda",
             "en": "Badda",
-            "bn": "বাড্ডা"
+            "bn": "বাড্ডা",
+            "lat": 23.86667,
+            "lng": 90.23333
           },
           {
             "id": "uttara-east",
@@ -162,12 +196,16 @@
           {
             "id": "pallabi",
             "en": "Pallabi",
-            "bn": "পল্লবী"
+            "bn": "পল্লবী",
+            "lat": 23.825,
+            "lng": 90.37
           },
           {
             "id": "kafrul",
             "en": "Kafrul",
-            "bn": "কাফরুল"
+            "bn": "কাফরুল",
+            "lat": 23.78822,
+            "lng": 90.37359
           },
           {
             "id": "cantonment",
@@ -177,7 +215,9 @@
           {
             "id": "mohammadpur",
             "en": "Mohammadpur",
-            "bn": "মোহাম্মদপুর"
+            "bn": "মোহাম্মদপুর",
+            "lat": 23.7659,
+            "lng": 90.35851
           },
           {
             "id": "adabor",
@@ -192,7 +232,9 @@
           {
             "id": "tejgaon",
             "en": "Tejgaon",
-            "bn": "তেজগাঁও"
+            "bn": "তেজগাঁও",
+            "lat": 23.76296,
+            "lng": 90.38971
           },
           {
             "id": "tejgaon-industrial-area",
@@ -202,7 +244,9 @@
           {
             "id": "rampura",
             "en": "Rampura",
-            "bn": "রামপুরা"
+            "bn": "রামপুরা",
+            "lat": 23.76261,
+            "lng": 90.42051
           },
           {
             "id": "khilkhet",
@@ -217,12 +261,16 @@
           {
             "id": "turag",
             "en": "Turag",
-            "bn": "তুরাগ"
+            "bn": "তুরাগ",
+            "lat": 23.76667,
+            "lng": 90.31667
           },
           {
             "id": "shah-ali",
             "en": "Shah Ali",
-            "bn": "শাহ আলী"
+            "bn": "শাহ আলী",
+            "lat": 23.7513,
+            "lng": 90.39496
           },
           {
             "id": "darus-salam",
@@ -307,27 +355,37 @@
           {
             "id": "savar",
             "en": "Savar",
-            "bn": "সাভার"
+            "bn": "সাভার",
+            "lat": 23.9,
+            "lng": 90.3
           },
           {
             "id": "keraniganj",
             "en": "Keraniganj",
-            "bn": "কেরানীগঞ্জ"
+            "bn": "কেরানীগঞ্জ",
+            "lat": 23.69,
+            "lng": 90.34
           },
           {
             "id": "dohar",
             "en": "Dohar",
-            "bn": "দোহার"
+            "bn": "দোহার",
+            "lat": 23.6,
+            "lng": 90.14
           },
           {
             "id": "nawabganj",
             "en": "Nawabganj",
-            "bn": "নবাবগঞ্জ"
+            "bn": "নবাবগঞ্জ",
+            "lat": 23.65248,
+            "lng": 90.15222
           },
           {
             "id": "dhamrai",
             "en": "Dhamrai",
-            "bn": "ধামরাই"
+            "bn": "ধামরাই",
+            "lat": 23.94,
+            "lng": 90.15
           }
         ]
       },
@@ -339,42 +397,58 @@
           {
             "id": "alfadanga",
             "en": "Alfadanga",
-            "bn": "আলফাডাঙ্গা"
+            "bn": "আলফাডাঙ্গা",
+            "lat": 23.28978,
+            "lng": 89.70277
           },
           {
             "id": "bhanga",
             "en": "Bhanga",
-            "bn": "ভাঙ্গা"
+            "bn": "ভাঙ্গা",
+            "lat": 23.3898,
+            "lng": 89.98251
           },
           {
             "id": "boalmari",
             "en": "Boalmari",
-            "bn": "বোয়ালমারী"
+            "bn": "বোয়ালমারী",
+            "lat": 23.41,
+            "lng": 89.69
           },
           {
             "id": "charbhadrasan",
             "en": "Charbhadrasan",
-            "bn": "চরভদ্রাসন"
+            "bn": "চরভদ্রাসন",
+            "lat": 23.56367,
+            "lng": 89.99657
           },
           {
             "id": "faridpur-sadar",
             "en": "Faridpur Sadar",
-            "bn": "ফরিদপুর সদর"
+            "bn": "ফরিদপুর সদর",
+            "lat": 23.62062,
+            "lng": 89.8128
           },
           {
             "id": "madhukhali",
             "en": "Madhukhali",
-            "bn": "মধুখালী"
+            "bn": "মধুখালী",
+            "lat": 23.54,
+            "lng": 89.62
           },
           {
             "id": "nagarkanda",
             "en": "Nagarkanda",
-            "bn": "নগরকান্দা"
+            "bn": "নগরকান্দা",
+            "lat": 23.42,
+            "lng": 89.85
           },
           {
             "id": "sadarpur",
             "en": "Sadarpur",
-            "bn": "সদরপুর"
+            "bn": "সদরপুর",
+            "lat": 23.4657,
+            "lng": 90.02799
           },
           {
             "id": "saltha",
@@ -391,27 +465,37 @@
           {
             "id": "gazipur-sadar",
             "en": "Gazipur Sadar",
-            "bn": "গাজীপুর সদর"
+            "bn": "গাজীপুর সদর",
+            "lat": 24.02,
+            "lng": 90.4
           },
           {
             "id": "kaliakair",
             "en": "Kaliakair",
-            "bn": "কালিয়াকৈর"
+            "bn": "কালিয়াকৈর",
+            "lat": 24.1,
+            "lng": 90.28
           },
           {
             "id": "kaliganj",
             "en": "Kaliganj",
-            "bn": "কালীগঞ্জ"
+            "bn": "কালীগঞ্জ",
+            "lat": 23.99,
+            "lng": 90.55
           },
           {
             "id": "kapasia",
             "en": "Kapasia",
-            "bn": "কাপাসিয়া"
+            "bn": "কাপাসিয়া",
+            "lat": 24.15,
+            "lng": 90.61
           },
           {
             "id": "sreepur",
             "en": "Sreepur",
-            "bn": "শ্রীপুর"
+            "bn": "শ্রীপুর",
+            "lat": 24.24,
+            "lng": 90.45
           }
         ]
       },
@@ -423,27 +507,37 @@
           {
             "id": "gopalganj-sadar",
             "en": "Gopalganj Sadar",
-            "bn": "গোপালগঞ্জ সদর"
+            "bn": "গোপালগঞ্জ সদর",
+            "lat": 23.03,
+            "lng": 89.86
           },
           {
             "id": "kashiani",
             "en": "Kashiani",
-            "bn": "কাশিয়ানী"
+            "bn": "কাশিয়ানী",
+            "lat": 23.19,
+            "lng": 89.8
           },
           {
             "id": "kotalipara",
             "en": "Kotalipara",
-            "bn": "কোটালীপাড়া"
+            "bn": "কোটালীপাড়া",
+            "lat": 23.02,
+            "lng": 90.02
           },
           {
             "id": "muksudpur",
             "en": "Muksudpur",
-            "bn": "মুকসুদপুর"
+            "bn": "মুকসুদপুর",
+            "lat": 23.3167,
+            "lng": 89.8667
           },
           {
             "id": "tungipara",
             "en": "Tungipara",
-            "bn": "টুঙ্গিপাড়া"
+            "bn": "টুঙ্গিপাড়া",
+            "lat": 22.9,
+            "lng": 89.91
           }
         ]
       },
@@ -455,67 +549,93 @@
           {
             "id": "austagram",
             "en": "Austagram",
-            "bn": "অষ্টগ্রাম"
+            "bn": "অষ্টগ্রাম",
+            "lat": 24.27834,
+            "lng": 91.12679
           },
           {
             "id": "bajitpur",
             "en": "Bajitpur",
-            "bn": "বাজিতপুর"
+            "bn": "বাজিতপুর",
+            "lat": 24.22,
+            "lng": 90.94
           },
           {
             "id": "bhairab",
             "en": "Bhairab",
-            "bn": "ভৈরব"
+            "bn": "ভৈরব",
+            "lat": 24.05,
+            "lng": 90.98833
           },
           {
             "id": "hossainpur",
             "en": "Hossainpur",
-            "bn": "হোসেনপুর"
+            "bn": "হোসেনপুর",
+            "lat": 24.44818,
+            "lng": 90.6621
           },
           {
             "id": "itna",
             "en": "Itna",
-            "bn": "ইটনা"
+            "bn": "ইটনা",
+            "lat": 24.52542,
+            "lng": 91.09001
           },
           {
             "id": "karimganj",
             "en": "Karimganj",
-            "bn": "করিমগঞ্জ"
+            "bn": "করিমগঞ্জ",
+            "lat": 24.45,
+            "lng": 90.9
           },
           {
             "id": "katiadi",
             "en": "Katiadi",
-            "bn": "কটিয়াদী"
+            "bn": "কটিয়াদী",
+            "lat": 24.3,
+            "lng": 90.82
           },
           {
             "id": "kishoreganj-sadar",
             "en": "Kishoreganj Sadar",
-            "bn": "কিশোরগঞ্জ সদর"
+            "bn": "কিশোরগঞ্জ সদর",
+            "lat": 24.43629,
+            "lng": 90.79256
           },
           {
             "id": "kuliarchar",
             "en": "Kuliarchar",
-            "bn": "কুলিয়ারচর"
+            "bn": "কুলিয়ারচর",
+            "lat": 24.155,
+            "lng": 90.9
           },
           {
             "id": "mithamain",
             "en": "Mithamain",
-            "bn": "মিঠামইন"
+            "bn": "মিঠামইন",
+            "lat": 24.42472,
+            "lng": 91.0607
           },
           {
             "id": "nikli",
             "en": "Nikli",
-            "bn": "নিকলী"
+            "bn": "নিকলী",
+            "lat": 24.33,
+            "lng": 90.96
           },
           {
             "id": "pakundia",
             "en": "Pakundia",
-            "bn": "পাকুন্দিয়া"
+            "bn": "পাকুন্দিয়া",
+            "lat": 24.32159,
+            "lng": 90.69321
           },
           {
             "id": "tarail",
             "en": "Tarail",
-            "bn": "তাড়াইল"
+            "bn": "তাড়াইল",
+            "lat": 24.55,
+            "lng": 90.9
           }
         ]
       },
@@ -527,27 +647,37 @@
           {
             "id": "rajoir",
             "en": "Rajoir",
-            "bn": "রাজৈর"
+            "bn": "রাজৈর",
+            "lat": 23.19,
+            "lng": 90.04
           },
           {
             "id": "madaripur-sadar",
             "en": "Madaripur Sadar",
-            "bn": "মাদারীপুর সদর"
+            "bn": "মাদারীপুর সদর",
+            "lat": 23.2,
+            "lng": 90.18
           },
           {
             "id": "kalkini",
             "en": "Kalkini",
-            "bn": "কালকিনি"
+            "bn": "কালকিনি",
+            "lat": 23.08,
+            "lng": 90.27
           },
           {
             "id": "shibchar",
             "en": "Shibchar",
-            "bn": "শিবচর"
+            "bn": "শিবচর",
+            "lat": 23.38,
+            "lng": 90.17
           },
           {
             "id": "dasar",
             "en": "Dasar",
-            "bn": "ডাসার"
+            "bn": "ডাসার",
+            "lat": 23.07067,
+            "lng": 90.15697
           }
         ]
       },
@@ -559,37 +689,51 @@
           {
             "id": "daulatpur",
             "en": "Daulatpur",
-            "bn": "দৌলতপুর"
+            "bn": "দৌলতপুর",
+            "lat": 23.97286,
+            "lng": 89.8382
           },
           {
             "id": "ghior",
             "en": "Ghior",
-            "bn": "ঘিওর"
+            "bn": "ঘিওর",
+            "lat": 23.89614,
+            "lng": 89.85005
           },
           {
             "id": "harirampur",
             "en": "Harirampur",
-            "bn": "হরিরামপুর"
+            "bn": "হরিরামপুর",
+            "lat": 23.73,
+            "lng": 89.95
           },
           {
             "id": "manikganj-sadar",
             "en": "Manikganj Sadar",
-            "bn": "মানিকগঞ্জ সদর"
+            "bn": "মানিকগঞ্জ সদর",
+            "lat": 23.85768,
+            "lng": 90.00957
           },
           {
             "id": "saturia",
             "en": "Saturia",
-            "bn": "সাটুরিয়া"
+            "bn": "সাটুরিয়া",
+            "lat": 23.95,
+            "lng": 90.02
           },
           {
             "id": "shivalaya",
             "en": "Shivalaya",
-            "bn": "শিবালয়"
+            "bn": "শিবালয়",
+            "lat": 23.84,
+            "lng": 89.81
           },
           {
             "id": "singair",
             "en": "Singair",
-            "bn": "সিংগাইর"
+            "bn": "সিংগাইর",
+            "lat": 23.79,
+            "lng": 90.15
           }
         ]
       },
@@ -601,32 +745,44 @@
           {
             "id": "gazaria",
             "en": "Gazaria",
-            "bn": "গজারিয়া"
+            "bn": "গজারিয়া",
+            "lat": 23.54,
+            "lng": 90.63
           },
           {
             "id": "lohajang",
             "en": "Lohajang",
-            "bn": "লৌহজং"
+            "bn": "লৌহজং",
+            "lat": 23.47,
+            "lng": 90.35
           },
           {
             "id": "munshiganj-sadar",
             "en": "Munshiganj Sadar",
-            "bn": "মুন্সিগঞ্জ সদর"
+            "bn": "মুন্সিগঞ্জ সদর",
+            "lat": 23.5,
+            "lng": 90.55
           },
           {
             "id": "sirajdikhan",
             "en": "Sirajdikhan",
-            "bn": "সিরাজদিখান"
+            "bn": "সিরাজদিখান",
+            "lat": 23.6,
+            "lng": 90.39
           },
           {
             "id": "sreenagar",
             "en": "Sreenagar",
-            "bn": "শ্রীনগর"
+            "bn": "শ্রীনগর",
+            "lat": 23.55,
+            "lng": 90.27
           },
           {
             "id": "tongibari",
             "en": "Tongibari",
-            "bn": "টংগিবাড়ী"
+            "bn": "টংগিবাড়ী",
+            "lat": 23.48,
+            "lng": 90.46
           }
         ]
       },
@@ -638,27 +794,37 @@
           {
             "id": "araihazar",
             "en": "Araihazar",
-            "bn": "আড়াইহাজার"
+            "bn": "আড়াইহাজার",
+            "lat": 23.77,
+            "lng": 90.68
           },
           {
             "id": "bandar",
             "en": "Bandar",
-            "bn": "বন্দর"
+            "bn": "বন্দর",
+            "lat": 23.64,
+            "lng": 90.54
           },
           {
             "id": "narayanganj-sadar",
             "en": "Narayanganj Sadar",
-            "bn": "নারায়ণগঞ্জ সদর"
+            "bn": "নারায়ণগঞ্জ সদর",
+            "lat": 23.63,
+            "lng": 90.48
           },
           {
             "id": "rupganj",
             "en": "Rupganj",
-            "bn": "রূপগঞ্জ"
+            "bn": "রূপগঞ্জ",
+            "lat": 23.83,
+            "lng": 90.54
           },
           {
             "id": "sonargaon",
             "en": "Sonargaon",
-            "bn": "সোনারগাঁও"
+            "bn": "সোনারগাঁও",
+            "lat": 23.69,
+            "lng": 90.62
           }
         ]
       },
@@ -670,32 +836,44 @@
           {
             "id": "narsingdi-sadar",
             "en": "Narsingdi Sadar",
-            "bn": "নরসিংদী সদর"
+            "bn": "নরসিংদী সদর",
+            "lat": 23.87,
+            "lng": 90.71
           },
           {
             "id": "belabo",
             "en": "Belabo",
-            "bn": "বেলাবো"
+            "bn": "বেলাবো",
+            "lat": 24.09,
+            "lng": 90.85
           },
           {
             "id": "monohardi",
             "en": "Monohardi",
-            "bn": "মনোহরদী"
+            "bn": "মনোহরদী",
+            "lat": 24.12833,
+            "lng": 90.7
           },
           {
             "id": "palash",
             "en": "Palash",
-            "bn": "পলাশ"
+            "bn": "পলাশ",
+            "lat": 23.95,
+            "lng": 90.625
           },
           {
             "id": "raipura",
             "en": "Raipura",
-            "bn": "রায়পুরা"
+            "bn": "রায়পুরা",
+            "lat": 23.96,
+            "lng": 90.88
           },
           {
             "id": "shibpur",
             "en": "Shibpur",
-            "bn": "শিবপুর"
+            "bn": "শিবপুর",
+            "lat": 24.03459,
+            "lng": 90.74029
           }
         ]
       },
@@ -707,27 +885,37 @@
           {
             "id": "baliakandi",
             "en": "Baliakandi",
-            "bn": "বালিয়াকান্দি"
+            "bn": "বালিয়াকান্দি",
+            "lat": 23.65,
+            "lng": 89.55
           },
           {
             "id": "goalandaghat",
             "en": "Goalandaghat",
-            "bn": "গোয়ালন্দ"
+            "bn": "গোয়ালন্দ",
+            "lat": 23.73149,
+            "lng": 89.76929
           },
           {
             "id": "pangsha",
             "en": "Pangsha",
-            "bn": "পাংশা"
+            "bn": "পাংশা",
+            "lat": 23.77,
+            "lng": 89.44
           },
           {
             "id": "rajbari-sadar",
             "en": "Rajbari Sadar",
-            "bn": "রাজবাড়ী সদর"
+            "bn": "রাজবাড়ী সদর",
+            "lat": 23.755,
+            "lng": 89.65
           },
           {
             "id": "kalukhali",
             "en": "Kalukhali",
-            "bn": "কালুখালী"
+            "bn": "কালুখালী",
+            "lat": 23.76667,
+            "lng": 89.48333
           }
         ]
       },
@@ -739,32 +927,44 @@
           {
             "id": "bhedarganj",
             "en": "Bhedarganj",
-            "bn": "ভেদরগঞ্জ"
+            "bn": "ভেদরগঞ্জ",
+            "lat": 23.23,
+            "lng": 90.55
           },
           {
             "id": "damudya",
             "en": "Damudya",
-            "bn": "ডামুড্যা"
+            "bn": "ডামুড্যা",
+            "lat": 23.13333,
+            "lng": 90.43333
           },
           {
             "id": "gosairhat",
             "en": "Gosairhat",
-            "bn": "গোসাইরহাট"
+            "bn": "গোসাইরহাট",
+            "lat": 23.07,
+            "lng": 90.48
           },
           {
             "id": "naria",
             "en": "Naria",
-            "bn": "নড়িয়া"
+            "bn": "নড়িয়া",
+            "lat": 23.3,
+            "lng": 90.4
           },
           {
             "id": "shariatpur-sadar",
             "en": "Shariatpur Sadar",
-            "bn": "শরীয়তপুর সদর"
+            "bn": "শরীয়তপুর সদর",
+            "lat": 23.21,
+            "lng": 90.35
           },
           {
             "id": "zajira",
             "en": "Zajira",
-            "bn": "জাজিরা"
+            "bn": "জাজিরা",
+            "lat": 23.36,
+            "lng": 90.37
           }
         ]
       },
@@ -776,62 +976,86 @@
           {
             "id": "gopalpur",
             "en": "Gopalpur",
-            "bn": "গোপালপুর"
+            "bn": "গোপালপুর",
+            "lat": 24.57,
+            "lng": 89.9
           },
           {
             "id": "basail",
             "en": "Basail",
-            "bn": "বাসাইল"
+            "bn": "বাসাইল",
+            "lat": 24.23358,
+            "lng": 90.04016
           },
           {
             "id": "bhuapur",
             "en": "Bhuapur",
-            "bn": "ভূঞাপুর"
+            "bn": "ভূঞাপুর",
+            "lat": 24.47,
+            "lng": 89.81
           },
           {
             "id": "delduar",
             "en": "Delduar",
-            "bn": "দেলদুয়ার"
+            "bn": "দেলদুয়ার",
+            "lat": 24.16214,
+            "lng": 89.96833
           },
           {
             "id": "ghatail",
             "en": "Ghatail",
-            "bn": "ঘাটাইল"
+            "bn": "ঘাটাইল",
+            "lat": 24.46667,
+            "lng": 89.96667
           },
           {
             "id": "kalihati",
             "en": "Kalihati",
-            "bn": "কালিহাতী"
+            "bn": "কালিহাতী",
+            "lat": 24.35,
+            "lng": 89.95
           },
           {
             "id": "madhupur",
             "en": "Madhupur",
-            "bn": "মধুপুর"
+            "bn": "মধুপুর",
+            "lat": 24.61667,
+            "lng": 90.025
           },
           {
             "id": "mirzapur",
             "en": "Mirzapur",
-            "bn": "মির্জাপুর"
+            "bn": "মির্জাপুর",
+            "lat": 24.11715,
+            "lng": 90.10581
           },
           {
             "id": "nagarpur",
             "en": "Nagarpur",
-            "bn": "নাগরপুর"
+            "bn": "নাগরপুর",
+            "lat": 24.05904,
+            "lng": 89.88267
           },
           {
             "id": "sakhipur",
             "en": "Sakhipur",
-            "bn": "সখীপুর"
+            "bn": "সখীপুর",
+            "lat": 24.32058,
+            "lng": 90.18085
           },
           {
             "id": "dhanbari",
             "en": "Dhanbari",
-            "bn": "ধনবাড়ী"
+            "bn": "ধনবাড়ী",
+            "lat": 24.68626,
+            "lng": 89.93282
           },
           {
             "id": "tangail-sadar",
             "en": "Tangail Sadar",
-            "bn": "টাঙ্গাইল সদর"
+            "bn": "টাঙ্গাইল সদর",
+            "lat": 24.24925,
+            "lng": 89.91318
           }
         ]
       }
@@ -850,37 +1074,51 @@
           {
             "id": "ali-kadam",
             "en": "Ali Kadam",
-            "bn": "আলীকদম"
+            "bn": "আলীকদম",
+            "lat": 21.58,
+            "lng": 92.43
           },
           {
             "id": "bandarban-sadar",
             "en": "Bandarban Sadar",
-            "bn": "বান্দরবান সদর"
+            "bn": "বান্দরবান সদর",
+            "lat": 22.23333,
+            "lng": 92.19167
           },
           {
             "id": "lama",
             "en": "Lama",
-            "bn": "লামা"
+            "bn": "লামা",
+            "lat": 21.81,
+            "lng": 92.27
           },
           {
             "id": "naikhongchhari",
             "en": "Naikhongchhari",
-            "bn": "নাইক্ষ্যংছড়ি"
+            "bn": "নাইক্ষ্যংছড়ি",
+            "lat": 21.49,
+            "lng": 92.26
           },
           {
             "id": "rowangchhari",
             "en": "Rowangchhari",
-            "bn": "রোয়াংছড়ি"
+            "bn": "রোয়াংছড়ি",
+            "lat": 22.22,
+            "lng": 92.36
           },
           {
             "id": "ruma",
             "en": "Ruma",
-            "bn": "রুমা"
+            "bn": "রুমা",
+            "lat": 22.03,
+            "lng": 92.45
           },
           {
             "id": "thanchi",
             "en": "Thanchi",
-            "bn": "থানচি"
+            "bn": "থানচি",
+            "lat": 21.64,
+            "lng": 92.55
           }
         ]
       },
@@ -892,47 +1130,65 @@
           {
             "id": "akhaura",
             "en": "Akhaura",
-            "bn": "আখাউড়া"
+            "bn": "আখাউড়া",
+            "lat": 23.83,
+            "lng": 91.21
           },
           {
             "id": "bancharampur",
             "en": "Bancharampur",
-            "bn": "বাঞ্ছারামপুর"
+            "bn": "বাঞ্ছারামপুর",
+            "lat": 23.77566,
+            "lng": 90.80029
           },
           {
             "id": "brahmanbaria-sadar",
             "en": "Brahmanbaria Sadar",
-            "bn": "ব্রাহ্মণবাড়িয়া সদর"
+            "bn": "ব্রাহ্মণবাড়িয়া সদর",
+            "lat": 23.97464,
+            "lng": 91.11228
           },
           {
             "id": "kasba",
             "en": "Kasba",
-            "bn": "কসবা"
+            "bn": "কসবা",
+            "lat": 23.77,
+            "lng": 91.12
           },
           {
             "id": "nabinagar",
             "en": "Nabinagar",
-            "bn": "নবীনগর"
+            "bn": "নবীনগর",
+            "lat": 23.86,
+            "lng": 90.99
           },
           {
             "id": "nasirnagar",
             "en": "Nasirnagar",
-            "bn": "নাসিরনগর"
+            "bn": "নাসিরনগর",
+            "lat": 24.18,
+            "lng": 91.2
           },
           {
             "id": "sarail",
             "en": "Sarail",
-            "bn": "সরাইল"
+            "bn": "সরাইল",
+            "lat": 24.1,
+            "lng": 91.11
           },
           {
             "id": "ashuganj",
             "en": "Ashuganj",
-            "bn": "আশুগঞ্জ"
+            "bn": "আশুগঞ্জ",
+            "lat": 24.03333,
+            "lng": 91
           },
           {
             "id": "bijoynagar",
             "en": "Bijoynagar",
-            "bn": "বিজয়নগর"
+            "bn": "বিজয়নগর",
+            "lat": 24.05148,
+            "lng": 91.29364
           }
         ]
       },
@@ -944,42 +1200,58 @@
           {
             "id": "chandpur-sadar",
             "en": "Chandpur Sadar",
-            "bn": "চাঁদপুর সদর"
+            "bn": "চাঁদপুর সদর",
+            "lat": 23.38407,
+            "lng": 90.75429
           },
           {
             "id": "faridganj",
             "en": "Faridganj",
-            "bn": "ফরিদগঞ্জ"
+            "bn": "ফরিদগঞ্জ",
+            "lat": 23.14,
+            "lng": 90.76
           },
           {
             "id": "haimchar",
             "en": "Haimchar",
-            "bn": "হাইমচর"
+            "bn": "হাইমচর",
+            "lat": 23.07,
+            "lng": 90.66
           },
           {
             "id": "haziganj",
             "en": "Haziganj",
-            "bn": "হাজীগঞ্জ"
+            "bn": "হাজীগঞ্জ",
+            "lat": 23.26,
+            "lng": 90.83
           },
           {
             "id": "kachua",
             "en": "Kachua",
-            "bn": "কচুয়া"
+            "bn": "কচুয়া",
+            "lat": 23.36,
+            "lng": 90.87
           },
           {
             "id": "matlab-dakshin",
             "en": "Matlab Dakshin",
-            "bn": "মতলব দক্ষিণ"
+            "bn": "মতলব দক্ষিণ",
+            "lat": 23.34285,
+            "lng": 90.7257
           },
           {
             "id": "matlab-uttar",
             "en": "Matlab Uttar",
-            "bn": "মতলব উত্তর"
+            "bn": "মতলব উত্তর",
+            "lat": 23.44888,
+            "lng": 90.63489
           },
           {
             "id": "shahrasti",
             "en": "Shahrasti",
-            "bn": "শাহরাস্তি"
+            "bn": "শাহরাস্তি",
+            "lat": 23.21,
+            "lng": 90.95
           }
         ]
       },
@@ -991,17 +1263,23 @@
           {
             "id": "kotwali",
             "en": "Kotwali",
-            "bn": "কোতোয়ালী"
+            "bn": "কোতোয়ালী",
+            "lat": 22.34141,
+            "lng": 91.82696
           },
           {
             "id": "panchlaish",
             "en": "Panchlaish",
-            "bn": "পাঁচলাইশ"
+            "bn": "পাঁচলাইশ",
+            "lat": 22.35994,
+            "lng": 91.83551
           },
           {
             "id": "pahartali",
             "en": "Pahartali",
-            "bn": "পাহাড়তলী"
+            "bn": "পাহাড়তলী",
+            "lat": 22.34636,
+            "lng": 91.79523
           },
           {
             "id": "halishahar",
@@ -1011,7 +1289,9 @@
           {
             "id": "agrabad",
             "en": "Agrabad",
-            "bn": "আগ্রাবাদ"
+            "bn": "আগ্রাবাদ",
+            "lat": 22.33229,
+            "lng": 91.79762
           },
           {
             "id": "double-mooring",
@@ -1031,7 +1311,9 @@
           {
             "id": "chandgaon",
             "en": "Chandgaon",
-            "bn": "চান্দগাঁও"
+            "bn": "চান্দগাঁও",
+            "lat": 22.39914,
+            "lng": 91.86043
           },
           {
             "id": "khulshi",
@@ -1041,7 +1323,9 @@
           {
             "id": "patenga",
             "en": "Patenga",
-            "bn": "পতেঙ্গা"
+            "bn": "পতেঙ্গা",
+            "lat": 22.25438,
+            "lng": 91.79484
           },
           {
             "id": "chawkbazar",
@@ -1061,7 +1345,9 @@
           {
             "id": "bandar",
             "en": "Bandar",
-            "bn": "বন্দর"
+            "bn": "বন্দর",
+            "lat": 22.31752,
+            "lng": 91.8033
           },
           {
             "id": "epz",
@@ -1071,32 +1357,44 @@
           {
             "id": "anwara",
             "en": "Anwara",
-            "bn": "আনোয়ারা"
+            "bn": "আনোয়ারা",
+            "lat": 22.23,
+            "lng": 91.87
           },
           {
             "id": "banshkhali",
             "en": "Banshkhali",
-            "bn": "বাঁশখালী"
+            "bn": "বাঁশখালী",
+            "lat": 22.03,
+            "lng": 91.93
           },
           {
             "id": "boalkhali",
             "en": "Boalkhali",
-            "bn": "বোয়ালখালী"
+            "bn": "বোয়ালখালী",
+            "lat": 22.39,
+            "lng": 91.93
           },
           {
             "id": "chandanaish",
             "en": "Chandanaish",
-            "bn": "চন্দনাইশ"
+            "bn": "চন্দনাইশ",
+            "lat": 22.21191,
+            "lng": 92.06411
           },
           {
             "id": "fatikchhari",
             "en": "Fatikchhari",
-            "bn": "ফটিকছড়ি"
+            "bn": "ফটিকছড়ি",
+            "lat": 22.68395,
+            "lng": 91.78928
           },
           {
             "id": "hathazari",
             "en": "Hathazari",
-            "bn": "হাটহাজারী"
+            "bn": "হাটহাজারী",
+            "lat": 22.50833,
+            "lng": 91.80833
           },
           {
             "id": "karnaphuli",
@@ -1106,42 +1404,58 @@
           {
             "id": "lohagara",
             "en": "Lohagara",
-            "bn": "লোহাগাড়া"
+            "bn": "লোহাগাড়া",
+            "lat": 22,
+            "lng": 92.13
           },
           {
             "id": "mirsharai",
             "en": "Mirsharai",
-            "bn": "মীরসরাই"
+            "bn": "মীরসরাই",
+            "lat": 22.77167,
+            "lng": 91.575
           },
           {
             "id": "patiya",
             "en": "Patiya",
-            "bn": "পটিয়া"
+            "bn": "পটিয়া",
+            "lat": 22.3,
+            "lng": 91.98333
           },
           {
             "id": "rangunia",
             "en": "Rangunia",
-            "bn": "রাঙ্গুনিয়া"
+            "bn": "রাঙ্গুনিয়া",
+            "lat": 22.49056,
+            "lng": 92.07278
           },
           {
             "id": "raozan",
             "en": "Raozan",
-            "bn": "রাউজান"
+            "bn": "রাউজান",
+            "lat": 22.53333,
+            "lng": 91.93333
           },
           {
             "id": "sandwip",
             "en": "Sandwip",
-            "bn": "সন্দ্বীপ"
+            "bn": "সন্দ্বীপ",
+            "lat": 22.5,
+            "lng": 91.48
           },
           {
             "id": "satkania",
             "en": "Satkania",
-            "bn": "সাতকানিয়া"
+            "bn": "সাতকানিয়া",
+            "lat": 22.10563,
+            "lng": 92.05919
           },
           {
             "id": "sitakunda",
             "en": "Sitakunda",
-            "bn": "সীতাকুণ্ড"
+            "bn": "সীতাকুণ্ড",
+            "lat": 22.61667,
+            "lng": 91.66167
           }
         ]
       },
@@ -1153,27 +1467,37 @@
           {
             "id": "barura",
             "en": "Barura",
-            "bn": "বরুড়া"
+            "bn": "বরুড়া",
+            "lat": 23.36,
+            "lng": 91.05
           },
           {
             "id": "brahmanpara",
             "en": "Brahmanpara",
-            "bn": "ব্রাহ্মণপাড়া"
+            "bn": "ব্রাহ্মণপাড়া",
+            "lat": 23.64,
+            "lng": 91.11
           },
           {
             "id": "burichang",
             "en": "Burichang",
-            "bn": "বুড়িচং"
+            "bn": "বুড়িচং",
+            "lat": 23.54,
+            "lng": 91.12
           },
           {
             "id": "chandina",
             "en": "Chandina",
-            "bn": "চান্দিনা"
+            "bn": "চান্দিনা",
+            "lat": 23.44,
+            "lng": 90.95
           },
           {
             "id": "chauddagram",
             "en": "Chauddagram",
-            "bn": "চৌদ্দগ্রাম"
+            "bn": "চৌদ্দগ্রাম",
+            "lat": 23.22,
+            "lng": 91.3
           },
           {
             "id": "cumilla-adarsha-sadar",
@@ -1183,27 +1507,37 @@
           {
             "id": "cumilla-sadar-dakshin",
             "en": "Cumilla Sadar Dakshin",
-            "bn": "কুমিল্লা সদর দক্ষিণ"
+            "bn": "কুমিল্লা সদর দক্ষিণ",
+            "lat": 23.30668,
+            "lng": 91.1545
           },
           {
             "id": "daudkandi",
             "en": "Daudkandi",
-            "bn": "দাউদকান্দি"
+            "bn": "দাউদকান্দি",
+            "lat": 23.53333,
+            "lng": 90.71667
           },
           {
             "id": "debidwar",
             "en": "Debidwar",
-            "bn": "দেবীদ্বার"
+            "bn": "দেবীদ্বার",
+            "lat": 23.57912,
+            "lng": 90.99828
           },
           {
             "id": "homna",
             "en": "Homna",
-            "bn": "হোমনা"
+            "bn": "হোমনা",
+            "lat": 23.66,
+            "lng": 90.79
           },
           {
             "id": "laksam",
             "en": "Laksam",
-            "bn": "লাকসাম"
+            "bn": "লাকসাম",
+            "lat": 23.24667,
+            "lng": 91.12833
           },
           {
             "id": "lalmai",
@@ -1213,7 +1547,9 @@
           {
             "id": "meghna",
             "en": "Meghna",
-            "bn": "মেঘনা"
+            "bn": "মেঘনা",
+            "lat": 23.62365,
+            "lng": 90.69166
           },
           {
             "id": "monohorganj",
@@ -1223,17 +1559,23 @@
           {
             "id": "muradnagar",
             "en": "Muradnagar",
-            "bn": "মুরাদনগর"
+            "bn": "মুরাদনগর",
+            "lat": 23.68,
+            "lng": 90.93
           },
           {
             "id": "nangalkot",
             "en": "Nangalkot",
-            "bn": "নাঙ্গলকোট"
+            "bn": "নাঙ্গলকোট",
+            "lat": 23.13,
+            "lng": 91.22
           },
           {
             "id": "titas",
             "en": "Titas",
-            "bn": "তিতাস"
+            "bn": "তিতাস",
+            "lat": 23.6,
+            "lng": 90.76667
           }
         ]
       },
@@ -1245,42 +1587,58 @@
           {
             "id": "chakaria",
             "en": "Chakaria",
-            "bn": "চকরিয়া"
+            "bn": "চকরিয়া",
+            "lat": 21.78667,
+            "lng": 92.07833
           },
           {
             "id": "coxs-bazar-sadar",
             "en": "Cox's Bazar Sadar",
-            "bn": "কক্সবাজার সদর"
+            "bn": "কক্সবাজার সদর",
+            "lat": 21.44332,
+            "lng": 92.01539
           },
           {
             "id": "kutubdia",
             "en": "Kutubdia",
-            "bn": "কুতুবদিয়া"
+            "bn": "কুতুবদিয়া",
+            "lat": 21.84,
+            "lng": 91.87
           },
           {
             "id": "maheshkhali",
             "en": "Maheshkhali",
-            "bn": "মহেশখালী"
+            "bn": "মহেশখালী",
+            "lat": 21.62,
+            "lng": 91.93
           },
           {
             "id": "pekua",
             "en": "Pekua",
-            "bn": "পেকুয়া"
+            "bn": "পেকুয়া",
+            "lat": 21.80497,
+            "lng": 91.9511
           },
           {
             "id": "ramu",
             "en": "Ramu",
-            "bn": "রামু"
+            "bn": "রামু",
+            "lat": 21.44,
+            "lng": 92.12
           },
           {
             "id": "teknaf",
             "en": "Teknaf",
-            "bn": "টেকনাফ"
+            "bn": "টেকনাফ",
+            "lat": 20.95,
+            "lng": 92.24
           },
           {
             "id": "ukhia",
             "en": "Ukhia",
-            "bn": "উখিয়া"
+            "bn": "উখিয়া",
+            "lat": 21.22,
+            "lng": 92.12
           },
           {
             "id": "eidgaon",
@@ -1297,32 +1655,44 @@
           {
             "id": "chhagalnaiya",
             "en": "Chhagalnaiya",
-            "bn": "ছাগলনাইয়া"
+            "bn": "ছাগলনাইয়া",
+            "lat": 23.08,
+            "lng": 91.48
           },
           {
             "id": "daganbhuiyan",
             "en": "Daganbhuiyan",
-            "bn": "দাগনভূঞা"
+            "bn": "দাগনভূঞা",
+            "lat": 22.97079,
+            "lng": 91.29989
           },
           {
             "id": "feni-sadar",
             "en": "Feni Sadar",
-            "bn": "ফেনী সদর"
+            "bn": "ফেনী সদর",
+            "lat": 23.01667,
+            "lng": 91.39167
           },
           {
             "id": "parshuram",
             "en": "Parshuram",
-            "bn": "পরশুরাম"
+            "bn": "পরশুরাম",
+            "lat": 23.21,
+            "lng": 91.43
           },
           {
             "id": "sonagazi",
             "en": "Sonagazi",
-            "bn": "সোনাগাজী"
+            "bn": "সোনাগাজী",
+            "lat": 22.85,
+            "lng": 91.39167
           },
           {
             "id": "fulgazi",
             "en": "Fulgazi",
-            "bn": "ফুলগাজী"
+            "bn": "ফুলগাজী",
+            "lat": 23.13333,
+            "lng": 91.43333
           }
         ]
       },
@@ -1334,47 +1704,65 @@
           {
             "id": "dighinala",
             "en": "Dighinala",
-            "bn": "দীঘিনালা"
+            "bn": "দীঘিনালা",
+            "lat": 23.24541,
+            "lng": 92.06672
           },
           {
             "id": "khagrachhari-sadar",
             "en": "Khagrachhari Sadar",
-            "bn": "খাগড়াছড়ি সদর"
+            "bn": "খাগড়াছড়ি সদর",
+            "lat": 23.04167,
+            "lng": 91.995
           },
           {
             "id": "lakshmichhari",
             "en": "Lakshmichhari",
-            "bn": "লক্ষ্মীছড়ি"
+            "bn": "লক্ষ্মীছড়ি",
+            "lat": 22.81,
+            "lng": 91.94
           },
           {
             "id": "mahalchhari",
             "en": "Mahalchhari",
-            "bn": "মহালছড়ি"
+            "bn": "মহালছড়ি",
+            "lat": 22.92,
+            "lng": 92.025
           },
           {
             "id": "manikchhari",
             "en": "Manikchhari",
-            "bn": "মানিকছড়ি"
+            "bn": "মানিকছড়ি",
+            "lat": 22.835,
+            "lng": 91.83667
           },
           {
             "id": "matiranga",
             "en": "Matiranga",
-            "bn": "মাটিরাঙ্গা"
+            "bn": "মাটিরাঙ্গা",
+            "lat": 23.09,
+            "lng": 91.88
           },
           {
             "id": "panchhari",
             "en": "Panchhari",
-            "bn": "পানছড়ি"
+            "bn": "পানছড়ি",
+            "lat": 23.3,
+            "lng": 91.88
           },
           {
             "id": "ramgarh",
             "en": "Ramgarh",
-            "bn": "রামগড়"
+            "bn": "রামগড়",
+            "lat": 22.9351,
+            "lng": 91.83095
           },
           {
             "id": "guimara",
             "en": "Guimara",
-            "bn": "গুইমারা"
+            "bn": "গুইমারা",
+            "lat": 22.97126,
+            "lng": 91.88092
           }
         ]
       },
@@ -1386,22 +1774,30 @@
           {
             "id": "lakshmipur-sadar",
             "en": "Lakshmipur Sadar",
-            "bn": "লক্ষ্মীপুর সদর"
+            "bn": "লক্ষ্মীপুর সদর",
+            "lat": 22.95,
+            "lng": 90.825
           },
           {
             "id": "raipur",
             "en": "Raipur",
-            "bn": "রায়পুর"
+            "bn": "রায়পুর",
+            "lat": 23.01,
+            "lng": 90.72
           },
           {
             "id": "ramganj",
             "en": "Ramganj",
-            "bn": "রামগঞ্জ"
+            "bn": "রামগঞ্জ",
+            "lat": 23.105,
+            "lng": 90.875
           },
           {
             "id": "ramgati",
             "en": "Ramgati",
-            "bn": "রামগতি"
+            "bn": "রামগতি",
+            "lat": 22.669,
+            "lng": 90.936
           },
           {
             "id": "kamalnagar",
@@ -1411,7 +1807,9 @@
           {
             "id": "chandraganj",
             "en": "Chandraganj",
-            "bn": "চন্দ্রগঞ্জ"
+            "bn": "চন্দ্রগঞ্জ",
+            "lat": 22.95134,
+            "lng": 90.98054
           }
         ]
       },
@@ -1423,47 +1821,65 @@
           {
             "id": "begumganj",
             "en": "Begumganj",
-            "bn": "বেগমগঞ্জ"
+            "bn": "বেগমগঞ্জ",
+            "lat": 22.93041,
+            "lng": 91.09487
           },
           {
             "id": "noakhali-sadar",
             "en": "Noakhali Sadar",
-            "bn": "নোয়াখালী সদর"
+            "bn": "নোয়াখালী সদর",
+            "lat": 22.83188,
+            "lng": 91.09657
           },
           {
             "id": "chatkhil",
             "en": "Chatkhil",
-            "bn": "চাটখিল"
+            "bn": "চাটখিল",
+            "lat": 23.05,
+            "lng": 90.95833
           },
           {
             "id": "companiganj",
             "en": "Companiganj",
-            "bn": "কোম্পানীগঞ্জ"
+            "bn": "কোম্পানীগঞ্জ",
+            "lat": 22.83333,
+            "lng": 91.28333
           },
           {
             "id": "hatiya",
             "en": "Hatiya",
-            "bn": "হাতিয়া"
+            "bn": "হাতিয়া",
+            "lat": 22.34,
+            "lng": 91.09
           },
           {
             "id": "senbagh",
             "en": "Senbagh",
-            "bn": "সেনবাগ"
+            "bn": "সেনবাগ",
+            "lat": 23,
+            "lng": 91.23
           },
           {
             "id": "sonaimuri",
             "en": "Sonaimuri",
-            "bn": "সোনাইমুড়ী"
+            "bn": "সোনাইমুড়ী",
+            "lat": 23.02536,
+            "lng": 91.07878
           },
           {
             "id": "subarnachar",
             "en": "Subarnachar",
-            "bn": "সুবর্ণচর"
+            "bn": "সুবর্ণচর",
+            "lat": 22.64934,
+            "lng": 91.06155
           },
           {
             "id": "kabirhat",
             "en": "Kabirhat",
-            "bn": "কবিরহাট"
+            "bn": "কবিরহাট",
+            "lat": 22.79288,
+            "lng": 91.19871
           }
         ]
       },
@@ -1475,37 +1891,51 @@
           {
             "id": "bagaichhari",
             "en": "Bagaichhari",
-            "bn": "বাঘাইছড়ি"
+            "bn": "বাঘাইছড়ি",
+            "lat": 23.37,
+            "lng": 92.25
           },
           {
             "id": "barkal",
             "en": "Barkal",
-            "bn": "বরকল"
+            "bn": "বরকল",
+            "lat": 22.82,
+            "lng": 92.37
           },
           {
             "id": "kawkhali",
             "en": "Kawkhali",
-            "bn": "কাউখালী"
+            "bn": "কাউখালী",
+            "lat": 22.53333,
+            "lng": 92.01667
           },
           {
             "id": "belaichhari",
             "en": "Belaichhari",
-            "bn": "বিলাইছড়ি"
+            "bn": "বিলাইছড়ি",
+            "lat": 22.35,
+            "lng": 92.5
           },
           {
             "id": "kaptai",
             "en": "Kaptai",
-            "bn": "কাপ্তাই"
+            "bn": "কাপ্তাই",
+            "lat": 22.5,
+            "lng": 92.21667
           },
           {
             "id": "juraichhari",
             "en": "Juraichhari",
-            "bn": "জুরাছড়ি"
+            "bn": "জুরাছড়ি",
+            "lat": 22.62,
+            "lng": 92.44
           },
           {
             "id": "langadu",
             "en": "Langadu",
-            "bn": "লংগদু"
+            "bn": "লংগদু",
+            "lat": 22.98,
+            "lng": 92.22
           },
           {
             "id": "naniyachar",
@@ -1515,12 +1945,16 @@
           {
             "id": "rajasthali",
             "en": "Rajasthali",
-            "bn": "রাজস্থলী"
+            "bn": "রাজস্থলী",
+            "lat": 22.38333,
+            "lng": 92.24167
           },
           {
             "id": "rangamati-sadar",
             "en": "Rangamati Sadar",
-            "bn": "রাঙ্গামাটি সদর"
+            "bn": "রাঙ্গামাটি সদর",
+            "lat": 22.65,
+            "lng": 92.18333
           }
         ]
       }
@@ -1539,32 +1973,44 @@
           {
             "id": "adamdighi",
             "en": "Adamdighi",
-            "bn": "আদমদীঘি"
+            "bn": "আদমদীঘি",
+            "lat": 24.80029,
+            "lng": 89.0417
           },
           {
             "id": "bogura-sadar",
             "en": "Bogura Sadar",
-            "bn": "বগুড়া সদর"
+            "bn": "বগুড়া সদর",
+            "lat": 24.85098,
+            "lng": 89.37108
           },
           {
             "id": "dhunat",
             "en": "Dhunat",
-            "bn": "ধুনট"
+            "bn": "ধুনট",
+            "lat": 24.66667,
+            "lng": 89.53333
           },
           {
             "id": "dhupchanchia",
             "en": "Dhupchanchia",
-            "bn": "দুপচাঁচিয়া"
+            "bn": "দুপচাঁচিয়া",
+            "lat": 24.86667,
+            "lng": 89.16667
           },
           {
             "id": "gabtali",
             "en": "Gabtali",
-            "bn": "গাবতলী"
+            "bn": "গাবতলী",
+            "lat": 24.89,
+            "lng": 89.47
           },
           {
             "id": "kahaloo",
             "en": "Kahaloo",
-            "bn": "কাহালু"
+            "bn": "কাহালু",
+            "lat": 24.84,
+            "lng": 89.25
           },
           {
             "id": "mokamtola",
@@ -1574,27 +2020,37 @@
           {
             "id": "nandigram",
             "en": "Nandigram",
-            "bn": "নন্দীগ্রাম"
+            "bn": "নন্দীগ্রাম",
+            "lat": 24.68,
+            "lng": 89.24
           },
           {
             "id": "sariakandi",
             "en": "Sariakandi",
-            "bn": "সারিয়াকান্দি"
+            "bn": "সারিয়াকান্দি",
+            "lat": 24.89,
+            "lng": 89.61
           },
           {
             "id": "shajahanpur",
             "en": "Shajahanpur",
-            "bn": "শাজাহানপুর"
+            "bn": "শাজাহানপুর",
+            "lat": 24.76667,
+            "lng": 89.4
           },
           {
             "id": "sherpur",
             "en": "Sherpur",
-            "bn": "শেরপুর"
+            "bn": "শেরপুর",
+            "lat": 24.63196,
+            "lng": 89.40571
           },
           {
             "id": "shibganj",
             "en": "Shibganj",
-            "bn": "শিবগঞ্জ"
+            "bn": "শিবগঞ্জ",
+            "lat": 25.03,
+            "lng": 89.31
           },
           {
             "id": "sonatola",
@@ -1611,27 +2067,37 @@
           {
             "id": "akkelpur",
             "en": "Akkelpur",
-            "bn": "আক্কেলপুর"
+            "bn": "আক্কেলপুর",
+            "lat": 24.94,
+            "lng": 89.05
           },
           {
             "id": "joypurhat-sadar",
             "en": "Joypurhat Sadar",
-            "bn": "জয়পুরহাট সদর"
+            "bn": "জয়পুরহাট সদর",
+            "lat": 25.1,
+            "lng": 89.02
           },
           {
             "id": "kalai",
             "en": "Kalai",
-            "bn": "কালাই"
+            "bn": "কালাই",
+            "lat": 25.08,
+            "lng": 89.2
           },
           {
             "id": "khetlal",
             "en": "Khetlal",
-            "bn": "ক্ষেতলাল"
+            "bn": "ক্ষেতলাল",
+            "lat": 25.02,
+            "lng": 89.11
           },
           {
             "id": "panchbibi",
             "en": "Panchbibi",
-            "bn": "পাঁচবিবি"
+            "bn": "পাঁচবিবি",
+            "lat": 25.20426,
+            "lng": 89.07157
           }
         ]
       },
@@ -1643,57 +2109,79 @@
           {
             "id": "atrai",
             "en": "Atrai",
-            "bn": "আত্রাই"
+            "bn": "আত্রাই",
+            "lat": 24.63,
+            "lng": 88.99
           },
           {
             "id": "badalgachhi",
             "en": "Badalgachhi",
-            "bn": "বদলগাছী"
+            "bn": "বদলগাছী",
+            "lat": 24.96,
+            "lng": 88.93
           },
           {
             "id": "dhamoirhat",
             "en": "Dhamoirhat",
-            "bn": "ধামইরহাট"
+            "bn": "ধামইরহাট",
+            "lat": 25.14,
+            "lng": 88.85
           },
           {
             "id": "manda",
             "en": "Manda",
-            "bn": "মান্দা"
+            "bn": "মান্দা",
+            "lat": 24.74,
+            "lng": 88.72
           },
           {
             "id": "mohadevpur",
             "en": "Mohadevpur",
-            "bn": "মহাদেবপুর"
+            "bn": "মহাদেবপুর",
+            "lat": 24.91833,
+            "lng": 88.74833
           },
           {
             "id": "naogaon-sadar",
             "en": "Naogaon Sadar",
-            "bn": "নওগাঁ সদর"
+            "bn": "নওগাঁ সদর",
+            "lat": 24.8,
+            "lng": 88.9
           },
           {
             "id": "niamatpur",
             "en": "Niamatpur",
-            "bn": "নিয়ামতপুর"
+            "bn": "নিয়ামতপুর",
+            "lat": 24.83,
+            "lng": 88.55
           },
           {
             "id": "patnitala",
             "en": "Patnitala",
-            "bn": "পত্নীতলা"
+            "bn": "পত্নীতলা",
+            "lat": 25.05,
+            "lng": 88.69
           },
           {
             "id": "porsha",
             "en": "Porsha",
-            "bn": "পোরশা"
+            "bn": "পোরশা",
+            "lat": 25,
+            "lng": 88.52
           },
           {
             "id": "raninagar",
             "en": "Raninagar",
-            "bn": "রাণীনগর"
+            "bn": "রাণীনগর",
+            "lat": 24.71,
+            "lng": 89.02
           },
           {
             "id": "sapahar",
             "en": "Sapahar",
-            "bn": "সাপাহার"
+            "bn": "সাপাহার",
+            "lat": 25.11925,
+            "lng": 88.53
           }
         ]
       },
@@ -1705,37 +2193,51 @@
           {
             "id": "bagatipara",
             "en": "Bagatipara",
-            "bn": "বাগাতিপাড়া"
+            "bn": "বাগাতিপাড়া",
+            "lat": 24.31279,
+            "lng": 88.94666
           },
           {
             "id": "baraigram",
             "en": "Baraigram",
-            "bn": "বড়াইগ্রাম"
+            "bn": "বড়াইগ্রাম",
+            "lat": 24.26,
+            "lng": 89.12
           },
           {
             "id": "gurudaspur",
             "en": "Gurudaspur",
-            "bn": "গুরুদাসপুর"
+            "bn": "গুরুদাসপুর",
+            "lat": 24.38,
+            "lng": 89.21
           },
           {
             "id": "lalpur",
             "en": "Lalpur",
-            "bn": "লালপুর"
+            "bn": "লালপুর",
+            "lat": 24.19,
+            "lng": 88.95
           },
           {
             "id": "naldanga",
             "en": "Naldanga",
-            "bn": "নলডাঙ্গা"
+            "bn": "নলডাঙ্গা",
+            "lat": 24.50185,
+            "lng": 88.96188
           },
           {
             "id": "natore-sadar",
             "en": "Natore Sadar",
-            "bn": "নাটোর সদর"
+            "bn": "নাটোর সদর",
+            "lat": 24.45,
+            "lng": 88.98
           },
           {
             "id": "singra",
             "en": "Singra",
-            "bn": "সিংড়া"
+            "bn": "সিংড়া",
+            "lat": 24.53,
+            "lng": 89.19
           }
         ]
       },
@@ -1747,17 +2249,23 @@
           {
             "id": "bholahat",
             "en": "Bholahat",
-            "bn": "ভোলাহাট"
+            "bn": "ভোলাহাট",
+            "lat": 24.89,
+            "lng": 88.22
           },
           {
             "id": "gomastapur",
             "en": "Gomastapur",
-            "bn": "গোমস্তাপুর"
+            "bn": "গোমস্তাপুর",
+            "lat": 24.86,
+            "lng": 88.37
           },
           {
             "id": "nachole",
             "en": "Nachole",
-            "bn": "নাচোল"
+            "bn": "নাচোল",
+            "lat": 24.73,
+            "lng": 88.39
           },
           {
             "id": "chapainawabganj-sadar",
@@ -1767,7 +2275,9 @@
           {
             "id": "shibganj",
             "en": "Shibganj",
-            "bn": "শিবগঞ্জ"
+            "bn": "শিবগঞ্জ",
+            "lat": 24.7,
+            "lng": 88.15
           }
         ]
       },
@@ -1779,47 +2289,65 @@
           {
             "id": "atgharia",
             "en": "Atgharia",
-            "bn": "আটঘরিয়া"
+            "bn": "আটঘরিয়া",
+            "lat": 24.13333,
+            "lng": 89.25
           },
           {
             "id": "bera",
             "en": "Bera",
-            "bn": "বেড়া"
+            "bn": "বেড়া",
+            "lat": 24.06667,
+            "lng": 89.625
           },
           {
             "id": "bhangura",
             "en": "Bhangura",
-            "bn": "ভাঙ্গুড়া"
+            "bn": "ভাঙ্গুড়া",
+            "lat": 24.225,
+            "lng": 89.4
           },
           {
             "id": "chatmohar",
             "en": "Chatmohar",
-            "bn": "চাটমোহর"
+            "bn": "চাটমোহর",
+            "lat": 24.23,
+            "lng": 89.3
           },
           {
             "id": "faridpur",
             "en": "Faridpur",
-            "bn": "ফরিদপুর"
+            "bn": "ফরিদপুর",
+            "lat": 24.1567,
+            "lng": 89.42299
           },
           {
             "id": "ishwardi",
             "en": "Ishwardi",
-            "bn": "ঈশ্বরদী"
+            "bn": "ঈশ্বরদী",
+            "lat": 24.12858,
+            "lng": 89.06891
           },
           {
             "id": "pabna-sadar",
             "en": "Pabna Sadar",
-            "bn": "পাবনা সদর"
+            "bn": "পাবনা সদর",
+            "lat": 24.02,
+            "lng": 89.29
           },
           {
             "id": "santhia",
             "en": "Santhia",
-            "bn": "সাঁথিয়া"
+            "bn": "সাঁথিয়া",
+            "lat": 24.05,
+            "lng": 89.52
           },
           {
             "id": "sujanagar",
             "en": "Sujanagar",
-            "bn": "সুজানগর"
+            "bn": "সুজানগর",
+            "lat": 23.9,
+            "lng": 89.52
           }
         ]
       },
@@ -1831,47 +2359,72 @@
           {
             "id": "bagha",
             "en": "Bagha",
-            "bn": "বাঘা"
+            "bn": "বাঘা",
+            "lat": 24.21,
+            "lng": 88.82
           },
           {
             "id": "bagmara",
             "en": "Bagmara",
-            "bn": "বাগমারা"
+            "bn": "বাগমারা",
+            "lat": 24.59,
+            "lng": 88.82
           },
           {
             "id": "charghat",
             "en": "Charghat",
-            "bn": "চারঘাট"
+            "bn": "চারঘাট",
+            "lat": 24.27853,
+            "lng": 88.7518
           },
           {
             "id": "durgapur",
             "en": "Durgapur",
-            "bn": "দুর্গাপুর"
+            "bn": "দুর্গাপুর",
+            "lat": 24.455,
+            "lng": 88.76667
           },
           {
             "id": "godagari",
             "en": "Godagari",
-            "bn": "গোদাগাড়ী"
+            "bn": "গোদাগাড়ী",
+            "lat": 24.5,
+            "lng": 88.43
           },
           {
             "id": "mohanpur",
             "en": "Mohanpur",
-            "bn": "মোহনপুর"
+            "bn": "মোহনপুর",
+            "lat": 24.55,
+            "lng": 88.64
           },
           {
             "id": "paba",
             "en": "Paba",
-            "bn": "পবা"
+            "bn": "পবা",
+            "lat": 24.44167,
+            "lng": 88.62833
           },
           {
             "id": "puthia",
             "en": "Puthia",
-            "bn": "পুঠিয়া"
+            "bn": "পুঠিয়া",
+            "lat": 24.40108,
+            "lng": 88.84552
           },
           {
             "id": "tanore",
             "en": "Tanore",
-            "bn": "তানোর"
+            "bn": "তানোর",
+            "lat": 24.62,
+            "lng": 88.53
+          },
+          {
+            "id": "rajshahi-city",
+            "en": "Rajshahi City",
+            "bn": "রাজশাহী শহর",
+            "lat": 24.374,
+            "lng": 88.60114
           }
         ]
       },
@@ -1883,47 +2436,65 @@
           {
             "id": "belkuchi",
             "en": "Belkuchi",
-            "bn": "বেলকুচি"
+            "bn": "বেলকুচি",
+            "lat": 24.3,
+            "lng": 89.7
           },
           {
             "id": "chauhali",
             "en": "Chauhali",
-            "bn": "চৌহালী"
+            "bn": "চৌহালী",
+            "lat": 24.21167,
+            "lng": 89.72
           },
           {
             "id": "kamarkhanda",
             "en": "Kamarkhanda",
-            "bn": "কামারখন্দ"
+            "bn": "কামারখন্দ",
+            "lat": 24.38,
+            "lng": 89.65
           },
           {
             "id": "kazipur",
             "en": "Kazipur",
-            "bn": "কাজীপুর"
+            "bn": "কাজীপুর",
+            "lat": 24.67,
+            "lng": 89.7
           },
           {
             "id": "raiganj",
             "en": "Raiganj",
-            "bn": "রায়গঞ্জ"
+            "bn": "রায়গঞ্জ",
+            "lat": 24.49,
+            "lng": 89.52
           },
           {
             "id": "shahjadpur",
             "en": "Shahjadpur",
-            "bn": "শাহজাদপুর"
+            "bn": "শাহজাদপুর",
+            "lat": 24.17,
+            "lng": 89.63
           },
           {
             "id": "sirajganj-sadar",
             "en": "Sirajganj Sadar",
-            "bn": "সিরাজগঞ্জ সদর"
+            "bn": "সিরাজগঞ্জ সদর",
+            "lat": 24.45833,
+            "lng": 89.7
           },
           {
             "id": "tarash",
             "en": "Tarash",
-            "bn": "তাড়াশ"
+            "bn": "তাড়াশ",
+            "lat": 24.45,
+            "lng": 89.36
           },
           {
             "id": "ullahpara",
             "en": "Ullahpara",
-            "bn": "উল্লাপাড়া"
+            "bn": "উল্লাপাড়া",
+            "lat": 24.34,
+            "lng": 89.53
           }
         ]
       }
@@ -1942,47 +2513,65 @@
           {
             "id": "bagerhat-sadar",
             "en": "Bagerhat Sadar",
-            "bn": "বাগেরহাট সদর"
+            "bn": "বাগেরহাট সদর",
+            "lat": 22.69,
+            "lng": 89.78
           },
           {
             "id": "chitalmari",
             "en": "Chitalmari",
-            "bn": "চিতলমারী"
+            "bn": "চিতলমারী",
+            "lat": 22.8,
+            "lng": 89.87
           },
           {
             "id": "fakirhat",
             "en": "Fakirhat",
-            "bn": "ফকিরহাট"
+            "bn": "ফকিরহাট",
+            "lat": 22.75,
+            "lng": 89.68
           },
           {
             "id": "kachua",
             "en": "Kachua",
-            "bn": "কচুয়া"
+            "bn": "কচুয়া",
+            "lat": 22.64,
+            "lng": 89.88
           },
           {
             "id": "mollahat",
             "en": "Mollahat",
-            "bn": "মোল্লাহাট"
+            "bn": "মোল্লাহাট",
+            "lat": 22.88,
+            "lng": 89.78
           },
           {
             "id": "mongla",
             "en": "Mongla",
-            "bn": "মোংলা"
+            "bn": "মোংলা",
+            "lat": 22.50306,
+            "lng": 89.6032
           },
           {
             "id": "morrelganj",
             "en": "Morrelganj",
-            "bn": "মোড়েলগঞ্জ"
+            "bn": "মোড়েলগঞ্জ",
+            "lat": 22.48,
+            "lng": 89.83
           },
           {
             "id": "rampal",
             "en": "Rampal",
-            "bn": "রামপাল"
+            "bn": "রামপাল",
+            "lat": 22.59,
+            "lng": 89.68
           },
           {
             "id": "sarankhola",
             "en": "Sarankhola",
-            "bn": "শরণখোলা"
+            "bn": "শরণখোলা",
+            "lat": 22.09522,
+            "lng": 89.81304
           }
         ]
       },
@@ -1994,22 +2583,30 @@
           {
             "id": "alamdanga",
             "en": "Alamdanga",
-            "bn": "আলমডাঙ্গা"
+            "bn": "আলমডাঙ্গা",
+            "lat": 23.73,
+            "lng": 88.91
           },
           {
             "id": "chuadanga-sadar",
             "en": "Chuadanga Sadar",
-            "bn": "চুয়াডাঙ্গা সদর"
+            "bn": "চুয়াডাঙ্গা সদর",
+            "lat": 23.64167,
+            "lng": 88.85833
           },
           {
             "id": "damurhuda",
             "en": "Damurhuda",
-            "bn": "দামুড়হুদা"
+            "bn": "দামুড়হুদা",
+            "lat": 23.61195,
+            "lng": 88.78084
           },
           {
             "id": "jibannagar",
             "en": "Jibannagar",
-            "bn": "জীবননগর"
+            "bn": "জীবননগর",
+            "lat": 23.44955,
+            "lng": 88.8455
           }
         ]
       },
@@ -2021,42 +2618,58 @@
           {
             "id": "abhaynagar",
             "en": "Abhaynagar",
-            "bn": "অভয়নগর"
+            "bn": "অভয়নগর",
+            "lat": 23.01667,
+            "lng": 89.43333
           },
           {
             "id": "bagherpara",
             "en": "Bagherpara",
-            "bn": "বাঘারপাড়া"
+            "bn": "বাঘারপাড়া",
+            "lat": 23.21667,
+            "lng": 89.35
           },
           {
             "id": "chaugachha",
             "en": "Chaugachha",
-            "bn": "চৌগাছা"
+            "bn": "চৌগাছা",
+            "lat": 23.26,
+            "lng": 89.03
           },
           {
             "id": "jhikargachha",
             "en": "Jhikargachha",
-            "bn": "ঝিকরগাছা"
+            "bn": "ঝিকরগাছা",
+            "lat": 23.1,
+            "lng": 89.13333
           },
           {
             "id": "keshabpur",
             "en": "Keshabpur",
-            "bn": "কেশবপুর"
+            "bn": "কেশবপুর",
+            "lat": 22.9075,
+            "lng": 89.23317
           },
           {
             "id": "jashore-sadar",
             "en": "Jashore Sadar",
-            "bn": "যশোর সদর"
+            "bn": "যশোর সদর",
+            "lat": 23.16971,
+            "lng": 89.21371
           },
           {
             "id": "manirampur",
             "en": "Manirampur",
-            "bn": "মণিরামপুর"
+            "bn": "মণিরামপুর",
+            "lat": 23.01667,
+            "lng": 89.23333
           },
           {
             "id": "sharsha",
             "en": "Sharsha",
-            "bn": "শার্শা"
+            "bn": "শার্শা",
+            "lat": 23.06,
+            "lng": 88.93
           }
         ]
       },
@@ -2068,32 +2681,44 @@
           {
             "id": "harinakunda",
             "en": "Harinakunda",
-            "bn": "হরিণাকুন্ডু"
+            "bn": "হরিণাকুন্ডু",
+            "lat": 23.65,
+            "lng": 89.08
           },
           {
             "id": "jhenaidah-sadar",
             "en": "Jhenaidah Sadar",
-            "bn": "ঝিনাইদহ সদর"
+            "bn": "ঝিনাইদহ সদর",
+            "lat": 23.54167,
+            "lng": 89.18333
           },
           {
             "id": "kaliganj",
             "en": "Kaliganj",
-            "bn": "কালীগঞ্জ"
+            "bn": "কালীগঞ্জ",
+            "lat": 23.41333,
+            "lng": 89.13333
           },
           {
             "id": "kotchandpur",
             "en": "Kotchandpur",
-            "bn": "কোটচাঁদপুর"
+            "bn": "কোটচাঁদপুর",
+            "lat": 23.4,
+            "lng": 89.01667
           },
           {
             "id": "maheshpur",
             "en": "Maheshpur",
-            "bn": "মহেশপুর"
+            "bn": "মহেশপুর",
+            "lat": 23.33,
+            "lng": 88.86
           },
           {
             "id": "shailkupa",
             "en": "Shailkupa",
-            "bn": "শৈলকুপা"
+            "bn": "শৈলকুপা",
+            "lat": 23.68289,
+            "lng": 89.24023
           }
         ]
       },
@@ -2105,37 +2730,51 @@
           {
             "id": "batiaghata",
             "en": "Batiaghata",
-            "bn": "বটিয়াঘাটা"
+            "bn": "বটিয়াঘাটা",
+            "lat": 22.74167,
+            "lng": 89.51667
           },
           {
             "id": "dacope",
             "en": "Dacope",
-            "bn": "দাকোপ"
+            "bn": "দাকোপ",
+            "lat": 22.57167,
+            "lng": 89.51167
           },
           {
             "id": "dumuria",
             "en": "Dumuria",
-            "bn": "ডুমুরিয়া"
+            "bn": "ডুমুরিয়া",
+            "lat": 22.80833,
+            "lng": 89.425
           },
           {
             "id": "dighalia",
             "en": "Dighalia",
-            "bn": "দিঘলিয়া"
+            "bn": "দিঘলিয়া",
+            "lat": 22.90833,
+            "lng": 89.53333
           },
           {
             "id": "koyra",
             "en": "Koyra",
-            "bn": "কয়রা"
+            "bn": "কয়রা",
+            "lat": 22.2,
+            "lng": 89.4
           },
           {
             "id": "paikgachha",
             "en": "Paikgachha",
-            "bn": "পাইকগাছা"
+            "bn": "পাইকগাছা",
+            "lat": 22.61,
+            "lng": 89.35
           },
           {
             "id": "phultala",
             "en": "Phultala",
-            "bn": "ফুলতলা"
+            "bn": "ফুলতলা",
+            "lat": 22.975,
+            "lng": 89.45833
           },
           {
             "id": "rupsha",
@@ -2145,7 +2784,16 @@
           {
             "id": "terokhada",
             "en": "Terokhada",
-            "bn": "তেরখাদা"
+            "bn": "তেরখাদা",
+            "lat": 22.91,
+            "lng": 89.66
+          },
+          {
+            "id": "khulna-city",
+            "en": "Khulna City",
+            "bn": "খুলনা শহর",
+            "lat": 22.80979,
+            "lng": 89.56439
           }
         ]
       },
@@ -2157,32 +2805,44 @@
           {
             "id": "bheramara",
             "en": "Bheramara",
-            "bn": "ভেড়ামারা"
+            "bn": "ভেড়ামারা",
+            "lat": 24.06,
+            "lng": 88.99
           },
           {
             "id": "daulatpur",
             "en": "Daulatpur",
-            "bn": "দৌলতপুর"
+            "bn": "দৌলতপুর",
+            "lat": 24.00005,
+            "lng": 88.86841
           },
           {
             "id": "khoksa",
             "en": "Khoksa",
-            "bn": "খোকসা"
+            "bn": "খোকসা",
+            "lat": 23.8,
+            "lng": 89.28333
           },
           {
             "id": "kumarkhali",
             "en": "Kumarkhali",
-            "bn": "কুমারখালী"
+            "bn": "কুমারখালী",
+            "lat": 23.8542,
+            "lng": 89.2417
           },
           {
             "id": "kushtia-sadar",
             "en": "Kushtia Sadar",
-            "bn": "কুষ্টিয়া সদর"
+            "bn": "কুষ্টিয়া সদর",
+            "lat": 23.89937,
+            "lng": 89.13199
           },
           {
             "id": "mirpur",
             "en": "Mirpur",
-            "bn": "মিরপুর"
+            "bn": "মিরপুর",
+            "lat": 23.89,
+            "lng": 88.99
           }
         ]
       },
@@ -2194,22 +2854,30 @@
           {
             "id": "magura-sadar",
             "en": "Magura Sadar",
-            "bn": "মাগুরা সদর"
+            "bn": "মাগুরা সদর",
+            "lat": 23.59,
+            "lng": 89.43
           },
           {
             "id": "mohammadpur",
             "en": "Mohammadpur",
-            "bn": "মহম্মদপুর"
+            "bn": "মহম্মদপুর",
+            "lat": 23.4,
+            "lng": 89.56
           },
           {
             "id": "shalikha",
             "en": "Shalikha",
-            "bn": "শালিখা"
+            "bn": "শালিখা",
+            "lat": 23.34,
+            "lng": 89.36
           },
           {
             "id": "sreepur",
             "en": "Sreepur",
-            "bn": "শ্রীপুর"
+            "bn": "শ্রীপুর",
+            "lat": 23.59,
+            "lng": 89.43
           }
         ]
       },
@@ -2221,17 +2889,23 @@
           {
             "id": "gangni",
             "en": "Gangni",
-            "bn": "গাংনী"
+            "bn": "গাংনী",
+            "lat": 23.86,
+            "lng": 88.77
           },
           {
             "id": "meherpur-sadar",
             "en": "Meherpur Sadar",
-            "bn": "মেহেরপুর সদর"
+            "bn": "মেহেরপুর সদর",
+            "lat": 23.775,
+            "lng": 88.64167
           },
           {
             "id": "mujibnagar",
             "en": "Mujibnagar",
-            "bn": "মুজিবনগর"
+            "bn": "মুজিবনগর",
+            "lat": 23.65003,
+            "lng": 88.59804
           }
         ]
       },
@@ -2243,17 +2917,23 @@
           {
             "id": "kalia",
             "en": "Kalia",
-            "bn": "কালিয়া"
+            "bn": "কালিয়া",
+            "lat": 23.03333,
+            "lng": 89.63333
           },
           {
             "id": "lohagara",
             "en": "Lohagara",
-            "bn": "লোহাগড়া"
+            "bn": "লোহাগড়া",
+            "lat": 23.19,
+            "lng": 89.62
           },
           {
             "id": "narail-sadar",
             "en": "Narail Sadar",
-            "bn": "নড়াইল সদর"
+            "bn": "নড়াইল সদর",
+            "lat": 23.15,
+            "lng": 89.5
           }
         ]
       },
@@ -2265,37 +2945,51 @@
           {
             "id": "assasuni",
             "en": "Assasuni",
-            "bn": "আশাশুনি"
+            "bn": "আশাশুনি",
+            "lat": 22.57,
+            "lng": 89.22
           },
           {
             "id": "debhata",
             "en": "Debhata",
-            "bn": "দেবহাটা"
+            "bn": "দেবহাটা",
+            "lat": 22.59,
+            "lng": 89.01
           },
           {
             "id": "kalaroa",
             "en": "Kalaroa",
-            "bn": "কলারোয়া"
+            "bn": "কলারোয়া",
+            "lat": 22.88,
+            "lng": 89.03
           },
           {
             "id": "kaliganj",
             "en": "Kaliganj",
-            "bn": "কালীগঞ্জ"
+            "bn": "কালীগঞ্জ",
+            "lat": 22.48,
+            "lng": 89.09
           },
           {
             "id": "satkhira-sadar",
             "en": "Satkhira Sadar",
-            "bn": "সাতক্ষীরা সদর"
+            "bn": "সাতক্ষীরা সদর",
+            "lat": 22.73,
+            "lng": 89.03
           },
           {
             "id": "shyamnagar",
             "en": "Shyamnagar",
-            "bn": "শ্যামনগর"
+            "bn": "শ্যামনগর",
+            "lat": 22.33,
+            "lng": 89.10333
           },
           {
             "id": "tala",
             "en": "Tala",
-            "bn": "তালা"
+            "bn": "তালা",
+            "lat": 22.75,
+            "lng": 89.22
           }
         ]
       }
@@ -2314,32 +3008,44 @@
           {
             "id": "amtali",
             "en": "Amtali",
-            "bn": "আমতলী"
+            "bn": "আমতলী",
+            "lat": 22.11,
+            "lng": 90.24
           },
           {
             "id": "bamna",
             "en": "Bamna",
-            "bn": "বামনা"
+            "bn": "বামনা",
+            "lat": 22.30167,
+            "lng": 90.1
           },
           {
             "id": "barguna-sadar",
             "en": "Barguna Sadar",
-            "bn": "বরগুনা সদর"
+            "bn": "বরগুনা সদর",
+            "lat": 22.15,
+            "lng": 90.12
           },
           {
             "id": "betagi",
             "en": "Betagi",
-            "bn": "বেতাগী"
+            "bn": "বেতাগী",
+            "lat": 22.41667,
+            "lng": 90.16833
           },
           {
             "id": "patharghata",
             "en": "Patharghata",
-            "bn": "পাথরঘাটা"
+            "bn": "পাথরঘাটা",
+            "lat": 22.045,
+            "lng": 89.96833
           },
           {
             "id": "taltali",
             "en": "Taltali",
-            "bn": "তালতলী"
+            "bn": "তালতলী",
+            "lat": 21.98399,
+            "lng": 90.08436
           }
         ]
       },
@@ -2351,52 +3057,72 @@
           {
             "id": "agailjhara",
             "en": "Agailjhara",
-            "bn": "আগৈলঝাড়া"
+            "bn": "আগৈলঝাড়া",
+            "lat": 22.97,
+            "lng": 90.14
           },
           {
             "id": "babuganj",
             "en": "Babuganj",
-            "bn": "বাবুগঞ্জ"
+            "bn": "বাবুগঞ্জ",
+            "lat": 22.83167,
+            "lng": 90.32167
           },
           {
             "id": "bakerganj",
             "en": "Bakerganj",
-            "bn": "বাকেরগঞ্জ"
+            "bn": "বাকেরগঞ্জ",
+            "lat": 22.55,
+            "lng": 90.33833
           },
           {
             "id": "banaripara",
             "en": "Banaripara",
-            "bn": "বানারীপাড়া"
+            "bn": "বানারীপাড়া",
+            "lat": 22.78167,
+            "lng": 90.16667
           },
           {
             "id": "barishal-sadar",
             "en": "Barishal Sadar",
-            "bn": "বরিশাল সদর"
+            "bn": "বরিশাল সদর",
+            "lat": 22.7,
+            "lng": 90.36667
           },
           {
             "id": "gaurnadi",
             "en": "Gaurnadi",
-            "bn": "গৌরনদী"
+            "bn": "গৌরনদী",
+            "lat": 22.97333,
+            "lng": 90.23
           },
           {
             "id": "hizla",
             "en": "Hizla",
-            "bn": "হিজলা"
+            "bn": "হিজলা",
+            "lat": 22.9,
+            "lng": 90.50833
           },
           {
             "id": "mehendiganj",
             "en": "Mehendiganj",
-            "bn": "মেহেন্দিগঞ্জ"
+            "bn": "মেহেন্দিগঞ্জ",
+            "lat": 22.83167,
+            "lng": 90.53333
           },
           {
             "id": "muladi",
             "en": "Muladi",
-            "bn": "মুলাদী"
+            "bn": "মুলাদী",
+            "lat": 22.915,
+            "lng": 90.415
           },
           {
             "id": "wazirpur",
             "en": "Wazirpur",
-            "bn": "উজিরপুর"
+            "bn": "উজিরপুর",
+            "lat": 22.87,
+            "lng": 90.18
           }
         ]
       },
@@ -2408,37 +3134,51 @@
           {
             "id": "bhola-sadar",
             "en": "Bhola Sadar",
-            "bn": "ভোলা সদর"
+            "bn": "ভোলা সদর",
+            "lat": 22.69,
+            "lng": 90.65333
           },
           {
             "id": "burhanuddin",
             "en": "Burhanuddin",
-            "bn": "বোরহানউদ্দিন"
+            "bn": "বোরহানউদ্দিন",
+            "lat": 22.48,
+            "lng": 90.74
           },
           {
             "id": "char-fasson",
             "en": "Char Fasson",
-            "bn": "চরফ্যাশন"
+            "bn": "চরফ্যাশন",
+            "lat": 22.1,
+            "lng": 90.7
           },
           {
             "id": "daulatkhan",
             "en": "Daulatkhan",
-            "bn": "দৌলতখান"
+            "bn": "দৌলতখান",
+            "lat": 22.6,
+            "lng": 90.7
           },
           {
             "id": "lalmohan",
             "en": "Lalmohan",
-            "bn": "লালমোহন"
+            "bn": "লালমোহন",
+            "lat": 22.32,
+            "lng": 90.75
           },
           {
             "id": "manpura",
             "en": "Manpura",
-            "bn": "মনপুরা"
+            "bn": "মনপুরা",
+            "lat": 22.22,
+            "lng": 90.97
           },
           {
             "id": "tazumuddin",
             "en": "Tazumuddin",
-            "bn": "তজুমদ্দিন"
+            "bn": "তজুমদ্দিন",
+            "lat": 22.41,
+            "lng": 90.84
           }
         ]
       },
@@ -2450,22 +3190,30 @@
           {
             "id": "jhalokati-sadar",
             "en": "Jhalokati Sadar",
-            "bn": "ঝালকাঠি সদর"
+            "bn": "ঝালকাঠি সদর",
+            "lat": 22.6406,
+            "lng": 90.19868
           },
           {
             "id": "kathalia",
             "en": "Kathalia",
-            "bn": "কাঠালিয়া"
+            "bn": "কাঠালিয়া",
+            "lat": 22.40528,
+            "lng": 90.09337
           },
           {
             "id": "nalchity",
             "en": "Nalchity",
-            "bn": "নলছিটি"
+            "bn": "নলছিটি",
+            "lat": 22.61,
+            "lng": 90.28
           },
           {
             "id": "rajapur",
             "en": "Rajapur",
-            "bn": "রাজাপুর"
+            "bn": "রাজাপুর",
+            "lat": 22.55,
+            "lng": 90.13
           }
         ]
       },
@@ -2477,42 +3225,58 @@
           {
             "id": "bauphal",
             "en": "Bauphal",
-            "bn": "বাউফল"
+            "bn": "বাউফল",
+            "lat": 22.45,
+            "lng": 90.53
           },
           {
             "id": "dashmina",
             "en": "Dashmina",
-            "bn": "দশমিনা"
+            "bn": "দশমিনা",
+            "lat": 22.28333,
+            "lng": 90.59
           },
           {
             "id": "dumki",
             "en": "Dumki",
-            "bn": "দুমকি"
+            "bn": "দুমকি",
+            "lat": 22.43333,
+            "lng": 90.36667
           },
           {
             "id": "galachipa",
             "en": "Galachipa",
-            "bn": "গলাচিপা"
+            "bn": "গলাচিপা",
+            "lat": 22.16865,
+            "lng": 90.41439
           },
           {
             "id": "kalapara",
             "en": "Kalapara",
-            "bn": "কলাপাড়া"
+            "bn": "কলাপাড়া",
+            "lat": 21.92,
+            "lng": 90.22
           },
           {
             "id": "mirzaganj",
             "en": "Mirzaganj",
-            "bn": "মির্জাগঞ্জ"
+            "bn": "মির্জাগঞ্জ",
+            "lat": 22.36,
+            "lng": 90.22
           },
           {
             "id": "patuakhali-sadar",
             "en": "Patuakhali Sadar",
-            "bn": "পটুয়াখালী সদর"
+            "bn": "পটুয়াখালী সদর",
+            "lat": 22.36833,
+            "lng": 90.3458
           },
           {
             "id": "rangabali",
             "en": "Rangabali",
-            "bn": "রাঙ্গাবালী"
+            "bn": "রাঙ্গাবালী",
+            "lat": 21.93333,
+            "lng": 90.43333
           }
         ]
       },
@@ -2524,37 +3288,51 @@
           {
             "id": "bhandaria",
             "en": "Bhandaria",
-            "bn": "ভান্ডারিয়া"
+            "bn": "ভান্ডারিয়া",
+            "lat": 22.48722,
+            "lng": 90.07098
           },
           {
             "id": "indurkani",
             "en": "Indurkani",
-            "bn": "ইন্দুরকানী"
+            "bn": "ইন্দুরকানী",
+            "lat": 22.4875,
+            "lng": 89.96869
           },
           {
             "id": "kawkhali",
             "en": "Kawkhali",
-            "bn": "কাউখালী"
+            "bn": "কাউখালী",
+            "lat": 22.62,
+            "lng": 90.07
           },
           {
             "id": "mathbaria",
             "en": "Mathbaria",
-            "bn": "মঠবাড়িয়া"
+            "bn": "মঠবাড়িয়া",
+            "lat": 22.28667,
+            "lng": 89.96667
           },
           {
             "id": "nazirpur",
             "en": "Nazirpur",
-            "bn": "নাজিরপুর"
+            "bn": "নাজিরপুর",
+            "lat": 22.77,
+            "lng": 89.98
           },
           {
             "id": "nesarabad",
             "en": "Nesarabad",
-            "bn": "নেছারাবাদ"
+            "bn": "নেছারাবাদ",
+            "lat": 22.74667,
+            "lng": 90.10333
           },
           {
             "id": "pirojpur-sadar",
             "en": "Pirojpur Sadar",
-            "bn": "পিরোজপুর সদর"
+            "bn": "পিরোজপুর সদর",
+            "lat": 22.6,
+            "lng": 89.99
           }
         ]
       }
@@ -2573,42 +3351,58 @@
           {
             "id": "ajmiriganj",
             "en": "Ajmiriganj",
-            "bn": "আজমিরীগঞ্জ"
+            "bn": "আজমিরীগঞ্জ",
+            "lat": 24.57,
+            "lng": 91.29
           },
           {
             "id": "bahubal",
             "en": "Bahubal",
-            "bn": "বাহুবল"
+            "bn": "বাহুবল",
+            "lat": 24.37,
+            "lng": 91.54
           },
           {
             "id": "baniyachong",
             "en": "Baniyachong",
-            "bn": "বানিয়াচং"
+            "bn": "বানিয়াচং",
+            "lat": 24.51863,
+            "lng": 91.35787
           },
           {
             "id": "chunarughat",
             "en": "Chunarughat",
-            "bn": "চুনারুঘাট"
+            "bn": "চুনারুঘাট",
+            "lat": 24.19542,
+            "lng": 91.52298
           },
           {
             "id": "habiganj-sadar",
             "en": "Habiganj Sadar",
-            "bn": "হবিগঞ্জ সদর"
+            "bn": "হবিগঞ্জ সদর",
+            "lat": 24.375,
+            "lng": 91.41667
           },
           {
             "id": "lakhai",
             "en": "Lakhai",
-            "bn": "লাখাই"
+            "bn": "লাখাই",
+            "lat": 24.29,
+            "lng": 91.27
           },
           {
             "id": "madhabpur",
             "en": "Madhabpur",
-            "bn": "মাধবপুর"
+            "bn": "মাধবপুর",
+            "lat": 24.09791,
+            "lng": 91.29527
           },
           {
             "id": "nabiganj",
             "en": "Nabiganj",
-            "bn": "নবীগঞ্জ"
+            "bn": "নবীগঞ্জ",
+            "lat": 24.56,
+            "lng": 91.55
           },
           {
             "id": "shayestaganj",
@@ -2625,37 +3419,51 @@
           {
             "id": "barlekha",
             "en": "Barlekha",
-            "bn": "বড়লেখা"
+            "bn": "বড়লেখা",
+            "lat": 24.69,
+            "lng": 92.19
           },
           {
             "id": "juri",
             "en": "Juri",
-            "bn": "জুড়ী"
+            "bn": "জুড়ী",
+            "lat": 24.59677,
+            "lng": 92.1104
           },
           {
             "id": "kamalganj",
             "en": "Kamalganj",
-            "bn": "কমলগঞ্জ"
+            "bn": "কমলগঞ্জ",
+            "lat": 24.34,
+            "lng": 91.84
           },
           {
             "id": "kulaura",
             "en": "Kulaura",
-            "bn": "কুলাউড়া"
+            "bn": "কুলাউড়া",
+            "lat": 24.5,
+            "lng": 92.05
           },
           {
             "id": "moulvibazar-sadar",
             "en": "Moulvibazar Sadar",
-            "bn": "মৌলভীবাজার সদর"
+            "bn": "মৌলভীবাজার সদর",
+            "lat": 24.4778,
+            "lng": 91.7667
           },
           {
             "id": "rajnagar",
             "en": "Rajnagar",
-            "bn": "রাজনগর"
+            "bn": "রাজনগর",
+            "lat": 24.58,
+            "lng": 91.86
           },
           {
             "id": "sreemangal",
             "en": "Sreemangal",
-            "bn": "শ্রীমঙ্গল"
+            "bn": "শ্রীমঙ্গল",
+            "lat": 24.3,
+            "lng": 91.68
           }
         ]
       },
@@ -2672,37 +3480,51 @@
           {
             "id": "chhatak",
             "en": "Chhatak",
-            "bn": "ছাতক"
+            "bn": "ছাতক",
+            "lat": 24.92,
+            "lng": 91.61
           },
           {
             "id": "derai",
             "en": "Derai",
-            "bn": "দিরাই"
+            "bn": "দিরাই",
+            "lat": 24.79,
+            "lng": 91.35
           },
           {
             "id": "dharmapasha",
             "en": "Dharmapasha",
-            "bn": "ধর্মপাশা"
+            "bn": "ধর্মপাশা",
+            "lat": 24.98,
+            "lng": 91
           },
           {
             "id": "dowarabazar",
             "en": "Dowarabazar",
-            "bn": "দোয়ারাবাজার"
+            "bn": "দোয়ারাবাজার",
+            "lat": 25.09,
+            "lng": 91.59
           },
           {
             "id": "jagannathpur",
             "en": "Jagannathpur",
-            "bn": "জগন্নাথপুর"
+            "bn": "জগন্নাথপুর",
+            "lat": 24.75,
+            "lng": 91.57
           },
           {
             "id": "jamalganj",
             "en": "Jamalganj",
-            "bn": "জামালগঞ্জ"
+            "bn": "জামালগঞ্জ",
+            "lat": 24.96,
+            "lng": 91.21
           },
           {
             "id": "madhyanagar",
             "en": "Madhyanagar",
-            "bn": "মধ্যনগর"
+            "bn": "মধ্যনগর",
+            "lat": 25.04454,
+            "lng": 90.96729
           },
           {
             "id": "shantiganj",
@@ -2712,17 +3534,23 @@
           {
             "id": "sullah",
             "en": "Sullah",
-            "bn": "সুল্লা"
+            "bn": "সুল্লা",
+            "lat": 24.66917,
+            "lng": 91.27029
           },
           {
             "id": "sunamganj-sadar",
             "en": "Sunamganj Sadar",
-            "bn": "সুনামগঞ্জ সদর"
+            "bn": "সুনামগঞ্জ সদর",
+            "lat": 24.95,
+            "lng": 91.43
           },
           {
             "id": "tahirpur",
             "en": "Tahirpur",
-            "bn": "তাহিরপুর"
+            "bn": "তাহিরপুর",
+            "lat": 25.10301,
+            "lng": 91.19751
           }
         ]
       },
@@ -2734,52 +3562,72 @@
           {
             "id": "balaganj",
             "en": "Balaganj",
-            "bn": "বালাগঞ্জ"
+            "bn": "বালাগঞ্জ",
+            "lat": 24.71,
+            "lng": 91.8
           },
           {
             "id": "beanibazar",
             "en": "Beanibazar",
-            "bn": "বিয়ানীবাজার"
+            "bn": "বিয়ানীবাজার",
+            "lat": 24.85,
+            "lng": 92.17
           },
           {
             "id": "bishwanath",
             "en": "Bishwanath",
-            "bn": "বিশ্বনাথ"
+            "bn": "বিশ্বনাথ",
+            "lat": 24.83505,
+            "lng": 91.72961
           },
           {
             "id": "companiganj",
             "en": "Companiganj",
-            "bn": "কোম্পানীগঞ্জ"
+            "bn": "কোম্পানীগঞ্জ",
+            "lat": 25.08,
+            "lng": 91.8
           },
           {
             "id": "dakshin-surma",
             "en": "Dakshin Surma",
-            "bn": "দক্ষিণ সুরমা"
+            "bn": "দক্ষিণ সুরমা",
+            "lat": 24.82112,
+            "lng": 91.89039
           },
           {
             "id": "fenchuganj",
             "en": "Fenchuganj",
-            "bn": "ফেঞ্চুগঞ্জ"
+            "bn": "ফেঞ্চুগঞ্জ",
+            "lat": 24.7083,
+            "lng": 91.9403
           },
           {
             "id": "golapganj",
             "en": "Golapganj",
-            "bn": "গোলাপগঞ্জ"
+            "bn": "গোলাপগঞ্জ",
+            "lat": 24.81143,
+            "lng": 92.01674
           },
           {
             "id": "gowainghat",
             "en": "Gowainghat",
-            "bn": "গোয়াইনঘাট"
+            "bn": "গোয়াইনঘাট",
+            "lat": 25.08,
+            "lng": 91.97
           },
           {
             "id": "jaintiapur",
             "en": "Jaintiapur",
-            "bn": "জৈন্তাপুর"
+            "bn": "জৈন্তাপুর",
+            "lat": 25.08,
+            "lng": 92.15
           },
           {
             "id": "kanaighat",
             "en": "Kanaighat",
-            "bn": "কানাইঘাট"
+            "bn": "কানাইঘাট",
+            "lat": 25,
+            "lng": 92.21
           },
           {
             "id": "osmani-nagar",
@@ -2789,12 +3637,16 @@
           {
             "id": "sylhet-sadar",
             "en": "Sylhet Sadar",
-            "bn": "সিলেট সদর"
+            "bn": "সিলেট সদর",
+            "lat": 24.9,
+            "lng": 91.88
           },
           {
             "id": "zakiganj",
             "en": "Zakiganj",
-            "bn": "জকিগঞ্জ"
+            "bn": "জকিগঞ্জ",
+            "lat": 24.92,
+            "lng": 92.38
           }
         ]
       }
@@ -2813,67 +3665,93 @@
           {
             "id": "biral",
             "en": "Biral",
-            "bn": "বিরল"
+            "bn": "বিরল",
+            "lat": 25.63224,
+            "lng": 88.55118
           },
           {
             "id": "birampur",
             "en": "Birampur",
-            "bn": "বিরামপুর"
+            "bn": "বিরামপুর",
+            "lat": 25.37983,
+            "lng": 88.96332
           },
           {
             "id": "birganj",
             "en": "Birganj",
-            "bn": "বীরগঞ্জ"
+            "bn": "বীরগঞ্জ",
+            "lat": 26,
+            "lng": 88.58333
           },
           {
             "id": "bochaganj",
             "en": "Bochaganj",
-            "bn": "বোচাগঞ্জ"
+            "bn": "বোচাগঞ্জ",
+            "lat": 25.78589,
+            "lng": 88.45395
           },
           {
             "id": "chirirbandar",
             "en": "Chirirbandar",
-            "bn": "চিরিরবন্দর"
+            "bn": "চিরিরবন্দর",
+            "lat": 25.66333,
+            "lng": 88.78333
           },
           {
             "id": "dinajpur-sadar",
             "en": "Dinajpur Sadar",
-            "bn": "দিনাজপুর সদর"
+            "bn": "দিনাজপুর সদর",
+            "lat": 25.63333,
+            "lng": 88.65
           },
           {
             "id": "ghoraghat",
             "en": "Ghoraghat",
-            "bn": "ঘোড়াঘাট"
+            "bn": "ঘোড়াঘাট",
+            "lat": 25.29,
+            "lng": 89.21
           },
           {
             "id": "hakimpur",
             "en": "Hakimpur",
-            "bn": "হাকিমপুর"
+            "bn": "হাকিমপুর",
+            "lat": 25.29234,
+            "lng": 89.05959
           },
           {
             "id": "kaharole",
             "en": "Kaharole",
-            "bn": "কাহারোল"
+            "bn": "কাহারোল",
+            "lat": 25.8,
+            "lng": 88.6
           },
           {
             "id": "khansama",
             "en": "Khansama",
-            "bn": "খানসামা"
+            "bn": "খানসামা",
+            "lat": 25.85,
+            "lng": 88.78
           },
           {
             "id": "nawabganj",
             "en": "Nawabganj",
-            "bn": "নবাবগঞ্জ"
+            "bn": "নবাবগঞ্জ",
+            "lat": 25.41997,
+            "lng": 89.09019
           },
           {
             "id": "parbatipur",
             "en": "Parbatipur",
-            "bn": "পার্বতীপুর"
+            "bn": "পার্বতীপুর",
+            "lat": 25.61,
+            "lng": 88.91
           },
           {
             "id": "phulbari",
             "en": "Phulbari",
-            "bn": "ফুলবাড়ী"
+            "bn": "ফুলবাড়ী",
+            "lat": 25.49504,
+            "lng": 88.95029
           }
         ]
       },
@@ -2885,37 +3763,51 @@
           {
             "id": "gaibandha-sadar",
             "en": "Gaibandha Sadar",
-            "bn": "গাইবান্ধা সদর"
+            "bn": "গাইবান্ধা সদর",
+            "lat": 25.33,
+            "lng": 89.59
           },
           {
             "id": "gobindaganj",
             "en": "Gobindaganj",
-            "bn": "গোবিন্দগঞ্জ"
+            "bn": "গোবিন্দগঞ্জ",
+            "lat": 25.17,
+            "lng": 89.36
           },
           {
             "id": "palashbari",
             "en": "Palashbari",
-            "bn": "পলাশবাড়ী"
+            "bn": "পলাশবাড়ী",
+            "lat": 25.28333,
+            "lng": 89.35
           },
           {
             "id": "phulchhari",
             "en": "Phulchhari",
-            "bn": "ফুলছড়ি"
+            "bn": "ফুলছড়ি",
+            "lat": 25.26,
+            "lng": 89.65
           },
           {
             "id": "sadullapur",
             "en": "Sadullapur",
-            "bn": "সাদুল্লাপুর"
+            "bn": "সাদুল্লাপুর",
+            "lat": 25.4,
+            "lng": 89.43
           },
           {
             "id": "saghata",
             "en": "Saghata",
-            "bn": "সাঘাটা"
+            "bn": "সাঘাটা",
+            "lat": 25.12912,
+            "lng": 89.57947
           },
           {
             "id": "sundarganj",
             "en": "Sundarganj",
-            "bn": "সুন্দরগঞ্জ"
+            "bn": "সুন্দরগঞ্জ",
+            "lat": 25.5,
+            "lng": 89.57
           }
         ]
       },
@@ -2927,47 +3819,65 @@
           {
             "id": "bhurungamari",
             "en": "Bhurungamari",
-            "bn": "ভুরুঙ্গামারী"
+            "bn": "ভুরুঙ্গামারী",
+            "lat": 26.125,
+            "lng": 89.68333
           },
           {
             "id": "char-rajibpur",
             "en": "Char Rajibpur",
-            "bn": "চর রাজিবপুর"
+            "bn": "চর রাজিবপুর",
+            "lat": 25.44265,
+            "lng": 89.79057
           },
           {
             "id": "chilmari",
             "en": "Chilmari",
-            "bn": "চিলমারী"
+            "bn": "চিলমারী",
+            "lat": 25.59,
+            "lng": 89.68
           },
           {
             "id": "kurigram-sadar",
             "en": "Kurigram Sadar",
-            "bn": "কুড়িগ্রাম সদর"
+            "bn": "কুড়িগ্রাম সদর",
+            "lat": 25.82,
+            "lng": 89.7
           },
           {
             "id": "nageshwari",
             "en": "Nageshwari",
-            "bn": "নাগেশ্বরী"
+            "bn": "নাগেশ্বরী",
+            "lat": 25.96,
+            "lng": 89.74
           },
           {
             "id": "phulbari",
             "en": "Phulbari",
-            "bn": "ফুলবাড়ী"
+            "bn": "ফুলবাড়ী",
+            "lat": 25.95,
+            "lng": 89.56667
           },
           {
             "id": "rajarhat",
             "en": "Rajarhat",
-            "bn": "রাজারহাট"
+            "bn": "রাজারহাট",
+            "lat": 25.78,
+            "lng": 89.56
           },
           {
             "id": "raomari",
             "en": "Raomari",
-            "bn": "রৌমারী"
+            "bn": "রৌমারী",
+            "lat": 25.5917,
+            "lng": 89.83177
           },
           {
             "id": "ulipur",
             "en": "Ulipur",
-            "bn": "উলিপুর"
+            "bn": "উলিপুর",
+            "lat": 25.69,
+            "lng": 89.68
           }
         ]
       },
@@ -2979,27 +3889,37 @@
           {
             "id": "aditmari",
             "en": "Aditmari",
-            "bn": "আদিতমারী"
+            "bn": "আদিতমারী",
+            "lat": 25.93,
+            "lng": 89.38
           },
           {
             "id": "hatibandha",
             "en": "Hatibandha",
-            "bn": "হাতীবান্ধা"
+            "bn": "হাতীবান্ধা",
+            "lat": 26.12,
+            "lng": 89.14
           },
           {
             "id": "kaliganj",
             "en": "Kaliganj",
-            "bn": "কালীগঞ্জ"
+            "bn": "কালীগঞ্জ",
+            "lat": 25.96746,
+            "lng": 89.26701
           },
           {
             "id": "lalmonirhat-sadar",
             "en": "Lalmonirhat Sadar",
-            "bn": "লালমনিরহাট সদর"
+            "bn": "লালমনিরহাট সদর",
+            "lat": 25.89035,
+            "lng": 89.47849
           },
           {
             "id": "patgram",
             "en": "Patgram",
-            "bn": "পাটগ্রাম"
+            "bn": "পাটগ্রাম",
+            "lat": 26.35,
+            "lng": 89.01667
           }
         ]
       },
@@ -3011,32 +3931,44 @@
           {
             "id": "dimla",
             "en": "Dimla",
-            "bn": "ডিমলা"
+            "bn": "ডিমলা",
+            "lat": 26.16,
+            "lng": 89
           },
           {
             "id": "domar",
             "en": "Domar",
-            "bn": "ডোমার"
+            "bn": "ডোমার",
+            "lat": 26.1,
+            "lng": 88.8361
           },
           {
             "id": "jaldhaka",
             "en": "Jaldhaka",
-            "bn": "জলঢাকা"
+            "bn": "জলঢাকা",
+            "lat": 26.03,
+            "lng": 88.99
           },
           {
             "id": "kishoreganj",
             "en": "Kishoreganj",
-            "bn": "কিশোরগঞ্জ"
+            "bn": "কিশোরগঞ্জ",
+            "lat": 25.91167,
+            "lng": 89.025
           },
           {
             "id": "nilphamari-sadar",
             "en": "Nilphamari Sadar",
-            "bn": "নীলফামারী সদর"
+            "bn": "নীলফামারী সদর",
+            "lat": 25.9417,
+            "lng": 88.8444
           },
           {
             "id": "saidpur",
             "en": "Saidpur",
-            "bn": "সৈয়দপুর"
+            "bn": "সৈয়দপুর",
+            "lat": 25.81,
+            "lng": 88.91
           }
         ]
       },
@@ -3048,27 +3980,37 @@
           {
             "id": "atwari",
             "en": "Atwari",
-            "bn": "আটোয়ারী"
+            "bn": "আটোয়ারী",
+            "lat": 26.3083,
+            "lng": 88.4583
           },
           {
             "id": "boda",
             "en": "Boda",
-            "bn": "বোদা"
+            "bn": "বোদা",
+            "lat": 26.20833,
+            "lng": 88.56
           },
           {
             "id": "debiganj",
             "en": "Debiganj",
-            "bn": "দেবীগঞ্জ"
+            "bn": "দেবীগঞ্জ",
+            "lat": 26.11858,
+            "lng": 88.7593
           },
           {
             "id": "panchagarh-sadar",
             "en": "Panchagarh Sadar",
-            "bn": "পঞ্চগড় সদর"
+            "bn": "পঞ্চগড় সদর",
+            "lat": 26.3347,
+            "lng": 88.5583
           },
           {
             "id": "tetulia",
             "en": "Tetulia",
-            "bn": "তেঁতুলিয়া"
+            "bn": "তেঁতুলিয়া",
+            "lat": 26.51701,
+            "lng": 88.4307
           }
         ]
       },
@@ -3080,42 +4022,58 @@
           {
             "id": "badarganj",
             "en": "Badarganj",
-            "bn": "বদরগঞ্জ"
+            "bn": "বদরগঞ্জ",
+            "lat": 25.65511,
+            "lng": 89.07938
           },
           {
             "id": "gangachhara",
             "en": "Gangachhara",
-            "bn": "গংগাচড়া"
+            "bn": "গংগাচড়া",
+            "lat": 25.87,
+            "lng": 89.22
           },
           {
             "id": "kaunia",
             "en": "Kaunia",
-            "bn": "কাউনিয়া"
+            "bn": "কাউনিয়া",
+            "lat": 25.77,
+            "lng": 89.4
           },
           {
             "id": "mithapukur",
             "en": "Mithapukur",
-            "bn": "মিঠাপুকুর"
+            "bn": "মিঠাপুকুর",
+            "lat": 25.54167,
+            "lng": 89.28333
           },
           {
             "id": "pirgachha",
             "en": "Pirgachha",
-            "bn": "পীরগাছা"
+            "bn": "পীরগাছা",
+            "lat": 25.67,
+            "lng": 89.42
           },
           {
             "id": "pirganj",
             "en": "Pirganj",
-            "bn": "পীরগঞ্জ"
+            "bn": "পীরগঞ্জ",
+            "lat": 25.42,
+            "lng": 89.28
           },
           {
             "id": "rangpur-sadar",
             "en": "Rangpur Sadar",
-            "bn": "রংপুর সদর"
+            "bn": "রংপুর সদর",
+            "lat": 25.75,
+            "lng": 89.143
           },
           {
             "id": "taraganj",
             "en": "Taraganj",
-            "bn": "তারাগঞ্জ"
+            "bn": "তারাগঞ্জ",
+            "lat": 25.79,
+            "lng": 89.04
           }
         ]
       },
@@ -3127,7 +4085,9 @@
           {
             "id": "baliadangi",
             "en": "Baliadangi",
-            "bn": "বালিয়াডাঙ্গী"
+            "bn": "বালিয়াডাঙ্গী",
+            "lat": 26.1,
+            "lng": 88.27
           },
           {
             "id": "bhully",
@@ -3137,27 +4097,37 @@
           {
             "id": "haripur",
             "en": "Haripur",
-            "bn": "হরিপুর"
+            "bn": "হরিপুর",
+            "lat": 25.9,
+            "lng": 88.15
           },
           {
             "id": "pirganj",
             "en": "Pirganj",
-            "bn": "পীরগঞ্জ"
+            "bn": "পীরগঞ্জ",
+            "lat": 25.855,
+            "lng": 88.36667
           },
           {
             "id": "ranisankail",
             "en": "Ranisankail",
-            "bn": "রাণীশংকৈল"
+            "bn": "রাণীশংকৈল",
+            "lat": 25.8866,
+            "lng": 88.25867
           },
           {
             "id": "ruhia",
             "en": "Ruhia",
-            "bn": "রুহিয়া"
+            "bn": "রুহিয়া",
+            "lat": 25.9152,
+            "lng": 88.1013
           },
           {
             "id": "thakurgaon-sadar",
             "en": "Thakurgaon Sadar",
-            "bn": "ঠাকুরগাঁও সদর"
+            "bn": "ঠাকুরগাঁও সদর",
+            "lat": 26.08,
+            "lng": 88.47
           }
         ]
       }
@@ -3176,37 +4146,51 @@
           {
             "id": "baksiganj",
             "en": "Baksiganj",
-            "bn": "বকশীগঞ্জ"
+            "bn": "বকশীগঞ্জ",
+            "lat": 25.21,
+            "lng": 89.84
           },
           {
             "id": "dewanganj",
             "en": "Dewanganj",
-            "bn": "দেওয়ানগঞ্জ"
+            "bn": "দেওয়ানগঞ্জ",
+            "lat": 25.28,
+            "lng": 89.77
           },
           {
             "id": "islampur",
             "en": "Islampur",
-            "bn": "ইসলামপুর"
+            "bn": "ইসলামপুর",
+            "lat": 25.09,
+            "lng": 89.78
           },
           {
             "id": "jamalpur-sadar",
             "en": "Jamalpur Sadar",
-            "bn": "জামালপুর সদর"
+            "bn": "জামালপুর সদর",
+            "lat": 24.85193,
+            "lng": 90.02435
           },
           {
             "id": "madarganj",
             "en": "Madarganj",
-            "bn": "মাদারগঞ্জ"
+            "bn": "মাদারগঞ্জ",
+            "lat": 24.89,
+            "lng": 89.73
           },
           {
             "id": "melandaha",
             "en": "Melandaha",
-            "bn": "মেলান্দহ"
+            "bn": "মেলান্দহ",
+            "lat": 24.96,
+            "lng": 89.83
           },
           {
             "id": "sarishabari",
             "en": "Sarishabari",
-            "bn": "সরিষাবাড়ী"
+            "bn": "সরিষাবাড়ী",
+            "lat": 24.71,
+            "lng": 89.84
           }
         ]
       },
@@ -3218,67 +4202,93 @@
           {
             "id": "bhaluka",
             "en": "Bhaluka",
-            "bn": "ভালুকা"
+            "bn": "ভালুকা",
+            "lat": 24.375,
+            "lng": 90.37833
           },
           {
             "id": "dhobaura",
             "en": "Dhobaura",
-            "bn": "ধোবাউড়া"
+            "bn": "ধোবাউড়া",
+            "lat": 25.11,
+            "lng": 90.52
           },
           {
             "id": "fulbaria",
             "en": "Fulbaria",
-            "bn": "ফুলবাড়ীয়া"
+            "bn": "ফুলবাড়ীয়া",
+            "lat": 24.63399,
+            "lng": 90.2732
           },
           {
             "id": "gafargaon",
             "en": "Gafargaon",
-            "bn": "গফরগাঁও"
+            "bn": "গফরগাঁও",
+            "lat": 24.39,
+            "lng": 90.56
           },
           {
             "id": "gauripur",
             "en": "Gauripur",
-            "bn": "গৌরীপুর"
+            "bn": "গৌরীপুর",
+            "lat": 24.76,
+            "lng": 90.62
           },
           {
             "id": "haluaghat",
             "en": "Haluaghat",
-            "bn": "হালুয়াঘাট"
+            "bn": "হালুয়াঘাট",
+            "lat": 25.09,
+            "lng": 90.35
           },
           {
             "id": "ishwarganj",
             "en": "Ishwarganj",
-            "bn": "ঈশ্বরগঞ্জ"
+            "bn": "ঈশ্বরগঞ্জ",
+            "lat": 24.65,
+            "lng": 90.59
           },
           {
             "id": "muktagachha",
             "en": "Muktagachha",
-            "bn": "মুক্তাগাছা"
+            "bn": "মুক্তাগাছা",
+            "lat": 24.76484,
+            "lng": 90.25698
           },
           {
             "id": "mymensingh-sadar",
             "en": "Mymensingh Sadar",
-            "bn": "ময়মনসিংহ সদর"
+            "bn": "ময়মনসিংহ সদর",
+            "lat": 24.75636,
+            "lng": 90.40646
           },
           {
             "id": "nandail",
             "en": "Nandail",
-            "bn": "নান্দাইল"
+            "bn": "নান্দাইল",
+            "lat": 24.5692,
+            "lng": 90.69248
           },
           {
             "id": "phulpur",
             "en": "Phulpur",
-            "bn": "ফুলপুর"
+            "bn": "ফুলপুর",
+            "lat": 24.95606,
+            "lng": 90.36684
           },
           {
             "id": "tarakanda",
             "en": "Tarakanda",
-            "bn": "তারাকান্দা"
+            "bn": "তারাকান্দা",
+            "lat": 24.94392,
+            "lng": 90.46553
           },
           {
             "id": "trishal",
             "en": "Trishal",
-            "bn": "ত্রিশাল"
+            "bn": "ত্রিশাল",
+            "lat": 24.56,
+            "lng": 90.42
           }
         ]
       },
@@ -3290,52 +4300,72 @@
           {
             "id": "atpara",
             "en": "Atpara",
-            "bn": "আটপাড়া"
+            "bn": "আটপাড়া",
+            "lat": 24.80833,
+            "lng": 90.86667
           },
           {
             "id": "barhatta",
             "en": "Barhatta",
-            "bn": "বারহাট্টা"
+            "bn": "বারহাট্টা",
+            "lat": 24.89704,
+            "lng": 90.88388
           },
           {
             "id": "durgapur",
             "en": "Durgapur",
-            "bn": "দুর্গাপুর"
+            "bn": "দুর্গাপুর",
+            "lat": 25.09,
+            "lng": 90.7
           },
           {
             "id": "kalmakanda",
             "en": "Kalmakanda",
-            "bn": "কলমাকান্দা"
+            "bn": "কলমাকান্দা",
+            "lat": 25.09,
+            "lng": 90.88
           },
           {
             "id": "khaliajuri",
             "en": "Khaliajuri",
-            "bn": "খালিয়াজুরী"
+            "bn": "খালিয়াজুরী",
+            "lat": 24.7,
+            "lng": 91.12
           },
           {
             "id": "kendua",
             "en": "Kendua",
-            "bn": "কেন্দুয়া"
+            "bn": "কেন্দুয়া",
+            "lat": 24.65,
+            "lng": 90.84167
           },
           {
             "id": "madan",
             "en": "Madan",
-            "bn": "মদন"
+            "bn": "মদন",
+            "lat": 24.66582,
+            "lng": 90.95839
           },
           {
             "id": "mohanganj",
             "en": "Mohanganj",
-            "bn": "মোহনগঞ্জ"
+            "bn": "মোহনগঞ্জ",
+            "lat": 24.84415,
+            "lng": 90.99529
           },
           {
             "id": "netrokona-sadar",
             "en": "Netrokona Sadar",
-            "bn": "নেত্রকোণা সদর"
+            "bn": "নেত্রকোণা সদর",
+            "lat": 24.875,
+            "lng": 90.73333
           },
           {
             "id": "purbadhala",
             "en": "Purbadhala",
-            "bn": "পূর্বধলা"
+            "bn": "পূর্বধলা",
+            "lat": 24.93867,
+            "lng": 90.59884
           }
         ]
       },
@@ -3347,27 +4377,37 @@
           {
             "id": "jhenaigati",
             "en": "Jhenaigati",
-            "bn": "ঝিনাইগাতী"
+            "bn": "ঝিনাইগাতী",
+            "lat": 25.18,
+            "lng": 90.06
           },
           {
             "id": "nakla",
             "en": "Nakla",
-            "bn": "নকলা"
+            "bn": "নকলা",
+            "lat": 24.96,
+            "lng": 90.19
           },
           {
             "id": "nalitabari",
             "en": "Nalitabari",
-            "bn": "নালিতাবাড়ী"
+            "bn": "নালিতাবাড়ী",
+            "lat": 25.08851,
+            "lng": 90.1981
           },
           {
             "id": "sherpur-sadar",
             "en": "Sherpur Sadar",
-            "bn": "শেরপুর সদর"
+            "bn": "শেরপুর সদর",
+            "lat": 25,
+            "lng": 90.01667
           },
           {
             "id": "sreebardi",
             "en": "Sreebardi",
-            "bn": "শ্রীবরদী"
+            "bn": "শ্রীবরদী",
+            "lat": 25.18,
+            "lng": 89.95
           }
         ]
       }

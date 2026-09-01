@@ -1,4 +1,5 @@
 import rawGeo from "../../data/districts-geo.json";
+import { getArea } from "../data/locations";
 import type { Report } from "../types";
 
 export interface LatLng {
@@ -25,6 +26,25 @@ export function districtCoords(districtId: string | undefined | null): LatLng | 
   if (!districtId) return undefined;
   const c = GEO[districtId];
   return c && typeof c.lat === "number" ? c : undefined;
+}
+
+/**
+ * An area's own upazila/thana/city-level coordinate — real GeoNames data for
+ * most areas (see data/LOCATIONS_SOURCE.md), sourced independently of
+ * whatever a report's own GPS/manual pin says. Undefined for the areas
+ * listed as unmatched in that doc, and for the manual-address-typed "area"
+ * free-text case where no areaId was ever recorded.
+ */
+export function areaCoords(
+  divisionId: string | undefined | null,
+  districtId: string | undefined | null,
+  areaId: string | undefined | null
+): LatLng | undefined {
+  const area = getArea(divisionId, districtId, areaId);
+  if (area && typeof area.lat === "number" && typeof area.lng === "number") {
+    return { lat: area.lat, lng: area.lng };
+  }
+  return undefined;
 }
 
 /**
@@ -59,9 +79,9 @@ function hasValidCoords(report: Report): report is Report & { latitude: number; 
 /**
  * A report's exact GPS/manual pin — when the reporter provided one — is
  * always the true position and must be used as-is, unrounded and
- * unperturbed; a district centroid (below) is only ever a stand-in for
- * reports that never captured a real coordinate. Conflating the two was the
- * bug behind reports rendering at their district's center (e.g. Kushtia)
+ * unperturbed; the area/district fallbacks below are only ever a stand-in
+ * for reports that never captured a real coordinate. Conflating the two was
+ * the bug behind reports rendering at their district's center (e.g. Kushtia)
  * instead of the exact area the reporter confirmed (e.g. Bheramara) —
  * `districtCoords` was being applied unconditionally, discarding
  * `report.latitude`/`report.longitude` even when present.
@@ -70,24 +90,31 @@ export function pinCoords(report: Report): LatLng | undefined {
   if (hasValidCoords(report)) {
     return { lat: report.latitude, lng: report.longitude };
   }
-  return districtFallbackCoords(report);
+  return localityFallbackCoords(report);
 }
 
 /**
- * District-centroid-plus-jitter fallback, used only for reports that never
- * captured an exact coordinate. Several such reports can share one district
- * centroid, which would stack their pins into a single dot — each is offset
- * by a small deterministic amount derived from its id, so the spread is
- * stable across refreshes instead of jittering.
+ * For a report with no exact GPS/manual pin, the most precise fallback
+ * available is its own area's real coordinate (upazila/thana/city — see
+ * areaCoords above) — falling back further to the district centroid only
+ * when that area isn't one of the ones with real GeoNames coordinates yet
+ * (data/LOCATIONS_SOURCE.md lists which). Several reports can share one
+ * fallback point, which would stack their pins into a single dot — each is
+ * offset by a small deterministic amount derived from its id, so the spread
+ * is stable across refreshes instead of jittering. The area-level spread is
+ * tighter than the district one since an upazila/thana is itself much
+ * smaller than its district — a district-sized jitter there would scatter
+ * pins outside the area they're actually meant to represent.
  */
-function districtFallbackCoords(report: Report): LatLng | undefined {
-  const base = districtCoords(report.districtId);
+function localityFallbackCoords(report: Report): LatLng | undefined {
+  const area = areaCoords(report.divisionId, report.districtId, report.areaId);
+  const base = area ?? districtCoords(report.districtId);
   if (!base) return undefined;
   // Two decorrelated pseudo-random values in [-1, 1] from the report id.
   const golden = 0.618033988749895;
   const a = ((report.id * golden) % 1) * 2 - 1;
   const b = ((report.id * golden * 3.0) % 1) * 2 - 1;
-  const spread = 0.045; // ≈5 km, keeps pins inside their own district
+  const spread = area ? 0.012 : 0.045; // ≈1.3km within an area, ≈5km within a district
   return { lat: base.lat + a * spread, lng: base.lng + b * spread };
 }
 

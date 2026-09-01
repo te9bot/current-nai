@@ -5,6 +5,7 @@ import Splash from "./components/Splash";
 import Ticker from "./components/Ticker";
 import SummaryCounts from "./components/SummaryCounts";
 import Reveal from "./components/Reveal";
+import Skeleton from "./components/Skeleton";
 import { useReports } from "./hooks/useReports";
 import { useRoute } from "./hooks/useRoute";
 import { getDistrict } from "./data/locations";
@@ -40,6 +41,67 @@ const SuggestionsPage = lazy(() => import("./components/SuggestionsPage"));
 // — a plain client-side preference flag, not report/session identity, so it
 // doesn't need the anonymous server-side cookie system reports use.
 const ONBOARDING_STORAGE_KEY = "current-nai-onboarding-completed";
+
+/**
+ * Reserves roughly the same footprint as the real BelowFold section (Stats,
+ * Ledger, Outage patterns, Filters, Board, Faq) while that chunk's JS is
+ * still downloading. BelowFold previously rendered behind `fallback={null}`
+ * — zero height — so the moment its chunk resolved, ~1200-1600px of content
+ * popped in below the fold and shoved the footer down by the same amount.
+ * That single jump was the dominant source of the measured desktop CLS
+ * (0.875): with no other content contending for layout space, one large,
+ * high-impact-fraction shift can produce almost the entire score by itself.
+ * Exact pixel-for-pixel matching isn't the goal (real content height still
+ * varies with report/stat counts) — getting in the same ballpark shrinks the
+ * jump from "whole section" to "a few dozen pixels of reflow" at most.
+ */
+function BelowFoldSkeleton() {
+  return (
+    <div aria-hidden="true">
+      <div className="panel mb-4 sm:mb-6">
+        <div className="border-b border-black/8 px-4 py-3">
+          <Skeleton className="h-4 w-40" />
+        </div>
+        <div className="grid grid-cols-2 gap-px bg-black/8 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-1.5 bg-ink-950/70 p-3 sm:p-4">
+              <Skeleton className="h-[18px] w-[18px]" />
+              <Skeleton className="h-6 w-16 sm:h-7" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="panel mb-4 h-[224px] sm:mb-6">
+        <div className="border-b border-black/8 px-4 py-3">
+          <Skeleton className="h-4 w-32" />
+        </div>
+      </div>
+
+      <div className="panel mb-4 h-[236px] sm:mb-6">
+        <div className="border-b border-black/8 px-4 py-3">
+          <Skeleton className="h-4 w-36" />
+        </div>
+      </div>
+
+      <div className="panel mb-4 h-16" />
+
+      <div className="panel h-[168px]">
+        <div className="flex items-center justify-between border-b border-black/8 px-4 py-3">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-3 w-12" />
+        </div>
+      </div>
+
+      <div className="panel mb-4 mt-4 h-[320px] sm:mt-6">
+        <div className="border-b border-black/8 px-4 py-3">
+          <Skeleton className="h-4 w-20" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -163,7 +225,7 @@ export default function App() {
             </div>
           </Reveal>
 
-          <Suspense fallback={null}>
+          <Suspense fallback={<BelowFoldSkeleton />}>
             <BelowFold
               stats={stats}
               loading={loading}

@@ -2,6 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Metric-matched fallbacks for the three loaded webfonts, keyed to local
+   system fonts with the same on-screen box size as the real font (ascent/
+   descent/line-gap/size-adjust computed from each font's own OS/2 + hmtx
+   metrics via @capsizecss/metrics, against Arial/Courier New as the
+   universally-available reference). Once these render text at the same
+   width/line-height the real font would, there's nothing left to reflow
+   when the real font arrives — this is what makes index.html's
+   display=optional safe to rely on instead of display=swap: the fallback
+   already looks right, so swapping late is no longer worth the layout risk
+   it used to carry. Bengali glyphs specifically still fall through past
+   "Hind Siliguri Fallback" to the OS's own Bengali font (Arial has no
+   Bengali coverage, so the browser skips this entry per-character) — this
+   fallback still matters for the Latin characters mixed into font-bn text
+   (e.g. "GPS", "Bhai"), just not the Bengali glyphs themselves. */
+@font-face {
+  font-family: "Plus Jakarta Sans Fallback";
+  src: local("Arial");
+  ascent-override: 98.88%;
+  descent-override: 21.15%;
+  line-gap-override: 0%;
+  size-adjust: 104.98%;
+}
+@font-face {
+  font-family: "Hind Siliguri Fallback";
+  src: local("Arial");
+  ascent-override: 116.79%;
+  descent-override: 52.43%;
+  line-gap-override: 0%;
+  size-adjust: 95.56%;
+}
+@font-face {
+  font-family: "JetBrains Mono Fallback";
+  src: local("Courier New");
+  ascent-override: 102.02%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+  size-adjust: 99.98%;
+}
+
 :root {
   color-scheme: light;
 }

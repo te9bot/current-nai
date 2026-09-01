@@ -9,17 +9,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Loaded non-blocking (media=print swapped to all on load) so the
-         fonts round-trip never delays first paint; display=swap already
-         means text renders in a fallback font immediately either way. -->
+         fonts round-trip never delays first paint. display=optional (not
+         swap): a metric-matched fallback (index.css) already occupies the
+         same box a loaded font would, so there's no layout-shift reason to
+         swap late at all — optional shows the real font immediately when
+         it's already cached/fast enough, and otherwise keeps the fallback
+         for the rest of this page view rather than swapping mid-visit. That
+         swap was measured (local Lighthouse trace) as the dominant source of
+         this app's layout-shift score: one global "Web font loaded" reflow
+         touching the headline, nav, and body text all at once. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&family=JetBrains+Mono:wght@400;500;600&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&family=JetBrains+Mono:wght@400;500;600&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=optional"
       rel="stylesheet"
       media="print"
       onload="this.media='all'"
     />
     <noscript>
       <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&family=JetBrains+Mono:wght@400;500;600&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&family=JetBrains+Mono:wght@400;500;600&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=optional"
         rel="stylesheet"
       />
     </noscript>

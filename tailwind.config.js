@@ -72,10 +72,14 @@ export default {
         },
       },
       fontFamily: {
-        display: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
-        sans: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
-        mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
-        bn: ['"Hind Siliguri"', '"Noto Sans Bengali"', "system-ui", "sans-serif"],
+        // Each "* Fallback" entry is a @font-face (src/index.css) with
+        // size-adjust/ascent-override/descent-override tuned to match the
+        // real font's box metrics, so text doesn't reflow when the webfont
+        // swaps in — see the comment above those declarations.
+        display: ['"Plus Jakarta Sans"', '"Plus Jakarta Sans Fallback"', "system-ui", "sans-serif"],
+        sans: ['"Plus Jakarta Sans"', '"Plus Jakarta Sans Fallback"', "system-ui", "sans-serif"],
+        mono: ['"JetBrains Mono"', '"JetBrains Mono Fallback"', "ui-monospace", "SFMono-Regular", "monospace"],
+        bn: ['"Hind Siliguri"', '"Hind Siliguri Fallback"', '"Noto Sans Bengali"', "system-ui", "sans-serif"],
       },
       borderRadius: {
         xs: "4px",

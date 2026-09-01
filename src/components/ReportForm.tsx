@@ -16,7 +16,7 @@ import { createReport } from "../api/reports";
 import type { NewReportInput, Report } from "../types";
 import { XIcon, AlertIcon, MapPinIcon, LocateIcon, LoaderIcon } from "./icons";
 import LocationPicker, { type PickedLocation } from "./LocationPicker";
-import { districtCoords } from "../utils/geo";
+import { areaCoords, districtCoords } from "../utils/geo";
 import { getCurrentPositionQuick, isInAppBrowser, tryOpenInChrome } from "../utils/geolocation";
 import clsx from "../utils/clsx";
 
@@ -69,14 +69,6 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   const [endTime, setEndTime] = useState("");
   const [note, setNote] = useState("");
   const [location, setLocation] = useState<PickedLocation | null>(null);
-  // Whether the map is currently locked to a GPS fix or open to manual tap/
-  // drag. A successful GPS fetch (either button) always locks it — the map
-  // must never silently fall back to manual just because the reporter
-  // tapped it while locked; leaving lock mode requires the explicit "select
-  // on the map" action, or manually touching Division/District/Area.
-  // Starts in "manual" since, before any GPS attempt, the map is the only
-  // way to place a pin at all.
-  const [locationMode, setLocationMode] = useState<"gps" | "manual">("manual");
   // True once the reporter has explicitly used GPS or tapped/dragged the pin
   // themselves — from then on their address text no longer silently moves
   // it, even if they keep editing the landmark field.
@@ -216,7 +208,6 @@ export default function ReportForm({ onClose, onCreated }: Props) {
 
       setPinConfirmedByUser(true);
       setLocation({ lat, lng, accuracy, source: "gps" });
-      setLocationMode("gps");
 
       setAutofillStatus(matchedArea ? "idle" : "partial");
     } catch {
@@ -388,10 +379,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
                 <select
                   id="report-division"
                   value={divisionId}
-                  onChange={(e) => {
-                    setDivisionId(e.target.value);
-                    setLocationMode("manual");
-                  }}
+                  onChange={(e) => setDivisionId(e.target.value)}
                   className={clsx(
                     "h-11 w-full rounded-md border bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast",
                     errors.divisionId ? "border-rust-500" : "border-black/10 focus:border-black/30"
@@ -414,10 +402,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
                 <select
                   id="report-district"
                   value={districtId}
-                  onChange={(e) => {
-                    setDistrictId(e.target.value);
-                    setLocationMode("manual");
-                  }}
+                  onChange={(e) => setDistrictId(e.target.value)}
                   disabled={!divisionId}
                   className={clsx(
                     "h-11 w-full rounded-md border bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast disabled:opacity-40",
@@ -448,10 +433,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
               <select
                 id="report-area"
                 value={areaId}
-                onChange={(e) => {
-                  setAreaId(e.target.value);
-                  setLocationMode("manual");
-                }}
+                onChange={(e) => setAreaId(e.target.value)}
                 disabled={!districtId}
                 className={clsx(
                   "h-11 w-full rounded-md border bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast disabled:opacity-40",
@@ -476,11 +458,19 @@ export default function ReportForm({ onClose, onCreated }: Props) {
 
             {showLocationPicker && (
               <LocationPicker
-                areaFocus={districtId ? districtCoords(districtId) ?? null : null}
+                // The area's own upazila/thana/city coordinate is more
+                // precise than its district's centroid — prefer it whenever
+                // the selected area has one (see data/LOCATIONS_SOURCE.md
+                // for which areas do). Falls back to the district centroid
+                // only for the areas GeoNames doesn't cover yet, same as
+                // geo.ts's own report-fallback chain.
+                areaFocus={
+                  (areaId ? areaCoords(divisionId, districtId, areaId) : null) ??
+                  (districtId ? districtCoords(districtId) : null) ??
+                  null
+                }
                 value={location}
                 onChange={handlePickerChange}
-                mode={locationMode}
-                onModeChange={setLocationMode}
                 previewFromAddress={Boolean(location) && !pinConfirmedByUser}
                 geocoding={geocoding}
               />

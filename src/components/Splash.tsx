@@ -229,11 +229,20 @@ export default function Splash({ reports, onDismiss }: Props) {
         </div>
       </div>
 
+      {/* min-h reserves the populated card's footprint from first paint —
+          reports arrive from an async fetch (useReports), so this box starts
+          in its empty state and swaps in place once data lands. Without a
+          reserved height that swap resizes the box (p-6/one line vs
+          p-4/four lines), and since this whole screen is the only thing on
+          screen at first load, that resize was a large, high-impact-fraction
+          shift in its own right — Lighthouse's Layout Instability tracking
+          doesn't care that Splash sits in a "fixed inset-0" overlay, only
+          that the element's rect moved. */}
       <div className="relative z-10 flex flex-1 items-center justify-center px-6">
         {latestReport ? (
           <div
             ref={mainCardRef}
-            className="w-full max-w-xs rounded-lg border border-black/10 bg-ink-900/90 p-4 shadow-callout backdrop-blur transition-transform duration-fast ease-standard"
+            className="flex min-h-[132px] w-full max-w-xs flex-col justify-center rounded-lg border border-black/10 bg-ink-900/90 p-4 shadow-callout backdrop-blur transition-transform duration-fast ease-standard"
             style={{ translate: "0px 0px" }}
           >
             <div className="flex items-center justify-between">
@@ -255,7 +264,7 @@ export default function Splash({ reports, onDismiss }: Props) {
             </p>
           </div>
         ) : (
-          <div className="w-full max-w-xs rounded-lg border border-black/10 bg-ink-900/60 p-6 text-center">
+          <div className="flex min-h-[132px] w-full max-w-xs flex-col items-center justify-center rounded-lg border border-black/10 bg-ink-900/60 p-6 text-center">
             <p className="text-sm text-grey-500">{t("landing.previewEmpty")}</p>
           </div>
         )}

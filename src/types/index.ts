@@ -4,6 +4,14 @@ export interface Area {
   id: string;
   en: string;
   bn: string;
+  /** Real upazila/thana/city-corporation-level coordinates (GeoNames, see
+   *  data/LOCATIONS_SOURCE.md) — present for most areas, absent for the ones
+   *  listed as unmatched in that doc (mainly Dhaka/Chattogram's own internal
+   *  thana breakdown, which GeoNames' gazetteer doesn't carry as separate
+   *  admin features). Never a substitute for a report's own GPS/manual
+   *  pin — only ever used as a *more precise than district* fallback. */
+  lat?: number;
+  lng?: number;
 }
 
 export interface District {
