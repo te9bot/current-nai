@@ -77,6 +77,8 @@
     "useMyLocation": "আমার বর্তমান অবস্থান ব্যবহার করুন",
     "locating": "শনাক্ত করা হচ্ছে...",
     "locationDetectedGps": "অবস্থান শনাক্ত হয়েছে",
+    "locationLockedGps": "GPS দ্বারা অবস্থান শনাক্ত হয়েছে — লক করা আছে",
+    "switchToManualLocation": "মানচিত্রে অবস্থান নির্বাচন করুন",
     "locationDetectedManual": "ম্যানুয়ালি অবস্থান নির্বাচিত হয়েছে",
     "locationFromAddress": "আপনার ঠিকানা থেকে পিন করা হয়েছে — সঠিক না হলে ম্যাপে চাপ দিন বা জিপিএস ব্যবহার করুন",
     "locationSearching": "আপনার ঠিকানা খোঁজা হচ্ছে...",

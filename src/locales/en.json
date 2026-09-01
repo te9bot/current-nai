@@ -77,6 +77,8 @@
     "useMyLocation": "Use my current location",
     "locating": "Detecting...",
     "locationDetectedGps": "Location detected",
+    "locationLockedGps": "Location detected via GPS — locked in place",
+    "switchToManualLocation": "Select location on the map",
     "locationDetectedManual": "Location selected manually",
     "locationFromAddress": "Pinned from your address — tap the map or use GPS if this isn't quite right",
     "locationSearching": "Looking up your address...",

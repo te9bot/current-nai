@@ -23,6 +23,11 @@ interface Props {
   areaFocus: LatLng | null;
   value: PickedLocation | null;
   onChange: (location: PickedLocation | null) => void;
+  /** "gps" locks the map — no tap, no drag, the GPS fix stands as the final
+   *  coordinate — until the reporter explicitly leaves that mode. "manual"
+   *  is the only state in which tapping/dragging the map is allowed at all. */
+  mode: "gps" | "manual";
+  onModeChange: (mode: "gps" | "manual") => void;
   /** True while `value` is a live guess from the typed address rather than
    *  something the reporter confirmed themselves (GPS or a map tap/drag) —
    *  swaps the status line to say so instead of claiming it as confirmed. */
@@ -54,7 +59,7 @@ function markerIcon(source: LocationSource): L.DivIcon {
   });
 }
 
-export default function LocationPicker({ areaFocus, value, onChange, previewFromAddress, geocoding }: Props) {
+export default function LocationPicker({ areaFocus, value, onChange, mode, onModeChange, previewFromAddress, geocoding }: Props) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -62,6 +67,12 @@ export default function LocationPicker({ areaFocus, value, onChange, previewFrom
   const accuracyCircleRef = useRef<L.Circle | null>(null);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState(false);
+  // The map-creation effect below registers its click handler exactly once
+  // (empty deps — the map itself must only be created once), so that handler
+  // can't close over `mode` directly and see later changes. A ref keeps it
+  // reading the live value instead of whatever `mode` was on mount.
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
 
   // A manual click/drag succeeding after a failed GPS attempt should clear
   // that stale error, same as a fresh GPS success already does inline.
@@ -88,8 +99,11 @@ export default function LocationPicker({ areaFocus, value, onChange, previewFrom
       .addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>')
       .addTo(map);
 
-    // Manual fallback: tapping/clicking the map places or moves the pin.
+    // Manual fallback: tapping/clicking the map places or moves the pin —
+    // but only in manual mode. While locked to a GPS fix, a tap must do
+    // nothing at all rather than silently overwrite it.
     map.on("click", (e: L.LeafletMouseEvent) => {
+      if (modeRef.current !== "manual") return;
       onChange({ lat: e.latlng.lat, lng: e.latlng.lng, accuracy: null, source: "manual" });
     });
 
@@ -132,10 +146,14 @@ export default function LocationPicker({ areaFocus, value, onChange, previewFrom
 
     const marker = L.marker([value.lat, value.lng], {
       icon: markerIcon(value.source),
-      draggable: true,
+      draggable: mode === "manual",
       zIndexOffset: 1000,
     }).addTo(map);
+    // Guarded even though a locked marker isn't draggable in the first
+    // place: draggable is only toggled by recreating the marker (below),
+    // and belt-and-suspenders here costs nothing.
     marker.on("dragend", () => {
+      if (modeRef.current !== "manual") return;
       const pos = marker.getLatLng();
       onChange({ lat: pos.lat, lng: pos.lng, accuracy: null, source: "manual" });
     });
@@ -155,8 +173,12 @@ export default function LocationPicker({ areaFocus, value, onChange, previewFrom
     map.setView([value.lat, value.lng], Math.max(map.getZoom(), value.source === "gps" ? GPS_ZOOM : AREA_ZOOM), {
       animate: false,
     });
+    // `mode` is a real dependency, not just `value`: switching modes without
+    // a new pin (e.g. "select on the map" right after a GPS lock) must
+    // recreate the marker as draggable immediately, not wait for the next
+    // location change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value, mode]);
 
   async function handleUseMyLocation() {
     setGeoError(false);
@@ -168,6 +190,7 @@ export default function LocationPicker({ areaFocus, value, onChange, previewFrom
         return;
       }
       onChange({ lat, lng, accuracy, source: "gps" });
+      onModeChange("gps");
     } catch {
       setGeoError(true);
     } finally {
@@ -195,6 +218,24 @@ export default function LocationPicker({ areaFocus, value, onChange, previewFrom
       </button>
 
       <div ref={containerRef} className="h-[220px] w-full overflow-hidden rounded-md border border-black/10" />
+
+      {/* Makes the lock state explicit rather than implicit in whether
+          tapping happens to do anything: mode === "gps" means the map below
+          ignores taps/drags entirely until this is left deliberately. */}
+      {mode === "gps" ? (
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <span className="text-[11px] font-semibold text-leaf-400">{t("form.locationLockedGps")}</span>
+          <button
+            type="button"
+            onClick={() => onModeChange("manual")}
+            className="text-[11px] font-semibold text-amber-500 underline underline-offset-2 hover:text-amber-400"
+          >
+            {t("form.switchToManualLocation")}
+          </button>
+        </div>
+      ) : (
+        <p className="mt-2 text-[11px] font-semibold text-grey-500">{t("form.switchToManualLocation")}</p>
+      )}
 
       {geoError ? (
         // Checked ahead of `value`: if a pin was already set (GPS or manual)
