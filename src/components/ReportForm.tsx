@@ -4,12 +4,14 @@ import {
   DIVISIONS,
   getDistricts,
   getAreas,
+  getLocalities,
   getDivision,
   getDistrict,
   localizedName,
   matchDivision,
   matchDistrictFromCandidates,
   matchAreaFromCandidates,
+  matchLocalityFromCandidates,
 } from "../data/locations";
 import { PROVIDERS } from "../data/providers";
 import { createReport } from "../api/reports";
@@ -61,7 +63,15 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   const { t, i18n } = useTranslation();
   const [divisionId, setDivisionId] = useState("");
   const [districtId, setDistrictId] = useState("");
+  // The thana/upazila/city-corporation level — kept as "areaId" internally
+  // since it's the same field that existed before the locality tier below
+  // was added (see src/types/index.ts's Area docstring for why the name
+  // stuck). The UI labels this dropdown "Thana / Upazila".
   const [areaId, setAreaId] = useState("");
+  // Neighborhood/locality level, one step finer than areaId — only
+  // selectable when the chosen area actually has any (most don't yet; see
+  // data/LOCATIONS_SOURCE.md). The UI labels this dropdown "Area".
+  const [localityId, setLocalityId] = useState("");
   const [landmark, setLandmark] = useState("");
   const [providerId, setProviderId] = useState("unknown");
   const [outageDate, setOutageDate] = useState(today());
@@ -101,6 +111,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   // later, unrelated manual reset.
   const expectedDistrictAfterAutofillRef = useRef<string | null>(null);
   const expectedAreaAfterAutofillRef = useRef<string | null>(null);
+  const expectedLocalityAfterAutofillRef = useRef<string | null>(null);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -125,6 +136,14 @@ export default function ReportForm({ onClose, onCreated }: Props) {
     setAreaId("");
   }, [districtId]);
 
+  useEffect(() => {
+    if (expectedLocalityAfterAutofillRef.current !== null && expectedLocalityAfterAutofillRef.current === localityId) {
+      expectedLocalityAfterAutofillRef.current = null;
+      return;
+    }
+    setLocalityId("");
+  }, [areaId]);
+
   // Turning a typed house/road number into an actual pin: the area dropdown
   // alone only gets a district-level centroid, nowhere near exact — this
   // geocodes the full address (landmark + area + district + division) so
@@ -138,8 +157,10 @@ export default function ReportForm({ onClose, onCreated }: Props) {
     if (!areaId || trimmed.length < 3) return;
 
     const area = getAreas(divisionId, districtId).find((a) => a.id === areaId);
+    const locality = getLocalities(divisionId, districtId, areaId).find((l) => l.id === localityId);
     const query = [
       trimmed,
+      locality ? localizedName(locality, i18n.language) : "",
       area ? localizedName(area, i18n.language) : "",
       localizedName(getDistrict(divisionId, districtId), i18n.language),
       localizedName(getDivision(divisionId), i18n.language),
@@ -165,7 +186,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
     }, 700);
 
     return () => clearTimeout(handle);
-  }, [landmark, areaId, districtId, divisionId, pinConfirmedByUser, i18n.language]);
+  }, [landmark, areaId, localityId, districtId, divisionId, pinConfirmedByUser, i18n.language]);
 
   function handlePickerChange(next: PickedLocation | null) {
     setPinConfirmedByUser(true);
@@ -173,11 +194,14 @@ export default function ReportForm({ onClose, onCreated }: Props) {
   }
 
   // One tap: GPS fix -> reverse-geocode -> match against this app's own
-  // division/district/area list -> fill all three and drop the exact pin
-  // with the same coordinates. Nominatim's admin boundaries and suburb
-  // names don't line up 1:1 with this app's thana-level area list, so an
-  // area match often won't be found even when division/district are —
-  // that's surfaced as a "partial" status, never guessed at.
+  // division/district/area/locality list -> fill all four and drop the
+  // exact pin with the same coordinates. Nominatim's admin boundaries and
+  // suburb names don't line up 1:1 with this app's thana-level area list, so
+  // an area match often won't be found even when division/district are —
+  // that's surfaced as a "partial" status, never guessed at. A locality
+  // match is tried too (Nominatim's suburb/neighbourhood fields are exactly
+  // that granularity), but only within the matched area — it's a bonus on
+  // top of a thana match, never a replacement for one.
   async function handleAutofillFromLocation() {
     setAutofillStatus("locating");
     try {
@@ -199,12 +223,15 @@ export default function ReportForm({ onClose, onCreated }: Props) {
       const matchedArea = matchedDistrict
         ? matchAreaFromCandidates(matchedDistrict, data.areaCandidates ?? [])
         : undefined;
+      const matchedLocality = matchedArea ? matchLocalityFromCandidates(matchedArea, data.areaCandidates ?? []) : undefined;
 
       expectedDistrictAfterAutofillRef.current = matchedDistrict?.id ?? "";
       expectedAreaAfterAutofillRef.current = matchedArea?.id ?? "";
+      expectedLocalityAfterAutofillRef.current = matchedLocality?.id ?? "";
       setDivisionId(matchedDivision.id);
       setDistrictId(matchedDistrict?.id ?? "");
       setAreaId(matchedArea?.id ?? "");
+      setLocalityId(matchedLocality?.id ?? "");
 
       setPinConfirmedByUser(true);
       setLocation({ lat, lng, accuracy, source: "gps" });
@@ -236,6 +263,15 @@ export default function ReportForm({ onClose, onCreated }: Props) {
 
     const area = areas.find((a) => a.id === areaId);
     const areaLabel = area ? localizedName(area, i18n.language) : "";
+    const locality = localities.find((l) => l.id === localityId);
+    // The backend's `area`/`areaId` columns predate the locality tier and
+    // have no separate "which thana" column — so the most specific level the
+    // reporter actually picked is what's sent as areaId/area, exactly as
+    // "area" always meant "most specific administrative unit selected"
+    // before this tier existed. geo.ts's areaCoords/findAreaContainingLocality
+    // know how to resolve a locality id back to its parent thana later.
+    const placeLabel = locality ? `${areaLabel}, ${localizedName(locality, i18n.language)}` : areaLabel;
+    const placeId = locality?.id || areaId;
     const trimmedLandmark = landmark.trim();
 
     // Area is administrative context, not the report's exact position — only
@@ -246,8 +282,8 @@ export default function ReportForm({ onClose, onCreated }: Props) {
     const input: NewReportInput = {
       divisionId,
       districtId,
-      area: trimmedLandmark ? `${areaLabel} — ${trimmedLandmark}` : areaLabel,
-      areaId,
+      area: trimmedLandmark ? `${placeLabel} — ${trimmedLandmark}` : placeLabel,
+      areaId: placeId,
       landmark: trimmedLandmark || null,
       providerId,
       status: "load_shedding",
@@ -275,6 +311,7 @@ export default function ReportForm({ onClose, onCreated }: Props) {
 
   const districts = getDistricts(divisionId);
   const areas = getAreas(divisionId, districtId);
+  const localities = getLocalities(divisionId, districtId, areaId);
   // GPS failure must never block manually placing an exact position: once an
   // area is picked, or the auto-fill attempt has resolved (fully, partially,
   // or failed outright), the map is available for a direct tap — it no
@@ -456,15 +493,47 @@ export default function ReportForm({ onClose, onCreated }: Props) {
               )}
             </div>
 
+            {/* Only rendered when the selected thana/upazila actually has
+                neighborhood-level data — most don't yet (see
+                data/LOCATIONS_SOURCE.md), so this simply doesn't appear for
+                them, same as before this tier existed. Never required: a
+                reporter can always submit at the thana level alone. */}
+            {localities.length > 0 && (
+              <div>
+                <label
+                  htmlFor="report-locality"
+                  className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-grey-400"
+                >
+                  <MapPinIcon width={13} height={13} className="text-grey-500" />
+                  {t("form.locality")}
+                </label>
+                <select
+                  id="report-locality"
+                  value={localityId}
+                  onChange={(e) => setLocalityId(e.target.value)}
+                  className="h-11 w-full rounded-md border border-black/10 bg-ink-800 px-3 text-sm text-grey-900 outline-none transition-colors duration-fast focus:border-black/30"
+                >
+                  <option value="">{t("form.localityPlaceholder")}</option>
+                  {localities.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {localizedName(l, i18n.language)}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-[11px] text-grey-600">{t("form.localityHelper")}</p>
+              </div>
+            )}
+
             {showLocationPicker && (
               <LocationPicker
-                // The area's own upazila/thana/city coordinate is more
-                // precise than its district's centroid — prefer it whenever
-                // the selected area has one (see data/LOCATIONS_SOURCE.md
-                // for which areas do). Falls back to the district centroid
-                // only for the areas GeoNames doesn't cover yet, same as
-                // geo.ts's own report-fallback chain.
+                // Most precise to least: the selected locality's own
+                // coordinate, then its parent thana's, then the district
+                // centroid — mirrors geo.ts's own report-fallback chain, and
+                // only ever a *starting view* for the map, never itself
+                // treated as the report's location (see LocationPicker's own
+                // areaFocus prop doc).
                 areaFocus={
+                  (localityId ? areaCoords(divisionId, districtId, localityId) : null) ??
                   (areaId ? areaCoords(divisionId, districtId, areaId) : null) ??
                   (districtId ? districtCoords(districtId) : null) ??
                   null

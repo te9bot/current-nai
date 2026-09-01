@@ -1,5 +1,26 @@
 export type ReportStatus = "power_on" | "load_shedding";
 
+/**
+ * A neighborhood/mohalla-level place nested under an Area (below) — the
+ * finest granularity this dataset has verified real-world coordinates for.
+ * Populated only where a real, sourced coordinate exists (see
+ * data/LOCATIONS_SOURCE.md); absent everywhere else rather than guessed.
+ */
+export interface Locality {
+  id: string;
+  en: string;
+  bn: string;
+  lat?: number;
+  lng?: number;
+}
+
+/**
+ * Despite the generic name (kept as-is so existing submitted reports'
+ * `areaId` values — which predate the locality tier — stay resolvable
+ * unchanged), this is the Thana/Upazila/city-corporation tier: Division →
+ * District → **Area** → Locality. The UI labels this dropdown
+ * "Thana / Upazila"; `Locality` above is what the UI calls "Area".
+ */
 export interface Area {
   id: string;
   en: string;
@@ -12,6 +33,11 @@ export interface Area {
    *  pin — only ever used as a *more precise than district* fallback. */
   lat?: number;
   lng?: number;
+  /** Neighborhood-level children, where a verified source exists (currently
+   *  Rajshahi's Motihar/Rajpara thanas — see data/LOCATIONS_SOURCE.md).
+   *  Absent for the vast majority of areas; the form simply has nothing to
+   *  show a fourth dropdown for in that case, same as before this existed. */
+  localities?: Locality[];
 }
 
 export interface District {

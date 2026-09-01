@@ -1,5 +1,5 @@
 import rawGeo from "../../data/districts-geo.json";
-import { getArea } from "../data/locations";
+import { findAreaContainingLocality, getArea } from "../data/locations";
 import type { Report } from "../types";
 
 export interface LatLng {
@@ -29,11 +29,17 @@ export function districtCoords(districtId: string | undefined | null): LatLng | 
 }
 
 /**
- * An area's own upazila/thana/city-level coordinate — real GeoNames data for
- * most areas (see data/LOCATIONS_SOURCE.md), sourced independently of
- * whatever a report's own GPS/manual pin says. Undefined for the areas
- * listed as unmatched in that doc, and for the manual-address-typed "area"
- * free-text case where no areaId was ever recorded.
+ * The most precise real coordinate this dataset has for a report's stored
+ * `areaId` — a locality's own point when `areaId` is actually a locality id
+ * (nested under an area/thana; there's no separate stored "which thana"
+ * column, so `findAreaContainingLocality` recovers the parent), otherwise
+ * that locality's parent thana coordinate as the next-best real point,
+ * otherwise the area/thana's own coordinate when `areaId` is a thana id
+ * directly (the pre-locality-tier case, still the overwhelming majority of
+ * reports). Real GeoNames/OSM data for most areas (see
+ * data/LOCATIONS_SOURCE.md), sourced independently of whatever a report's
+ * own GPS/manual pin says. Undefined when none of this dataset covers the
+ * given ids yet — never a guessed substitute.
  */
 export function areaCoords(
   divisionId: string | undefined | null,
@@ -44,6 +50,18 @@ export function areaCoords(
   if (area && typeof area.lat === "number" && typeof area.lng === "number") {
     return { lat: area.lat, lng: area.lng };
   }
+
+  const found = findAreaContainingLocality(divisionId, districtId, areaId);
+  if (found) {
+    const { area: parentArea, locality } = found;
+    if (typeof locality.lat === "number" && typeof locality.lng === "number") {
+      return { lat: locality.lat, lng: locality.lng };
+    }
+    if (typeof parentArea.lat === "number" && typeof parentArea.lng === "number") {
+      return { lat: parentArea.lat, lng: parentArea.lng };
+    }
+  }
+
   return undefined;
 }
 

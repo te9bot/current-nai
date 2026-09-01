@@ -1,5 +1,5 @@
 import raw from "../../data/locations.json";
-import type { Area, Division, District } from "../types";
+import type { Area, Division, District, Locality } from "../types";
 
 export const DIVISIONS = raw as Division[];
 
@@ -28,6 +28,45 @@ export function getArea(
 ): Area | undefined {
   if (!areaId) return undefined;
   return getAreas(divisionId, districtId).find((a) => a.id === areaId);
+}
+
+export function getLocalities(
+  divisionId: string | undefined | null,
+  districtId: string | undefined | null,
+  areaId: string | undefined | null
+): Locality[] {
+  return getArea(divisionId, districtId, areaId)?.localities ?? [];
+}
+
+export function getLocality(
+  divisionId: string | undefined | null,
+  districtId: string | undefined | null,
+  areaId: string | undefined | null,
+  localityId: string | undefined | null
+): Locality | undefined {
+  if (!localityId) return undefined;
+  return getLocalities(divisionId, districtId, areaId).find((l) => l.id === localityId);
+}
+
+/**
+ * A submitted report's `areaId` predates the locality tier and was always a
+ * thana/upazila id — but going forward it can also be a locality id (when a
+ * reporter picked one), with no separate "which thana" column to say so.
+ * This recovers that parent by checking every area (thana) in the district
+ * for one whose `localities` contains the id, so a locality-level report can
+ * still resolve its coordinates/hierarchy without a backend schema change.
+ */
+export function findAreaContainingLocality(
+  divisionId: string | undefined | null,
+  districtId: string | undefined | null,
+  localityId: string | undefined | null
+): { area: Area; locality: Locality } | undefined {
+  if (!localityId) return undefined;
+  for (const area of getAreas(divisionId, districtId)) {
+    const hit = area.localities?.find((l) => l.id === localityId);
+    if (hit) return { area, locality: hit };
+  }
+  return undefined;
 }
 
 export function findDistrictAnyDivision(districtId: string | undefined | null): { division: Division; district: District } | undefined {
@@ -86,6 +125,21 @@ export function matchAreaFromCandidates(district: District, candidates: string[]
   for (const candidate of candidates) {
     const target = normalizePlaceName(candidate);
     const hit = district.areas.find((a) => normalizePlaceName(a.en) === target);
+    if (hit) return hit;
+  }
+  return undefined;
+}
+
+/** Same candidate-list approach, one level deeper: matches against an
+ *  area (thana)'s localities, where it has any. Nominatim's suburb/
+ *  neighbourhood fields (the same `areaCandidates` matchAreaFromCandidates
+ *  uses) are exactly this granularity, so a district with locality data can
+ *  auto-fill down to that level from GPS instead of stopping at the thana. */
+export function matchLocalityFromCandidates(area: Area, candidates: string[]): Locality | undefined {
+  if (!area.localities?.length) return undefined;
+  for (const candidate of candidates) {
+    const target = normalizePlaceName(candidate);
+    const hit = area.localities.find((l) => normalizePlaceName(l.en) === target);
     if (hit) return hit;
   }
   return undefined;

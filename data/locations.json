@@ -2420,11 +2420,50 @@
             "lng": 88.53
           },
           {
-            "id": "rajshahi-city",
-            "en": "Rajshahi City",
-            "bn": "রাজশাহী শহর",
-            "lat": 24.374,
-            "lng": 88.60114
+            "id": "boalia",
+            "en": "Boalia",
+            "bn": "বোয়ালিয়া",
+            "lat": 24.37,
+            "lng": 88.605
+          },
+          {
+            "id": "rajpara",
+            "en": "Rajpara",
+            "bn": "রাজপাড়া",
+            "lat": 24.37434,
+            "lng": 88.57137,
+            "localities": [
+              {
+                "id": "rajpara-laxmipur",
+                "en": "Laxmipur",
+                "bn": "লক্ষ্মীপুর",
+                "lat": 24.3739,
+                "lng": 88.5822
+              }
+            ]
+          },
+          {
+            "id": "motihar",
+            "en": "Motihar",
+            "bn": "মতিহার",
+            "lat": 24.36801,
+            "lng": 88.64067,
+            "localities": [
+              {
+                "id": "motihar-talaimari",
+                "en": "Talaimari",
+                "bn": "তালাইমারি",
+                "lat": 24.3617221,
+                "lng": 88.6268824
+              }
+            ]
+          },
+          {
+            "id": "shahmokhdum",
+            "en": "Shah Mokhdum",
+            "bn": "শাহ মখদুম",
+            "lat": 24.40294,
+            "lng": 88.60855
           }
         ]
       },
